@@ -34,6 +34,7 @@ const ctx = requireContext2D(canvas);
 
 let game = new Game();
 let activeStationId: string | null = null;
+let practicePuzzleId: string | null = null;
 
 const transition: TransitionState = {
   active: false,
@@ -73,6 +74,27 @@ const stationSceneFlavor: Record<string, { title: string; subtitle: string; tint
     subtitle: "Pigment craft: clean mixes and optical blending.",
     tint: "rgba(136, 208, 156, 0.3)",
   },
+};
+
+const puzzleObjectives: Record<string, string> = {
+  "puzzle-01": "Align red, green, and blue beams so they overlap into white light.",
+  "puzzle-02": "Match the target swatch by dialing cyan, magenta, and yellow correctly.",
+  "puzzle-03": "Mix complementary pigments to create a rich luminous black.",
+  "puzzle-04": "Keep the grayscale structure readable when the image is blurred.",
+  "puzzle-05": "Order value tiles from darkest to lightest to reveal the hidden mark.",
+  "puzzle-06": "Explore each hue branch and discover that chroma peaks differ by hue.",
+  "puzzle-07": "Pick true complementary pairs across the wheel.",
+  "puzzle-08": "Space three hues around 120deg apart to form a triadic harmony.",
+  "puzzle-09": "Build palette tags that fit the selected emotional prompt.",
+  "puzzle-10": "Adjust surrounds until the two identical center squares look the same.",
+  "puzzle-11": "Use orange context to make the fixed grey square read as cooler/blue.",
+  "puzzle-12": "Use neutrals so a single accent color stands out clearly.",
+  "puzzle-13": "Apply depth cues: softer edges, lower saturation, and cooler distance hues.",
+  "puzzle-14": "Increase atmospheric scattering so far objects shift toward blue.",
+  "puzzle-15": "Mix warm sunset colors before nightfall, then adapt to blue hour.",
+  "puzzle-16": "Mix phthalo blue + hansa yellow and keep mud low for vibrant green.",
+  "puzzle-17": "Avoid overmixing complements to prevent muddy results.",
+  "puzzle-18": "Paint pure color dots and reach enough coverage for optical blending.",
 };
 
 const artPalette = ["#0d8db0", "#ec7755", "#2f9e44", "#f0b429", "#6f42c1", "#1f2030"];
@@ -115,6 +137,7 @@ function initializeGame(): void {
   game = new Game();
   game.initialize();
   activeStationId = null;
+  practicePuzzleId = null;
   transition.active = false;
   player.x = 80;
   player.y = 460;
@@ -124,6 +147,89 @@ function initializeGame(): void {
   puzzleUiState.clear();
   selectedArtColor = artPalette[0];
   render();
+}
+
+function circularHueDistance(a: number, b: number): number {
+  const d = Math.abs((((a - b) % 360) + 360) % 360);
+  return Math.min(d, 360 - d);
+}
+
+function shuffleArray<T>(items: T[]): T[] {
+  const out = [...items];
+  for (let i = out.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [out[i], out[j]] = [out[j], out[i]];
+  }
+  return out;
+}
+
+function isTriadValid(h1: number, h2: number, h3: number): boolean {
+  const values = [h1, h2, h3].map((h) => ((h % 360) + 360) % 360).sort((a, b) => a - b);
+  const gaps = [
+    (values[1] - values[0] + 360) % 360,
+    (values[2] - values[1] + 360) % 360,
+    (values[0] + 360 - values[2]) % 360,
+  ];
+  return gaps.every((gap) => Math.abs(gap - 120) <= 15);
+}
+
+function validatePuzzleInput(puzzleId: string, input: any): boolean {
+  switch (puzzleId) {
+    case "puzzle-01":
+      return Boolean(input.redBeam && input.greenBeam && input.blueBeam && input.overlap);
+    case "puzzle-02": {
+      const tol = 0.08;
+      return Math.abs(input.cyan - input.target.cyan) <= tol && Math.abs(input.magenta - input.target.magenta) <= tol && Math.abs(input.yellow - input.target.yellow) <= tol;
+    }
+    case "puzzle-03": {
+      const pair = [input.pigments?.[0], input.pigments?.[1]].map((p: string) => String(p).toLowerCase()).sort().join("+");
+      return ["blue+orange", "green+red", "purple+yellow"].includes(pair) && Boolean(input.luminousShadow);
+    }
+    case "puzzle-04":
+      return Boolean(input.usesOnlyBlackAndWhite && input.blurReadability >= 0.75);
+    case "puzzle-05":
+      return Array.isArray(input.orderedValues) && input.orderedValues.length >= 5 && input.orderedValues.every((v: number, i: number, arr: number[]) => i === 0 || v >= arr[i - 1]) && Boolean(input.hiddenImageRevealed);
+    case "puzzle-06":
+      return Array.isArray(input.exploredHues) && input.exploredHues.length >= 3 && Boolean(input.discoveredDifferentChromaPeaks);
+    case "puzzle-07": {
+      const map: Record<string, string> = { red: "green", green: "red", blue: "orange", orange: "blue", yellow: "purple", purple: "yellow" };
+      return map[String(input.selectedColorA).toLowerCase()] === String(input.selectedColorB).toLowerCase();
+    }
+    case "puzzle-08":
+      return isTriadValid(input.hueAngles[0], input.hueAngles[1], input.hueAngles[2]);
+    case "puzzle-09": {
+      const req: Record<string, string[]> = {
+        "joyful carnival": ["warm", "high contrast", "saturated"],
+        "calm ocean": ["blue", "teal", "low contrast"],
+        "creepy dungeon": ["desaturated", "green", "dark"],
+      };
+      const prompt = String(input.prompt).toLowerCase().trim();
+      const tags = (input.paletteTags as string[]).map((t) => t.toLowerCase().trim());
+      return (req[prompt] ?? []).every((tag) => tags.includes(tag));
+    }
+    case "puzzle-10":
+      return Boolean(input.backgroundsAdjusted && input.perceivedDifference <= 0.05);
+    case "puzzle-11":
+      return Boolean(input.usedOrangeSurroundings && !input.greySquareChanged);
+    case "puzzle-12":
+      return Boolean(input.neutralCount >= 2 && input.accentContrast >= 0.65);
+    case "puzzle-13":
+      return Boolean(input.edgeSharpnessDropsWithDistance && input.saturationDropsWithDistance && input.hueShiftsCoolerWithDistance);
+    case "puzzle-14":
+      return Boolean(input.farObjectsShiftBlue && input.scatteringStrength >= 0.7);
+    case "puzzle-15":
+      return Boolean(input.warmPaletteMixed && input.completedBeforeNightfall && input.adaptedToBlueHour);
+    case "puzzle-16": {
+      const pigments = (input.pigments as string[]).map((p) => p.toLowerCase());
+      return pigments.includes("phthalo blue") && pigments.includes("hansa yellow") && input.mudLevel <= 0.3;
+    }
+    case "puzzle-17":
+      return Boolean(input.complementPairsAdded <= 1 && !input.muddyResult);
+    case "puzzle-18":
+      return Boolean(input.usedPureDots && !input.mixedOnPalette && input.opticalBlendVisible);
+    default:
+      return false;
+  }
 }
 
 function ensureState<T>(puzzleId: string, initial: T): T {
@@ -375,7 +481,8 @@ function makePuzzleCard(puzzleId: string, title: string, state: string): HTMLDiv
   wrapper.className = "puzzle-item";
 
   const meta = document.createElement("div");
-  meta.innerHTML = `<strong>${title}</strong><div class="puzzle-meta">${puzzleId} | ${state}</div>`;
+  const objective = puzzleObjectives[puzzleId] ?? "Complete the puzzle objective.";
+  meta.innerHTML = `<strong>${title}</strong><div class="puzzle-meta">${puzzleId} | ${state}</div><div class="puzzle-objective">Objective: ${objective}</div>`;
 
   wrapper.appendChild(meta);
   return wrapper;
@@ -398,10 +505,13 @@ function renderLockedOrSolvedControls(wrapper: HTMLDivElement, puzzleId: string,
 
     const replayButton = document.createElement("button");
     replayButton.className = "btn";
-    replayButton.textContent = "Replay";
+    replayButton.textContent = "Practice";
     replayButton.addEventListener("click", () => {
-      const input = getDemoSolution(puzzleId);
-      game.completePuzzle(puzzleId, input);
+      practicePuzzleId = puzzleId;
+      puzzleUiState.delete(puzzleId);
+      if (puzzleId === "puzzle-18") {
+        artPad.pixels.fill("#ffffff");
+      }
       render();
     });
     wrapper.appendChild(replayButton);
@@ -416,7 +526,30 @@ function addCheckButton(wrapper: HTMLDivElement, puzzleId: string, inputFactory:
   button.className = "btn btn-accent";
   button.textContent = "Check";
   button.addEventListener("click", () => {
-    const solved = game.completePuzzle(puzzleId, inputFactory());
+    const input = inputFactory();
+    const puzzle = game.puzzleManager.getPuzzle(puzzleId);
+    if (puzzle?.solved) {
+      const valid = validatePuzzleInput(puzzleId, input as any);
+      if (!valid) {
+        button.textContent = "Try Again";
+        wrapper.classList.remove("--failed");
+        wrapper.getBoundingClientRect();
+        wrapper.classList.add("--failed");
+        setTimeout(() => {
+          button.textContent = "Check";
+          wrapper.classList.remove("--failed");
+        }, 900);
+        return;
+      }
+
+      button.textContent = "Practiced ✓";
+      setTimeout(() => {
+        button.textContent = "Check";
+      }, 900);
+      return;
+    }
+
+    const solved = game.completePuzzle(puzzleId, input);
     if (!solved) {
       button.textContent = "Try Again";
       wrapper.classList.remove("--failed");
@@ -511,12 +644,20 @@ function createInteractionZone(wrapper: HTMLDivElement): HTMLDivElement {
 function renderPuzzleMiniGame(puzzleId: string, title: string, state: string): void {
   const wrapper = makePuzzleCard(puzzleId, title, state);
   const isArtPuzzle = puzzleId === "puzzle-18";
-  if (!isArtPuzzle && renderLockedOrSolvedControls(wrapper, puzzleId, state)) {
+  const isPractice = practicePuzzleId === puzzleId;
+  if (!isArtPuzzle && !isPractice && renderLockedOrSolvedControls(wrapper, puzzleId, state)) {
     puzzleListEl.appendChild(wrapper);
     return;
   }
 
   const zone = createInteractionZone(wrapper);
+
+  if (isPractice) {
+    const practiceBanner = document.createElement("div");
+    practiceBanner.className = "mini-label";
+    practiceBanner.textContent = "Practice mode: this puzzle is already solved, but you can replay interactions.";
+    zone.appendChild(practiceBanner);
+  }
 
   if (puzzleId === "puzzle-01") {
     const s = ensureState(puzzleId, { red: false, green: false, blue: false, overlap: false });
@@ -611,29 +752,184 @@ function renderPuzzleMiniGame(puzzleId: string, title: string, state: string): v
     addCheckbox(zone, "Shadow looks luminous", s.luminousShadow, (v) => { s.luminousShadow = v; });
     addCheckButton(wrapper, puzzleId, () => ({ pigments: [s.a, s.b], luminousShadow: s.luminousShadow }));
   } else if (puzzleId === "puzzle-04") {
-    const s = ensureState(puzzleId, { bwOnly: true, readability: 0.5 });
-    addCheckbox(zone, "Use only black/white", s.bwOnly, (v) => { s.bwOnly = v; });
-    addSlider(zone, "Blur readability", s.readability, 0, 1, 0.01, (v) => { s.readability = v; });
-    addCheckButton(wrapper, puzzleId, () => ({ usesOnlyBlackAndWhite: s.bwOnly, blurReadability: s.readability }));
+    const s = ensureState(puzzleId, { tones: [30, 220, 40, 210, 50, 200], blur: true });
+
+    addMiniLabel(zone, "Paint the statue blocks in grayscale so the silhouette stays readable under blur.");
+
+    const blockRow = document.createElement("div");
+    blockRow.className = "value-block-row";
+    const blocks = s.tones.map((tone: number, idx: number) => {
+      const block = document.createElement("button");
+      block.className = "value-block";
+      block.style.background = `rgb(${tone}, ${tone}, ${tone})`;
+      block.title = `Tone ${idx + 1}: ${tone}`;
+      block.addEventListener("click", () => {
+        s.tones[idx] = (s.tones[idx] + 32) % 256;
+        block.style.background = `rgb(${s.tones[idx]}, ${s.tones[idx]}, ${s.tones[idx]})`;
+        updateReadability();
+      });
+      blockRow.appendChild(block);
+      return block;
+    });
+    zone.appendChild(blockRow);
+
+    const blurPreview = document.createElement("div");
+    blurPreview.className = "blur-preview";
+    blocks.forEach((_, idx) => {
+      const stripe = document.createElement("div");
+      stripe.className = "blur-stripe";
+      stripe.style.background = `rgb(${s.tones[idx]}, ${s.tones[idx]}, ${s.tones[idx]})`;
+      blurPreview.appendChild(stripe);
+    });
+    zone.appendChild(blurPreview);
+
+    const blurToggle = document.createElement("button");
+    blurToggle.className = "btn";
+    blurToggle.textContent = "Toggle Squint Blur";
+    blurToggle.addEventListener("click", () => {
+      s.blur = !s.blur;
+      blurPreview.style.filter = s.blur ? "blur(4px)" : "none";
+    });
+    zone.appendChild(blurToggle);
+
+    const readout = document.createElement("div");
+    readout.className = "mini-label";
+    zone.appendChild(readout);
+
+    const updateReadability = (): void => {
+      const min = Math.min(...s.tones);
+      const max = Math.max(...s.tones);
+      const readability = (max - min) / 255;
+      readout.textContent = `Blur readability: ${(readability * 100).toFixed(0)}% (target >= 75%)`;
+      [...blurPreview.children].forEach((node, idx) => {
+        (node as HTMLElement).style.background = `rgb(${s.tones[idx]}, ${s.tones[idx]}, ${s.tones[idx]})`;
+      });
+    };
+    updateReadability();
+
+    addCheckButton(wrapper, puzzleId, () => {
+      const min = Math.min(...s.tones);
+      const max = Math.max(...s.tones);
+      return { usesOnlyBlackAndWhite: true, blurReadability: (max - min) / 255 };
+    });
   } else if (puzzleId === "puzzle-05") {
-    const s = ensureState(puzzleId, { values: "0.05,0.2,0.4,0.6,0.8,0.95", image: false });
-    const input = document.createElement("input");
-    input.className = "text-input";
-    input.value = s.values;
-    input.addEventListener("input", () => { s.values = input.value; });
-    zone.appendChild(input);
-    addCheckbox(zone, "Hidden image appears", s.image, (v) => { s.image = v; });
-    addCheckButton(wrapper, puzzleId, () => ({
-      orderedValues: s.values.split(",").map((part: string) => Number(part.trim())).filter((n: number) => !Number.isNaN(n)),
-      hiddenImageRevealed: s.image,
-    }));
+    const s = ensureState(puzzleId, { tiles: shuffleArray([0.05, 0.2, 0.4, 0.6, 0.8, 0.95]), revealed: false });
+    addMiniLabel(zone, "Reorder tiles from darkest to lightest. Correct order reveals hidden icon.");
+
+    const renderTiles = (): void => {
+      tilesWrap.innerHTML = "";
+      s.tiles.forEach((value: number, idx: number) => {
+        const tile = document.createElement("div");
+        tile.className = "ladder-tile";
+        tile.style.background = `rgb(${Math.round(value * 255)}, ${Math.round(value * 255)}, ${Math.round(value * 255)})`;
+
+        const controls = document.createElement("div");
+        controls.className = "ladder-controls";
+        const left = document.createElement("button");
+        left.className = "btn mini";
+        left.textContent = "←";
+        left.disabled = idx === 0;
+        left.addEventListener("click", () => {
+          [s.tiles[idx - 1], s.tiles[idx]] = [s.tiles[idx], s.tiles[idx - 1]];
+          renderTiles();
+          updateReveal();
+        });
+        const right = document.createElement("button");
+        right.className = "btn mini";
+        right.textContent = "→";
+        right.disabled = idx === s.tiles.length - 1;
+        right.addEventListener("click", () => {
+          [s.tiles[idx + 1], s.tiles[idx]] = [s.tiles[idx], s.tiles[idx + 1]];
+          renderTiles();
+          updateReveal();
+        });
+        controls.appendChild(left);
+        controls.appendChild(right);
+
+        tile.appendChild(controls);
+        tilesWrap.appendChild(tile);
+      });
+    };
+
+    const tilesWrap = document.createElement("div");
+    tilesWrap.className = "ladder-wrap";
+    zone.appendChild(tilesWrap);
+
+    const reveal = document.createElement("div");
+    reveal.className = "hidden-reveal";
+    zone.appendChild(reveal);
+
+    const updateReveal = (): void => {
+      const ordered = s.tiles.every((v: number, i: number, arr: number[]) => i === 0 || v >= arr[i - 1]);
+      s.revealed = ordered;
+      reveal.textContent = ordered ? "Hidden image revealed: ⟡" : "Hidden image is scrambled";
+      reveal.classList.toggle("is-on", ordered);
+    };
+
+    renderTiles();
+    updateReveal();
+    addCheckButton(wrapper, puzzleId, () => ({ orderedValues: s.tiles, hiddenImageRevealed: s.revealed }));
   } else if (puzzleId === "puzzle-06") {
-    const s = ensureState(puzzleId, { red: true, green: true, blue: true, peaks: false });
-    addCheckbox(zone, "Explored red branch", s.red, (v) => { s.red = v; });
-    addCheckbox(zone, "Explored green branch", s.green, (v) => { s.green = v; });
-    addCheckbox(zone, "Explored blue branch", s.blue, (v) => { s.blue = v; });
-    addCheckbox(zone, "Observed different chroma peaks", s.peaks, (v) => { s.peaks = v; });
-    addCheckButton(wrapper, puzzleId, () => ({ exploredHues: [s.red ? "red" : "", s.green ? "green" : "", s.blue ? "blue" : ""].filter(Boolean), discoveredDifferentChromaPeaks: s.peaks }));
+    const s = ensureState(puzzleId, {
+      visited: {} as Record<string, boolean>,
+      peakByHue: { red: 4, green: 2, blue: 3 } as Record<string, number>,
+      foundPeak: { red: false, green: false, blue: false } as Record<string, boolean>,
+    });
+
+    addMiniLabel(zone, "Explore hue branches and find each hue's max chroma node. Peaks differ by hue.");
+
+    const hues = ["red", "green", "blue"];
+    const tree = document.createElement("div");
+    tree.className = "chroma-tree";
+
+    const status = document.createElement("div");
+    status.className = "mini-label";
+
+    const updateStatus = (): void => {
+      const foundCount = Object.values(s.foundPeak).filter(Boolean).length;
+      status.textContent = `Peaks found: ${foundCount}/3`;
+    };
+
+    hues.forEach((hue) => {
+      const branch = document.createElement("div");
+      branch.className = "chroma-branch";
+      const title = document.createElement("div");
+      title.className = "mini-label";
+      title.textContent = `${hue.toUpperCase()} branch`;
+      branch.appendChild(title);
+
+      const nodes = document.createElement("div");
+      nodes.className = "chroma-nodes";
+      for (let value = 0; value <= 4; value += 1) {
+        const key = `${hue}-${value}`;
+        const node = document.createElement("button");
+        node.className = "chroma-node";
+        const sat = 25 + value * 15;
+        node.style.background = `hsl(${hue === "red" ? 0 : hue === "green" ? 120 : 220}, ${sat}%, 50%)`;
+        node.title = `${hue} value ${value}`;
+        node.addEventListener("click", () => {
+          s.visited[key] = true;
+          node.classList.add("visited");
+          if (s.peakByHue[hue] === value) {
+            s.foundPeak[hue] = true;
+            node.classList.add("peak");
+          }
+          updateStatus();
+        });
+        nodes.appendChild(node);
+      }
+      branch.appendChild(nodes);
+      tree.appendChild(branch);
+    });
+
+    zone.appendChild(tree);
+    zone.appendChild(status);
+    updateStatus();
+
+    addCheckButton(wrapper, puzzleId, () => ({
+      exploredHues: hues.filter((hue) => Object.keys(s.visited).some((k) => k.startsWith(`${hue}-`))),
+      discoveredDifferentChromaPeaks: Object.values(s.foundPeak).every(Boolean),
+    }));
   } else if (puzzleId === "puzzle-07") {
     const s = ensureState(puzzleId, { a: "red", b: "green" });
     addSelect(zone, "Color A", ["red", "green", "blue", "orange", "yellow", "purple"], s.a, (v) => { s.a = v; });
@@ -641,9 +937,77 @@ function renderPuzzleMiniGame(puzzleId: string, title: string, state: string): v
     addCheckButton(wrapper, puzzleId, () => ({ selectedColorA: s.a, selectedColorB: s.b }));
   } else if (puzzleId === "puzzle-08") {
     const s = ensureState(puzzleId, { h1: 0, h2: 120, h3: 240 });
-    addSlider(zone, "Hue 1", s.h1, 0, 360, 1, (v) => { s.h1 = v; });
-    addSlider(zone, "Hue 2", s.h2, 0, 360, 1, (v) => { s.h2 = v; });
-    addSlider(zone, "Hue 3", s.h3, 0, 360, 1, (v) => { s.h3 = v; });
+
+    const triadStrip = document.createElement("div");
+    triadStrip.className = "triad-strip";
+    const triadMarks = [0, 1, 2].map(() => {
+      const mark = document.createElement("div");
+      mark.className = "triad-mark";
+      triadStrip.appendChild(mark);
+      return mark;
+    });
+
+    const triadLabel = document.createElement("div");
+    triadLabel.className = "mini-label";
+
+    const renderHueRow = (label: string, key: "h1" | "h2" | "h3"): void => {
+      const row = document.createElement("label");
+      row.className = "mini-row";
+
+      const top = document.createElement("div");
+      top.className = "hue-row";
+      const title = document.createElement("span");
+      title.textContent = `${label}: ${Math.round(s[key])}deg`;
+      const swatch = document.createElement("span");
+      swatch.className = "hue-swatch";
+      swatch.style.background = `hsl(${s[key]}, 85%, 55%)`;
+      top.appendChild(title);
+      top.appendChild(swatch);
+
+      const slider = document.createElement("input");
+      slider.type = "range";
+      slider.min = "0";
+      slider.max = "360";
+      slider.step = "1";
+      slider.value = String(s[key]);
+      slider.addEventListener("input", () => {
+        s[key] = Number(slider.value);
+        title.textContent = `${label}: ${Math.round(s[key])}deg`;
+        swatch.style.background = `hsl(${s[key]}, 85%, 55%)`;
+        updateTriadVisuals();
+      });
+
+      row.appendChild(top);
+      row.appendChild(slider);
+      zone.appendChild(row);
+    };
+
+    const updateTriadVisuals = (): void => {
+      const values = [s.h1, s.h2, s.h3].map((h) => ((h % 360) + 360) % 360).sort((a, b) => a - b);
+      const gaps = [
+        (values[1] - values[0] + 360) % 360,
+        (values[2] - values[1] + 360) % 360,
+        (values[0] + 360 - values[2]) % 360,
+      ];
+      const tolerance = 15;
+      const good = gaps.every((gap) => Math.abs(gap - 120) <= tolerance);
+
+      [s.h1, s.h2, s.h3].forEach((hue, index) => {
+        triadMarks[index].style.left = `${((hue % 360 + 360) % 360) / 360 * 100}%`;
+        triadMarks[index].style.background = `hsl(${hue}, 85%, 55%)`;
+      });
+
+      triadLabel.textContent = `Gaps: ${Math.round(gaps[0])}deg / ${Math.round(gaps[1])}deg / ${Math.round(gaps[2])}deg${good ? "  triad aligned" : ""}`;
+    };
+
+    addMiniLabel(zone, "Aim for roughly equal 120deg spacing between all three hue markers.");
+    renderHueRow("Hue 1", "h1");
+    renderHueRow("Hue 2", "h2");
+    renderHueRow("Hue 3", "h3");
+    zone.appendChild(triadStrip);
+    zone.appendChild(triadLabel);
+    updateTriadVisuals();
+
     addCheckButton(wrapper, puzzleId, () => ({ hueAngles: [s.h1, s.h2, s.h3] }));
   } else if (puzzleId === "puzzle-09") {
     const s = ensureState(puzzleId, { prompt: "calm ocean", blue: true, teal: true, lowContrast: true, warm: false, highContrast: false, saturated: false, desat: false, green: false, dark: false });
@@ -671,19 +1035,137 @@ function renderPuzzleMiniGame(puzzleId: string, title: string, state: string): v
       return { prompt: s.prompt, paletteTags: tags };
     });
   } else if (puzzleId === "puzzle-10") {
-    const s = ensureState(puzzleId, { difference: 0.5, adjusted: false });
-    addSlider(zone, "Perceived difference", s.difference, 0, 1, 0.01, (v) => { s.difference = v; });
-    addCheckbox(zone, "Backgrounds adjusted", s.adjusted, (v) => { s.adjusted = v; });
-    addCheckButton(wrapper, puzzleId, () => ({ perceivedDifference: s.difference, backgroundsAdjusted: s.adjusted }));
+    const s = ensureState(puzzleId, { leftHue: 40, rightHue: 230, leftSat: 65, rightSat: 65, leftLight: 52, rightLight: 52, adjusted: false });
+
+    const board = document.createElement("div");
+    board.className = "illusion-board";
+    const leftPanel = document.createElement("div");
+    leftPanel.className = "illusion-panel";
+    const rightPanel = document.createElement("div");
+    rightPanel.className = "illusion-panel";
+    const leftSquare = document.createElement("div");
+    leftSquare.className = "illusion-square";
+    const rightSquare = document.createElement("div");
+    rightSquare.className = "illusion-square";
+    leftPanel.appendChild(leftSquare);
+    rightPanel.appendChild(rightSquare);
+    board.appendChild(leftPanel);
+    board.appendChild(rightPanel);
+    zone.appendChild(board);
+
+    const feedback = document.createElement("div");
+    feedback.className = "mini-label";
+    zone.appendChild(feedback);
+
+    const estimatePerceivedDifference = (): number => {
+      const hueDist = circularHueDistance(s.leftHue, s.rightHue) / 180;
+      const satAvg = (s.leftSat + s.rightSat) / 200;
+      const lightDist = Math.abs(s.leftLight - s.rightLight) / 100;
+      const satDist = Math.abs(s.leftSat - s.rightSat) / 100;
+
+      // Perception model: hue mismatch matters less when surrounds are desaturated
+      // or close in value. This allows valid solutions with different hues.
+      return hueDist * satAvg * 0.55 + lightDist * 0.3 + satDist * 0.15;
+    };
+
+    const updateBoard = (): void => {
+      leftPanel.style.background = `hsl(${s.leftHue}, ${s.leftSat}%, ${s.leftLight}%)`;
+      rightPanel.style.background = `hsl(${s.rightHue}, ${s.rightSat}%, ${s.rightLight}%)`;
+      leftSquare.style.background = "#a6a6a6";
+      rightSquare.style.background = "#a6a6a6";
+      const diff = estimatePerceivedDifference();
+      feedback.textContent = `Estimated perception gap: ${(diff * 100).toFixed(1)}% (lower is better, target <= 5%)`;
+    };
+
+    addSlider(zone, "Left surround hue", s.leftHue, 0, 360, 1, (v) => { s.leftHue = v; s.adjusted = true; updateBoard(); });
+    addSlider(zone, "Right surround hue", s.rightHue, 0, 360, 1, (v) => { s.rightHue = v; s.adjusted = true; updateBoard(); });
+    addSlider(zone, "Left saturation", s.leftSat, 0, 100, 1, (v) => { s.leftSat = v; s.adjusted = true; updateBoard(); });
+    addSlider(zone, "Right saturation", s.rightSat, 0, 100, 1, (v) => { s.rightSat = v; s.adjusted = true; updateBoard(); });
+    addSlider(zone, "Left lightness", s.leftLight, 20, 80, 1, (v) => { s.leftLight = v; s.adjusted = true; updateBoard(); });
+    addSlider(zone, "Right lightness", s.rightLight, 20, 80, 1, (v) => { s.rightLight = v; s.adjusted = true; updateBoard(); });
+
+    const matchButton = document.createElement("button");
+    matchButton.className = "btn";
+    matchButton.textContent = "Normalize Values";
+    matchButton.addEventListener("click", () => {
+      s.rightLight = s.leftLight;
+      s.rightSat = s.leftSat;
+      s.adjusted = true;
+      render();
+    });
+    zone.appendChild(matchButton);
+
+    updateBoard();
+    addCheckButton(wrapper, puzzleId, () => ({
+      perceivedDifference: estimatePerceivedDifference(),
+      backgroundsAdjusted: s.adjusted,
+    }));
   } else if (puzzleId === "puzzle-11") {
-    const s = ensureState(puzzleId, { orangeAround: false, changedGrey: false });
-    addCheckbox(zone, "Use orange surroundings", s.orangeAround, (v) => { s.orangeAround = v; });
-    addCheckbox(zone, "Changed grey square", s.changedGrey, (v) => { s.changedGrey = v; });
-    addCheckButton(wrapper, puzzleId, () => ({ usedOrangeSurroundings: s.orangeAround, greySquareChanged: s.changedGrey }));
+    const s = ensureState(puzzleId, { surroundHue: 30, surroundSat: 70, surroundLight: 50 });
+
+    const board = document.createElement("div");
+    board.className = "illusion-board single";
+    const panel = document.createElement("div");
+    panel.className = "illusion-panel";
+    const square = document.createElement("div");
+    square.className = "illusion-square";
+    panel.appendChild(square);
+    board.appendChild(panel);
+    zone.appendChild(board);
+
+    const feedback = document.createElement("div");
+    feedback.className = "mini-label";
+    zone.appendChild(feedback);
+
+    const updateBoard = (): void => {
+      panel.style.background = `hsl(${s.surroundHue}, ${s.surroundSat}%, ${s.surroundLight}%)`;
+      square.style.background = "#9d9d9d";
+      const orangeDistance = circularHueDistance(s.surroundHue, 30);
+      const orangeStrength = Math.max(0, 1 - orangeDistance / 45) * (s.surroundSat / 100);
+      feedback.textContent = orangeStrength >= 0.6
+        ? "Grey appears cooler/blue from warm orange context ✓"
+        : "Push toward a stronger orange surround to induce blue shift";
+    };
+
+    addSlider(zone, "Surround hue", s.surroundHue, 0, 360, 1, (v) => { s.surroundHue = v; updateBoard(); });
+    addSlider(zone, "Surround saturation", s.surroundSat, 0, 100, 1, (v) => { s.surroundSat = v; updateBoard(); });
+    addSlider(zone, "Surround lightness", s.surroundLight, 20, 80, 1, (v) => { s.surroundLight = v; updateBoard(); });
+    updateBoard();
+
+    addCheckButton(wrapper, puzzleId, () => ({
+      usedOrangeSurroundings: circularHueDistance(s.surroundHue, 30) <= 20 && s.surroundSat >= 55,
+      greySquareChanged: false,
+    }));
   } else if (puzzleId === "puzzle-12") {
-    const s = ensureState(puzzleId, { neutralCount: 1, contrast: 0.4 });
-    addSlider(zone, "Neutral mixes count", s.neutralCount, 0, 5, 1, (v) => { s.neutralCount = v; });
-    addSlider(zone, "Accent contrast", s.contrast, 0, 1, 0.01, (v) => { s.contrast = v; });
+    const s = ensureState(puzzleId, { neutralCount: 1, contrast: 0.4, accentHue: 8, accentSat: 80, neutralLight: 55 });
+
+    const board = document.createElement("div");
+    board.className = "neutral-hero-board";
+    const neutral = document.createElement("div");
+    neutral.className = "neutral-field";
+    const accent = document.createElement("div");
+    accent.className = "accent-chip";
+    neutral.appendChild(accent);
+    board.appendChild(neutral);
+    zone.appendChild(board);
+
+    const feedback = document.createElement("div");
+    feedback.className = "mini-label";
+    zone.appendChild(feedback);
+
+    const updateBoard = (): void => {
+      neutral.style.background = `hsl(30, 12%, ${s.neutralLight}%)`;
+      accent.style.background = `hsl(${s.accentHue}, ${s.accentSat}%, 50%)`;
+      feedback.textContent = `Neutral fields: ${s.neutralCount} | Accent pop: ${(s.contrast * 100).toFixed(0)}%`;
+    };
+
+    addSlider(zone, "Neutral mixes count", s.neutralCount, 0, 5, 1, (v) => { s.neutralCount = v; updateBoard(); });
+    addSlider(zone, "Neutral lightness", s.neutralLight, 20, 80, 1, (v) => { s.neutralLight = v; updateBoard(); });
+    addSlider(zone, "Accent hue", s.accentHue, 0, 360, 1, (v) => { s.accentHue = v; updateBoard(); });
+    addSlider(zone, "Accent saturation", s.accentSat, 0, 100, 1, (v) => { s.accentSat = v; s.contrast = Math.min(1, 0.25 + (s.accentSat / 100) * 0.75); updateBoard(); });
+    addSlider(zone, "Accent contrast", s.contrast, 0, 1, 0.01, (v) => { s.contrast = v; updateBoard(); });
+    updateBoard();
+
     addCheckButton(wrapper, puzzleId, () => ({ neutralCount: s.neutralCount, accentContrast: s.contrast }));
   } else if (puzzleId === "puzzle-13") {
     const s = ensureState(puzzleId, { edges: false, sat: false, cool: false });
@@ -697,13 +1179,99 @@ function renderPuzzleMiniGame(puzzleId: string, title: string, state: string): v
     addSlider(zone, "Scattering strength", s.scatter, 0, 1, 0.01, (v) => { s.scatter = v; });
     addCheckButton(wrapper, puzzleId, () => ({ farObjectsShiftBlue: s.shiftBlue, scatteringStrength: s.scatter }));
   } else if (puzzleId === "puzzle-15") {
-    const s = ensureState(puzzleId, { warm: false, onTime: false, blueHour: false });
-    addCheckbox(zone, "Warm palette mixed", s.warm, (v) => { s.warm = v; });
-    addCheckbox(zone, "Completed before nightfall", s.onTime, (v) => { s.onTime = v; });
-    addCheckbox(zone, "Adapted palette to blue hour", s.blueHour, (v) => { s.blueHour = v; });
-    addCheckButton(wrapper, puzzleId, () => ({ warmPaletteMixed: s.warm, completedBeforeNightfall: s.onTime, adaptedToBlueHour: s.blueHour }));
+    const s = ensureState(puzzleId, { timeLeft: 100, warmMix: 0.2, coolMix: 0.1, warmedInTime: false, adapted: false, phase: "sunset" as "sunset" | "bluehour" });
+
+    const board = document.createElement("div");
+    board.className = "golden-hour-board";
+    const sky = document.createElement("div");
+    sky.className = "golden-sky";
+    const sun = document.createElement("div");
+    sun.className = "golden-sun";
+    sky.appendChild(sun);
+    board.appendChild(sky);
+    zone.appendChild(board);
+
+    const meter = document.createElement("div");
+    meter.className = "coverage-wrap";
+    const track = document.createElement("div");
+    track.className = "coverage-bar-track";
+    const fill = document.createElement("div");
+    fill.className = "coverage-bar-fill";
+    track.appendChild(fill);
+    const meterLabel = document.createElement("div");
+    meterLabel.className = "coverage-bar-label";
+    meter.appendChild(track);
+    meter.appendChild(meterLabel);
+    zone.appendChild(meter);
+
+    const feedback = document.createElement("div");
+    feedback.className = "mini-label";
+    zone.appendChild(feedback);
+
+    const updateBoard = (): void => {
+      fill.style.width = `${s.timeLeft}%`;
+      if (s.phase === "sunset") {
+        const hue = 22 + (1 - s.warmMix) * 16;
+        sky.style.background = `linear-gradient(180deg, hsl(${hue}, ${50 + s.warmMix * 35}%, 58%), hsl(${30 + s.warmMix * 14}, ${35 + s.warmMix * 30}%, 42%))`;
+      } else {
+        const cool = Math.max(s.coolMix, 0.3);
+        sky.style.background = `linear-gradient(180deg, hsl(${220 + cool * 24}, ${35 + cool * 45}%, 42%), hsl(${245 + cool * 15}, ${35 + cool * 40}%, 22%))`;
+      }
+      sun.style.left = `${Math.max(4, Math.min(92, s.timeLeft))}%`;
+      meterLabel.textContent = s.phase === "sunset"
+        ? `Sunset timer: ${Math.round(s.timeLeft)}% daylight remaining`
+        : "Blue hour active";
+      feedback.textContent = s.phase === "sunset"
+        ? `Warm mix: ${(s.warmMix * 100).toFixed(0)}%`
+        : `Cool adaptation: ${(s.coolMix * 100).toFixed(0)}%`;
+    };
+
+    addSlider(zone, "Warm palette strength", s.warmMix, 0, 1, 0.01, (v) => {
+      s.warmMix = v;
+      if (s.phase === "sunset" && s.timeLeft > 30 && s.warmMix >= 0.68) {
+        s.warmedInTime = true;
+      }
+      updateBoard();
+    });
+
+    addSlider(zone, "Cool adaptation", s.coolMix, 0, 1, 0.01, (v) => {
+      s.coolMix = v;
+      if (s.phase === "bluehour" && s.coolMix >= 0.55) {
+        s.adapted = true;
+      }
+      updateBoard();
+    });
+
+    const advance = document.createElement("button");
+    advance.className = "btn";
+    advance.textContent = "Advance Time";
+    advance.addEventListener("click", () => {
+      s.timeLeft = Math.max(0, s.timeLeft - 20);
+      if (s.timeLeft === 0) {
+        s.phase = "bluehour";
+      }
+      updateBoard();
+    });
+    zone.appendChild(advance);
+
+    const triggerBlueHour = document.createElement("button");
+    triggerBlueHour.className = "btn";
+    triggerBlueHour.textContent = "Shift To Blue Hour";
+    triggerBlueHour.addEventListener("click", () => {
+      s.phase = "bluehour";
+      s.timeLeft = 0;
+      updateBoard();
+    });
+    zone.appendChild(triggerBlueHour);
+
+    updateBoard();
+    addCheckButton(wrapper, puzzleId, () => ({
+      warmPaletteMixed: s.warmMix >= 0.68,
+      completedBeforeNightfall: s.warmedInTime,
+      adaptedToBlueHour: s.phase === "bluehour" && s.adapted,
+    }));
   } else if (puzzleId === "puzzle-16") {
-    const s = ensureState(puzzleId, { phthalo: false, hansa: false, mud: 0.5 });
+    const s = ensureState(puzzleId, { phthalo: false, hansa: false, redContam: 0.0, purpleContam: 0.0 });
 
     // Live pigment mix preview
     const previewRow = document.createElement("div");
@@ -715,15 +1283,18 @@ function renderPuzzleMiniGame(puzzleId: string, title: string, state: string): v
     previewRow.appendChild(previewSwatch);
     previewRow.appendChild(previewLabel);
 
+    const computeMudLevel = (): number => Math.min(1, (s.redContam + s.purpleContam) / 2);
+
     const updateMixPreview = (): void => {
-      if (s.phthalo && s.hansa && s.mud <= 0.25) {
-        const sat = Math.round(70 - s.mud * 100);
+      const mud = computeMudLevel();
+      if (s.phthalo && s.hansa && mud <= 0.25) {
+        const sat = Math.round(70 - mud * 100);
         previewSwatch.style.background = `hsl(115, ${sat}%, 38%)`;
         previewLabel.textContent = "Vibrant green! ✓";
       } else if (s.phthalo && s.hansa) {
-        const sat = Math.max(5, 30 - Math.round((s.mud - 0.25) * 60));
+        const sat = Math.max(5, 30 - Math.round((mud - 0.25) * 60));
         previewSwatch.style.background = `hsl(80, ${sat}%, 32%)`;
-        previewLabel.textContent = "Muddy green — reduce mud level";
+        previewLabel.textContent = "Muddy green — reduce contaminant colors";
       } else if (s.phthalo) {
         previewSwatch.style.background = "#0077a3";
         previewLabel.textContent = "Phthalo Blue only";
@@ -734,19 +1305,145 @@ function renderPuzzleMiniGame(puzzleId: string, title: string, state: string): v
         previewSwatch.style.background = "#f0ede8";
         previewLabel.textContent = "No pigments selected";
       }
+
+      addInfo.textContent = `Derived mud: ${(computeMudLevel() * 100).toFixed(0)}%`;
     };
+
+    const addInfo = document.createElement("div");
+    addInfo.className = "mini-label";
 
     addCheckbox(zone, "Add Phthalo Blue", s.phthalo, (v) => { s.phthalo = v; updateMixPreview(); });
     addCheckbox(zone, "Add Hansa Yellow", s.hansa, (v) => { s.hansa = v; updateMixPreview(); });
-    addSlider(zone, "Mud level", s.mud, 0, 1, 0.01, (v) => { s.mud = v; updateMixPreview(); });
+    addSlider(zone, "Red contaminant", s.redContam, 0, 1, 0.01, (v) => { s.redContam = v; updateMixPreview(); });
+    addSlider(zone, "Purple contaminant", s.purpleContam, 0, 1, 0.01, (v) => { s.purpleContam = v; updateMixPreview(); });
     zone.appendChild(previewRow);
+    zone.appendChild(addInfo);
     updateMixPreview();
-    addCheckButton(wrapper, puzzleId, () => ({ pigments: [s.phthalo ? "phthalo blue" : "", s.hansa ? "hansa yellow" : ""].filter(Boolean), mudLevel: s.mud }));
+    addCheckButton(wrapper, puzzleId, () => ({
+      pigments: [s.phthalo ? "phthalo blue" : "", s.hansa ? "hansa yellow" : ""].filter(Boolean),
+      mudLevel: computeMudLevel(),
+    }));
   } else if (puzzleId === "puzzle-17") {
-    const s = ensureState(puzzleId, { complements: 2, muddy: true });
-    addSlider(zone, "Complement pairs added", s.complements, 0, 4, 1, (v) => { s.complements = v; });
-    addCheckbox(zone, "Result turned muddy", s.muddy, (v) => { s.muddy = v; });
-    addCheckButton(wrapper, puzzleId, () => ({ complementPairsAdded: s.complements, muddyResult: s.muddy }));
+    const s = ensureState(puzzleId, {
+      complementPairs: 0,
+      mud: 0.15,
+      recipe: [] as string[],
+    });
+
+    const board = document.createElement("div");
+    board.className = "mud-monster-board";
+
+    const monster = document.createElement("div");
+    monster.className = "mud-monster";
+    board.appendChild(monster);
+
+    const meter = document.createElement("div");
+    meter.className = "coverage-wrap";
+    const track = document.createElement("div");
+    track.className = "coverage-bar-track";
+    const fill = document.createElement("div");
+    fill.className = "coverage-bar-fill";
+    track.appendChild(fill);
+    const meterLabel = document.createElement("div");
+    meterLabel.className = "coverage-bar-label";
+    meter.appendChild(track);
+    meter.appendChild(meterLabel);
+    board.appendChild(meter);
+
+    const stateLabel = document.createElement("div");
+    stateLabel.className = "mini-label";
+    board.appendChild(stateLabel);
+
+    const recipeLog = document.createElement("div");
+    recipeLog.className = "mud-log";
+    board.appendChild(recipeLog);
+
+    zone.appendChild(board);
+
+    const controls = document.createElement("div");
+    controls.className = "mud-controls";
+    zone.appendChild(controls);
+
+    const isMuddy = (): boolean => s.mud >= 0.58 || s.complementPairs > 1;
+
+    const updateMudMonster = (): void => {
+      const mud = Math.max(0, Math.min(1, s.mud));
+      fill.style.width = `${Math.round(mud * 100)}%`;
+      if (mud < 0.4) {
+        fill.classList.remove("--danger");
+      } else {
+        fill.classList.add("--danger");
+      }
+
+      const hue = Math.round(118 - mud * 72);
+      const sat = Math.round(58 - mud * 34);
+      const light = Math.round(46 - mud * 20);
+      monster.style.background = `radial-gradient(circle at 35% 28%, rgba(255,255,255,0.35), transparent 40%), hsl(${hue}, ${sat}%, ${light}%)`;
+
+      const muddy = isMuddy();
+      monster.textContent = muddy ? "(x_x)" : mud > 0.35 ? "(o_o)" : "(^_^)";
+      meterLabel.textContent = `Mud level: ${Math.round(mud * 100)}%`;
+      stateLabel.textContent = muddy
+        ? `Too many complement clashes (${s.complementPairs}). Keep clashes to 1 or less.`
+        : `Stable mix. Complement clashes: ${s.complementPairs}/1 allowed.`;
+      recipeLog.textContent = s.recipe.length > 0
+        ? `Recipe: ${s.recipe.join(" -> ")}`
+        : "Recipe: start with clean green strokes.";
+    };
+
+    const addActionButton = (label: string, onClick: () => void): void => {
+      const btn = document.createElement("button");
+      btn.className = "btn";
+      btn.textContent = label;
+      btn.addEventListener("click", () => {
+        onClick();
+        updateMudMonster();
+      });
+      controls.appendChild(btn);
+    };
+
+    addActionButton("Add clean green stroke", () => {
+      s.mud = Math.max(0, s.mud - 0.12);
+      s.recipe.push("clean");
+      if (s.recipe.length > 6) {
+        s.recipe.shift();
+      }
+    });
+
+    addActionButton("Add tiny complement neutralizer", () => {
+      s.complementPairs += 1;
+      s.mud = Math.min(1, s.mud + 0.22);
+      s.recipe.push("neutralizer");
+      if (s.recipe.length > 6) {
+        s.recipe.shift();
+      }
+    });
+
+    addActionButton("Dump strong complement pair", () => {
+      s.complementPairs += 1;
+      s.mud = Math.min(1, s.mud + 0.42);
+      s.recipe.push("overmix");
+      if (s.recipe.length > 6) {
+        s.recipe.shift();
+      }
+    });
+
+    const resetBtn = document.createElement("button");
+    resetBtn.className = "btn";
+    resetBtn.textContent = "Reset Bowl";
+    resetBtn.addEventListener("click", () => {
+      s.complementPairs = 0;
+      s.mud = 0.15;
+      s.recipe = [];
+      updateMudMonster();
+    });
+    controls.appendChild(resetBtn);
+
+    updateMudMonster();
+    addCheckButton(wrapper, puzzleId, () => ({
+      complementPairsAdded: s.complementPairs,
+      muddyResult: isMuddy(),
+    }));
   } else if (puzzleId === "puzzle-18") {
     renderArtStationMiniGame(zone, wrapper, puzzleId, state);
     puzzleListEl.appendChild(wrapper);

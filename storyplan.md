@@ -479,18 +479,37 @@ This section tracks implementation against this story plan and `game-architectur
 	- Puzzle-01 (RGB beams): visual toggle beam buttons with live additive-color preview replacing plain checkboxes
 	- Puzzle-02 (CMY print): live CMY-to-RGB preview swatches (current mix vs. target)
 	- Puzzle-16 (Vibrant Green): live pigment mix color preview showing clean vs. muddy outcomes
+	- Puzzle-17 (Mud Monster): interactive mix board with action buttons, live mud meter, monster-state feedback, recipe log, and reset flow
 	- Puzzle-18 (Optical Mixing): coverage bar tracks painted area percentage; pointer capture for uninterrupted drag-to-paint across canvas boundary
 	- All puzzles: shake animation + red border feedback on incorrect Check submission
 - Playwright e2e coverage expanded (6 tests):
 	- RGB beam button toggling and color preview rendering
 	- Optical mixing coverage bar visibility and update-on-draw behavior
 
-## Next implementation milestones
+## Improvements Needed (Priority Backlog)
 
-- Add rendering layer implementation (studio, player, pets, puzzle UI, effects)
-- Build final canvas painting interaction with pet hint reactions
-- Add persistent storage backend for save data (file/local storage)
-- Add free paint mode and post-completion rewards flow
+- Improve gameplay depth for remaining prototype-like puzzles:
+	- Puzzle-03 (Chromatic Black): move from simple selection to a richer bowl-mixing interaction with luminance/value feedback
+	- Puzzle-07 (Complements), Puzzle-08 (Triad), Puzzle-09 (Mood Palette): add more tactile wheel/palette interactions and better visual success criteria
+	- Puzzle-13 and Puzzle-14 (Atmosphere): strengthen visual before/after depth cues and make rule effects more obvious while playing
+- Improve puzzle instruction clarity:
+	- Add one-sentence "How to win" hints and one-sentence "Why this failed" hints directly in each mini-game state panel
+	- Standardize wording so terms like "mud", "contrast", and "neutral" are always explained in context
+- Expand automated test coverage for recent UX additions:
+	- Add e2e assertions for puzzle-specific interactions beyond station entry/visibility
+	- Add regression checks for practice-mode replay behavior and check/fail feedback loops
+- Strengthen final-game loop completeness:
+	- Implement final canvas playable challenge (currently represented as progression state only)
+	- Add pet reaction hooks during final painting to reflect story requirements
+
+## Next Steps (Execution Plan)
+
+1. Add e2e tests for upgraded puzzle interactions (`puzzle-10`/`11`/`12`, `puzzle-15`, `puzzle-16`, `puzzle-17`) to lock current behavior before further redesign.
+2. Upgrade one remaining high-impact prototype puzzle (recommended: `puzzle-03`) to a board-based interaction pattern used in newer mini-games.
+3. Implement per-puzzle fail-reason messaging (not just "Try Again") using puzzle-specific validation feedback.
+4. Build final canvas interaction loop with measurable completion criteria tied to the five final principles.
+5. Add post-completion flow: free paint mode entry, reward unlock messaging, and pet ambient behaviors in free play.
+6. Expand CI quality gate to ensure any new/changed puzzle has either unit coverage or Playwright interaction coverage.
 
 ## Cloud Delivery + Playwright Requirements
 
