@@ -1,0 +1,24 @@
+{
+  "name": "chromatic-mastery",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "build:web": "vite build",
+    "dev": "tsx src/index.ts",
+    "play": "tsx src/cli.ts",
+    "play:web": "vite",
+    "test": "vitest run tests/game.test.ts",
+    "test:watch": "vitest tests/game.test.ts",
+    "test:e2e": "playwright test",
+    "test:cloud": "npm run build && npm test && npm run test:e2e"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.52.0",
+    "@types/node": "^22.13.10",
+    "tsx": "^4.19.3",
+    "typescript": "^5.8.2",
+    "vite": "^6.2.3",
+    "vitest": "^3.0.8"
+  }
+}

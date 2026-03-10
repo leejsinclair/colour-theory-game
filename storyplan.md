@@ -451,3 +451,67 @@ perception
 environment
 
 The player leaves the studio seeing color differently forever.
+
+---
+
+# Implementation Status (March 2026)
+
+This section tracks implementation against this story plan and `game-architecture.md`.
+
+## Completed in code (`src/`)
+
+- Modular architecture scaffold: scene manager, station manager, puzzle manager, pet manager, save system
+- Domain models: player, station, puzzle, pet, puzzle states/types, station types, pet types
+- Story content mapping: 6 stations, 18 puzzles, 18 pets, caretaker intro lines, final canvas requirements
+- Progression flow:
+	- first station unlocked at start
+	- puzzle chaining inside each station
+	- next station unlock on station completion
+	- final canvas unlock at 18 pets
+- Color engine utilities: RGB/CMY mix, complement, atmospheric perspective, optical mixing
+- Puzzle validation rules implemented for all 18 puzzles with story-specific checks
+- Playable prototypes:
+	- CLI loop (`npm run play`) for command-based progression
+	- Browser/canvas prototype (`npm run play:web`) for visual station progression
+- Unit tests for core progression and save/load (`npm test`)
+- Shared demo-solution map used by tests and prototypes for deterministic solves
+
+## Next implementation milestones
+
+- Fix Paint Workbench station so the art mini-game consistently displays and is actually playable in browser mode
+- Add rendering layer implementation (studio, player, pets, puzzle UI, effects)
+- Build final canvas painting interaction with pet hint reactions
+- Add persistent storage backend for save data (file/local storage)
+- Add free paint mode and post-completion rewards flow
+
+## Cloud Delivery + Playwright Requirements
+
+This section defines what GitHub cloud automation must complete and verify before merge.
+
+### Required commands
+
+- `npm ci`
+- `npm run build`
+- `npm test`
+- `npx playwright install --with-deps chromium`
+- `npm run test:e2e`
+
+### Definition of done for cloud completion
+
+- TypeScript compiles with no errors.
+- Unit tests pass (`tests/game.test.ts`).
+- Playwright e2e tests pass for studio loading, progression, and art-station gameplay interaction (not just visibility).
+- Browser prototype remains launchable via `npm run play:web`.
+- Story-plan progress section remains in sync with actual implemented features.
+
+### Required Playwright scenarios
+
+- Studio boot: verify title, progress panel, and core action buttons.
+- Auto-solve flow: verify final canvas unlock appears in progress panel.
+- Art station playable loop: verify entering Paint Workbench exposes the mini game and supports paint interaction (select color, draw, clear).
+
+### Cloud handoff rules for future tasks
+
+- Any gameplay feature change must include at least one unit or Playwright test update.
+- Any UI selector used in Playwright should stay stable or tests must be updated in the same PR.
+- If station progression logic changes, verify both CLI (`npm run play`) and browser (`npm run play:web`) behavior.
