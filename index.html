@@ -22,6 +22,21 @@
         <section class="control-panel">
           <div class="panel-card progress-card">
             <h2>Progress</h2>
+            <div class="hud" id="hud">
+              <div class="hud-stat" id="hud-score">
+                <div class="hud-stat-value" id="hud-score-value">0</div>
+                <div class="hud-stat-label">Score</div>
+              </div>
+              <div class="hud-stat" id="hud-pets">
+                <div class="hud-stat-value" id="hud-pets-value">0/18</div>
+                <div class="hud-stat-label">Pets</div>
+              </div>
+              <div class="hud-stat" id="hud-streak">
+                <div class="hud-stat-value" id="hud-streak-value">0</div>
+                <div class="hud-stat-label">Best Streak</div>
+              </div>
+            </div>
+            <div class="milestone-badges" id="milestone-badges"></div>
             <pre id="progress"></pre>
           </div>
 
@@ -37,5 +52,6 @@
         </section>
       </main>
     </div>
+    <div class="toast-container" id="toast-container"></div>
   </body>
 </html>

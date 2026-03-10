@@ -21,6 +21,11 @@ const progressEl = document.getElementById("progress") as HTMLPreElement;
 const puzzleListEl = document.getElementById("puzzle-list") as HTMLDivElement;
 const autoSolveButton = document.getElementById("auto-solve") as HTMLButtonElement;
 const resetButton = document.getElementById("reset") as HTMLButtonElement;
+const hudScoreValue = document.getElementById("hud-score-value") as HTMLElement;
+const hudPetsValue = document.getElementById("hud-pets-value") as HTMLElement;
+const hudStreakValue = document.getElementById("hud-streak-value") as HTMLElement;
+const milestoneBadgesEl = document.getElementById("milestone-badges") as HTMLElement;
+const toastContainerEl = document.getElementById("toast-container") as HTMLElement;
 
 function requireContext2D(target: HTMLCanvasElement): CanvasRenderingContext2D {
   const value = target.getContext("2d");
@@ -42,6 +47,35 @@ const transition: TransitionState = {
   durationMs: 520,
   label: "",
 };
+
+/** Show a brief floating reward toast message. */
+function showToast(message: string): void {
+  const el = document.createElement("div");
+  el.className = "toast";
+  el.textContent = message;
+  toastContainerEl.appendChild(el);
+  setTimeout(() => {
+    el.style.animation = "toast-out 280ms ease forwards";
+    setTimeout(() => el.remove(), 300);
+  }, 2200);
+}
+
+/** Refresh the HUD score/pets/streak tiles and milestone badges. */
+function updateHud(): void {
+  const progress = game.getProgress();
+  hudScoreValue.textContent = String(progress.score);
+  hudPetsValue.textContent = `${progress.petsCollected}/18`;
+  hudStreakValue.textContent = String(progress.bestStreak);
+
+  // Rebuild milestone badges
+  milestoneBadgesEl.innerHTML = "";
+  for (const badge of progress.petMilestonesUnlocked) {
+    const span = document.createElement("span");
+    span.className = "milestone-badge";
+    span.textContent = `🏅 ${badge}`;
+    milestoneBadgesEl.appendChild(span);
+  }
+}
 
 const stationSceneFlavor: Record<string, { title: string; subtitle: string; tint: string }> = {
   "station-01": {
@@ -466,14 +500,21 @@ function updateProgressPanel(): void {
   const progress = game.getProgress();
   const scene = game.sceneManager.getCurrentScene();
   const stationLabel = activeStationId ? game.stationManager.getStation(activeStationId)?.name ?? "Unknown" : "None";
+  const milestoneText = progress.petMilestonesUnlocked.length > 0
+    ? `Pet Badges    : ${progress.petMilestonesUnlocked.join(", ")}`
+    : `Pet Badges    : None yet (collect 6, 12, or 18 pets)`;
   progressEl.textContent = [
+    `Score          : ${progress.score}`,
     `Solved Puzzles : ${progress.solved}/${progress.total}`,
     `Pets Collected : ${progress.petsCollected}/18`,
+    milestoneText,
+    `Best Streak    : ${progress.bestStreak}`,
     `Current Scene  : ${scene}`,
     `Active Station : ${stationLabel}`,
     "Tip: Click unlocked stations to enter puzzle mode.",
     `Final Canvas   : ${progress.finalCanvasUnlocked ? "Unlocked" : "Locked"}`,
   ].join("\n");
+  updateHud();
 }
 
 function makePuzzleCard(puzzleId: string, title: string, state: string): HTMLDivElement {
@@ -521,6 +562,23 @@ function renderLockedOrSolvedControls(wrapper: HTMLDivElement, puzzleId: string,
   return false;
 }
 
+/**
+ * Trigger a CSS shake animation on a puzzle wrapper on failure.
+ * Reading a layout property forces a reflow, which lets the browser restart
+ * the shake animation even when the class is removed and re-added in the same
+ * event-loop tick.
+ */
+function triggerFailFeedback(wrapper: HTMLDivElement, button: HTMLButtonElement): void {
+  button.textContent = "Try Again";
+  wrapper.classList.remove("--failed");
+  wrapper.getBoundingClientRect(); // force reflow
+  wrapper.classList.add("--failed");
+  setTimeout(() => {
+    button.textContent = "Check";
+    wrapper.classList.remove("--failed");
+  }, 900);
+}
+
 function addCheckButton(wrapper: HTMLDivElement, puzzleId: string, inputFactory: () => unknown): void {
   const button = document.createElement("button");
   button.className = "btn btn-accent";
@@ -531,17 +589,15 @@ function addCheckButton(wrapper: HTMLDivElement, puzzleId: string, inputFactory:
     if (puzzle?.solved) {
       const valid = validatePuzzleInput(puzzleId, input as any);
       if (!valid) {
-        button.textContent = "Try Again";
-        wrapper.classList.remove("--failed");
-        wrapper.getBoundingClientRect();
-        wrapper.classList.add("--failed");
-        setTimeout(() => {
-          button.textContent = "Check";
-          wrapper.classList.remove("--failed");
-        }, 900);
+        triggerFailFeedback(wrapper, button);
         return;
       }
 
+      const practiceEvent = game.practiceComplete(puzzleId, true);
+      if (practiceEvent && practiceEvent.delta > 0) {
+        showToast(practiceEvent.reason);
+        updateHud();
+      }
       button.textContent = "Practiced ✓";
       setTimeout(() => {
         button.textContent = "Check";
@@ -549,21 +605,13 @@ function addCheckButton(wrapper: HTMLDivElement, puzzleId: string, inputFactory:
       return;
     }
 
-    const solved = game.completePuzzle(puzzleId, input);
-    if (!solved) {
-      button.textContent = "Try Again";
-      wrapper.classList.remove("--failed");
-      // Reading a layout property forces a reflow, which allows the browser to
-      // restart the shake CSS animation even when the class is removed and
-      // re-added in the same event-loop tick.
-      wrapper.getBoundingClientRect();
-      wrapper.classList.add("--failed");
-      setTimeout(() => {
-        button.textContent = "Check";
-        wrapper.classList.remove("--failed");
-      }, 900);
+    const scoreEvent = game.completePuzzle(puzzleId, input);
+    if (!scoreEvent) {
+      triggerFailFeedback(wrapper, button);
       return;
     }
+
+    showToast(scoreEvent.reason);
 
     if (game.getProgress().finalCanvasUnlocked) {
       activeStationId = null;
@@ -1502,6 +1550,16 @@ function renderPuzzleMiniGame(puzzleId: string, title: string, state: string): v
     const warmTarget = 0.62;
     const coolTarget = 0.52;
 
+    // ── Phase indicator badge ──────────────────────────────────────────────
+    const phaseIndicator = document.createElement("div");
+    phaseIndicator.className = "phase-indicator";
+    zone.appendChild(phaseIndicator);
+
+    // ── Per-phase guide text ───────────────────────────────────────────────
+    const phaseGuide = document.createElement("div");
+    phaseGuide.className = "phase-guide";
+    zone.appendChild(phaseGuide);
+
     const board = document.createElement("div");
     board.className = "golden-hour-board";
     const sky = document.createElement("div");
@@ -1571,6 +1629,25 @@ function renderPuzzleMiniGame(puzzleId: string, title: string, state: string): v
         s.adapted = true;
       }
 
+      // Update phase indicator and guide text
+      phaseIndicator.dataset.phase = s.phase;
+      if (s.phase === "sunset") {
+        phaseIndicator.textContent = "🌅 Sunset Phase";
+        phaseGuide.textContent =
+          `Step 1 of 2: Raise the Warm palette slider to ≥${Math.round(warmTarget * 100)}% ` +
+          `before daylight runs out. Click "Advance Time" to move toward nightfall, or ` +
+          `"Shift To Blue Hour" when you're ready to move on.`;
+        advance.style.display = "";
+        triggerBlueHour.style.display = "";
+      } else {
+        phaseIndicator.textContent = "🌙 Blue Hour Phase";
+        phaseGuide.textContent =
+          `Step 2 of 2: Raise the Cool adaptation slider to ≥${Math.round(coolTarget * 100)}% ` +
+          `to capture the cool twilight glow. Then click Check to validate both phases.`;
+        advance.style.display = "none";
+        triggerBlueHour.style.display = "none";
+      }
+
       fill.style.width = `${s.timeLeft}%`;
       warmFill.style.width = `${Math.round(s.warmMix * 100)}%`;
       coolFill.style.width = `${Math.round(s.coolMix * 100)}%`;
@@ -1590,7 +1667,7 @@ function renderPuzzleMiniGame(puzzleId: string, title: string, state: string): v
       sun.style.left = `${Math.max(4, Math.min(92, s.timeLeft))}%`;
       meterLabel.textContent = s.phase === "sunset"
         ? `Sunset timer: ${Math.round(s.timeLeft)}% daylight remaining`
-        : "Blue hour active";
+        : "Blue hour active — daylight gone";
       feedback.textContent = s.phase === "sunset"
         ? `Sunset phase: build warmth now. Cool adaptation still tints sky by ${(coolBoost * 100).toFixed(0)}%.`
         : `Blue-hour phase: push cool adaptation. Warm underpainting still influences glow by ${(warmBoost * 100).toFixed(0)}%.`;
@@ -1598,7 +1675,11 @@ function renderPuzzleMiniGame(puzzleId: string, title: string, state: string): v
       const warmReached = s.warmMix >= warmTarget || s.peakWarm >= warmTarget;
       const coolReached = s.coolMix >= coolTarget || s.peakCool >= coolTarget;
       const preNightWarm = s.warmedInTime || warmReached;
-      checklist.textContent = `Checklist: warm mix ${warmReached ? "✓" : "..."} | warmed before nightfall ${preNightWarm ? "✓" : "..."} | blue-hour adaptation ${s.phase === "bluehour" && (s.adapted || coolReached) ? "✓" : "..."}`;
+      const blueHourAdapted = s.phase === "bluehour" && (s.adapted || coolReached);
+      const warmIcon = warmReached ? "✓" : "…";
+      const nightIcon = preNightWarm ? "✓" : "…";
+      const blueIcon = blueHourAdapted ? "✓" : "…";
+      checklist.textContent = `Checklist: warm mix ${warmIcon} | warmed before nightfall ${nightIcon} | blue-hour adaptation ${blueIcon}`;
     };
 
     addSlider(zone, "Warm palette strength", s.warmMix, 0, 1, 0.01, (v) => {
@@ -1613,7 +1694,8 @@ function renderPuzzleMiniGame(puzzleId: string, title: string, state: string): v
 
     const advance = document.createElement("button");
     advance.className = "btn";
-    advance.textContent = "Advance Time";
+    advance.textContent = "Advance Time (−20%)";
+    advance.setAttribute("title", "Move time forward — reach 0% to enter Blue Hour");
     advance.addEventListener("click", () => {
       s.timeLeft = Math.max(0, s.timeLeft - 20);
       if (s.timeLeft === 0) {
@@ -1624,8 +1706,9 @@ function renderPuzzleMiniGame(puzzleId: string, title: string, state: string): v
     zone.appendChild(advance);
 
     const triggerBlueHour = document.createElement("button");
-    triggerBlueHour.className = "btn";
-    triggerBlueHour.textContent = "Shift To Blue Hour";
+    triggerBlueHour.className = "btn btn-accent";
+    triggerBlueHour.textContent = "Shift To Blue Hour →";
+    triggerBlueHour.setAttribute("title", "Skip to Blue Hour once your warm palette is ready (≥62%)");
     triggerBlueHour.addEventListener("click", () => {
       s.phase = "bluehour";
       s.timeLeft = 0;

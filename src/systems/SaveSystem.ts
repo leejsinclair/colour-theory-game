@@ -5,6 +5,11 @@ export type SaveData = {
   collectedPets: string[];
   unlockedStations: string[];
   playerPosition: Vec2;
+  score: number;
+  practiceScoreByPuzzle: Record<string, number>;
+  petMilestonesUnlocked: string[];
+  currentStreak: number;
+  bestStreak: number;
 };
 
 export class SaveSystem {
@@ -16,6 +21,16 @@ export class SaveSystem {
   }
 
   loadGame(): SaveData | null {
-    return this.snapshot ? structuredClone(this.snapshot) : null;
+    if (!this.snapshot) {
+      return null;
+    }
+    const data = structuredClone(this.snapshot);
+    // Backward compatibility: default missing gamification fields
+    data.score ??= 0;
+    data.practiceScoreByPuzzle ??= {};
+    data.petMilestonesUnlocked ??= [];
+    data.currentStreak ??= 0;
+    data.bestStreak ??= 0;
+    return data;
   }
 }
