@@ -90,3 +90,67 @@ test("Paint Workbench art mini-game: select color, draw, and clear", async ({ pa
   });
   expect(isCleared).toBe(true);
 });
+
+test("Light Laboratory: RGB beam buttons are present and toggle on click", async ({ page }) => {
+  await page.goto("/");
+
+  // Fresh game — only station-01 (Light Laboratory) is unlocked
+  const labEnter = page.locator(".puzzle-item", {
+    has: page.getByText("Light Laboratory"),
+  }).getByRole("button", { name: "Enter" });
+
+  await labEnter.click();
+
+  // All four beam buttons must be visible for puzzle-01
+  await expect(page.locator('.beam-btn[data-beam="red"]')).toBeVisible();
+  await expect(page.locator('.beam-btn[data-beam="green"]')).toBeVisible();
+  await expect(page.locator('.beam-btn[data-beam="blue"]')).toBeVisible();
+  await expect(page.locator('.beam-btn[data-beam="overlap"]')).toBeVisible();
+
+  // Initially no beams are on
+  await expect(page.locator('.beam-btn[data-beam="red"]')).not.toHaveClass(/--on/);
+
+  // Toggle Red Beam — should become active
+  await page.locator('.beam-btn[data-beam="red"]').click();
+  await expect(page.locator('.beam-btn[data-beam="red"]')).toHaveClass(/--on/);
+
+  // Color preview swatch should be visible
+  await expect(page.locator(".color-preview-swatch").first()).toBeVisible();
+
+  // Toggle Red Beam again — should deactivate
+  await page.locator('.beam-btn[data-beam="red"]').click();
+  await expect(page.locator('.beam-btn[data-beam="red"]')).not.toHaveClass(/--on/);
+});
+
+test("Paint Workbench: coverage bar is visible and updates when drawing", async ({ page }) => {
+  await page.goto("/");
+
+  await page.getByRole("button", { name: "Auto Solve Journey" }).click();
+  await page.getByRole("button", { name: "Return" }).click();
+
+  const workbenchEnter = page.locator(".puzzle-item", {
+    has: page.getByText("Paint Workbench"),
+  }).getByRole("button", { name: "Enter" });
+
+  await workbenchEnter.click();
+  await expect(page.locator(".art-game-card")).toBeVisible();
+
+  // Coverage bar and label must be present
+  await expect(page.locator(".coverage-bar-label")).toBeVisible();
+  await expect(page.locator(".coverage-bar-track")).toBeVisible();
+
+  // Initial coverage should be 0%
+  await expect(page.locator(".coverage-bar-label")).toContainText("0%");
+
+  // Draw enough cells to raise coverage above 0%
+  const pad = page.locator(".paint-pad");
+  for (let i = 0; i < 6; i++) {
+    await pad.click({ position: { x: 10 + i * 55, y: 20 } });
+    await pad.click({ position: { x: 10 + i * 55, y: 60 } });
+    await pad.click({ position: { x: 10 + i * 55, y: 100 } });
+  }
+
+  // Coverage label should show a positive percentage (≥1%)
+  const labelText = await page.locator(".coverage-bar-label").textContent();
+  expect(labelText).toMatch(/Coverage: [1-9]\d*%/);
+});
