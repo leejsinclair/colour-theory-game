@@ -486,12 +486,31 @@ This section tracks implementation against this story plan and `game-architectur
 	- Puzzle-09 (Mood Palette): palette-builder board with inferred tags from hue/saturation/value/contrast interactions
 	- Puzzle-13 (Depth Painting): layered mountain scene with live edge-softening, saturation-drop, and cool-shift controls
 	- Puzzle-14 (Rayleigh Scattering): atmospheric board with scattering/haze controls and visible far-ridge blue shift
-	- Puzzle-15 (Golden Hour): dual warm/cool progress meters, live completion checklist, reset-day-cycle control, and more reliable/forgiving completion tracking
+	- Puzzle-15 (Golden Hour): dual warm/cool progress meters, live completion checklist, reset-day-cycle control, and more reliable/forgiving completion tracking; **improved usability**: phase indicator badge, per-phase step guide ("Step 1 of 2…"), "Shift To Blue Hour" promoted to accent button with tooltip, "Advance Time" labeled with step size, redundant controls hidden in blue-hour phase
 	- Puzzle-18 (Optical Mixing): added live tiled distance preview canvas to visualize optical blending while painting
 	- All puzzles: shake animation + red border feedback on incorrect Check submission
-- Playwright e2e coverage expanded (6 tests):
+- Playwright e2e coverage expanded (12 tests):
 	- RGB beam button toggling and color preview rendering
 	- Optical mixing coverage bar visibility and update-on-draw behavior
+	- Gamification HUD visibility (Score / Pets / Best Streak tiles)
+	- HUD value updates after Auto Solve Journey
+	- Pet milestone badges (Color Apprentice / Palette Keeper / Chromatic Master) rendered after all pets collected
+	- Reward toast notification appears on first-time puzzle solve via Check button
+	- Progress panel shows Score line
+	- Golden Hour phase indicator visible when entering puzzle
+- **Gamification reward loop implemented** (`src/game/Game.ts`, `src/systems/SaveSystem.ts`):
+	- First-time puzzle solve: +100 pts
+	- New pet rescued: +25 pts
+	- Station completion bonus: +50 pts
+	- Final canvas unlock: +200 pts
+	- Practice completions: +10 pts per valid attempt, capped at 30 per puzzle per session
+	- Combo streak counter (currentStreak / bestStreak) increments on each successful Check
+	- Pet collection milestones: 6 pets → "Color Apprentice", 12 → "Palette Keeper", 18 → "Chromatic Master"
+	- All fields persisted in save snapshot with backward-compatible defaults
+- **HUD + reward feedback UI** (`src/web/main.ts`, `index.html`, `src/web/styles.css`):
+	- Persistent Score / Pets / Best Streak tile row above progress panel
+	- Pet milestone badges rendered below HUD when thresholds reached
+	- Floating toast notification on each successful Check showing score breakdown (e.g., "+100 First Solve: Triadic Harmony +25 Pet Rescued")
 
 ## Improvements Needed (Priority Backlog)
 

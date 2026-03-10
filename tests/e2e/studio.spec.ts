@@ -154,3 +154,93 @@ test("Paint Workbench: coverage bar is visible and updates when drawing", async 
   const labelText = await page.locator(".coverage-bar-label").textContent();
   expect(labelText).toMatch(/Coverage: [1-9]\d*%/);
 });
+
+test("HUD shows Score, Pets, Best Streak tiles on load", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.locator("#hud-score-value")).toBeVisible();
+  await expect(page.locator("#hud-pets-value")).toBeVisible();
+  await expect(page.locator("#hud-streak-value")).toBeVisible();
+  // Initial values
+  await expect(page.locator("#hud-score-value")).toHaveText("0");
+  await expect(page.locator("#hud-pets-value")).toHaveText("0/18");
+});
+
+test("HUD score and pets update after auto solve", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("button", { name: "Auto Solve Journey" }).click();
+
+  // Score should be well above 0 (at minimum 18 * 125 = 2250 with bonuses)
+  const scoreText = await page.locator("#hud-score-value").textContent();
+  expect(Number(scoreText)).toBeGreaterThan(0);
+
+  // Pets should show 18/18
+  await expect(page.locator("#hud-pets-value")).toHaveText("18/18");
+
+  // Best streak should be > 0
+  const streakText = await page.locator("#hud-streak-value").textContent();
+  expect(Number(streakText)).toBeGreaterThan(0);
+});
+
+test("pet milestones appear in HUD after auto solve", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("button", { name: "Auto Solve Journey" }).click();
+
+  // All three milestones should be visible
+  await expect(page.locator("#milestone-badges")).toContainText("Color Apprentice");
+  await expect(page.locator("#milestone-badges")).toContainText("Palette Keeper");
+  await expect(page.locator("#milestone-badges")).toContainText("Chromatic Master");
+});
+
+test("reward feedback toast appears after solving a puzzle via Check button", async ({ page }) => {
+  await page.goto("/");
+
+  // Enter Light Laboratory (station-01, puzzle-01 is available from the start)
+  const labEnter = page.locator(".puzzle-item", {
+    has: page.getByText("Light Laboratory"),
+  }).getByRole("button", { name: "Enter" });
+  await labEnter.click();
+
+  // Turn on all beams so validation passes
+  await page.locator('.beam-btn[data-beam="red"]').click();
+  await page.locator('.beam-btn[data-beam="green"]').click();
+  await page.locator('.beam-btn[data-beam="blue"]').click();
+  await page.locator('.beam-btn[data-beam="overlap"]').click();
+
+  // Click Check — use the puzzle-item containing the "Create White Light" puzzle title
+  await page.locator(".puzzle-item", {
+    has: page.getByText("Create White Light"),
+  }).getByRole("button", { name: "Check" }).click();
+
+  // Toast should appear with "+100" in it
+  await expect(page.locator(".toast")).toContainText("+100");
+});
+
+test("progress panel shows Score line", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.locator("#progress")).toContainText("Score");
+});
+
+test("Golden Hour puzzle shows phase indicator on entry", async ({ page }) => {
+  await page.goto("/");
+
+  // Auto-solve all puzzles up to puzzle-14 so station-05 is available
+  await page.getByRole("button", { name: "Auto Solve Journey" }).click();
+  await page.getByRole("button", { name: "Return" }).click();
+
+  // Enter Window Landscape station (puzzle-15)
+  const landscapeEnter = page.locator(".puzzle-item", {
+    has: page.getByText("Window Landscape"),
+  }).getByRole("button", { name: "Enter" });
+  await landscapeEnter.click();
+
+  // Enter puzzle-15 via Practice (it was solved by auto-solve)
+  const goldenHourPractice = page.locator(".puzzle-item", {
+    has: page.getByText("Golden Hour"),
+  }).getByRole("button", { name: "Practice" });
+  await goldenHourPractice.click();
+
+  // Phase indicator must be visible
+  await expect(page.locator(".phase-indicator")).toBeVisible();
+  // Phase guide must be visible with step instructions
+  await expect(page.locator(".phase-guide")).toBeVisible();
+});

@@ -102,8 +102,8 @@ Use this section as the execution contract for adding progression rewards beyond
 
 - Core quality gate status:
   - `npm run build` passing
-  - `npm test` passing (unit progression/save-load)
-  - `npm run test:e2e` passing (6 Playwright scenarios)
+  - `npm test` passing (18 unit tests: progression, save-load, gamification scoring, pet milestones)
+  - `npm run test:e2e` passing (12 Playwright scenarios)
 - Gameplay UX progress now completed in browser prototype:
   - Station puzzle cards include objective text and improved failure feedback
   - Puzzle-01: RGB beam button interaction + live additive preview
@@ -113,20 +113,30 @@ Use this section as the execution contract for adding progression rewards beyond
   - Puzzle-09: mood palette board with inferred tag feedback
   - Puzzle-10/11/12: relativity mini-boards with visual context/perception feedback
   - Puzzle-13/14: atmospheric depth/scattering scene interactions
-  - Puzzle-15: golden-hour reliability updates (dual meters, checklist, reset cycle)
+  - Puzzle-15: golden-hour reliability updates (dual meters, checklist, reset cycle) **+ usability improvements (phase badge, step guide, accent CTA, context-sensitive button visibility)**
   - Puzzle-16: contaminant-based mud model replacing confusing direct mud control
   - Puzzle-17: Mud Monster board with actionable mix choices and mud meter
   - Puzzle-18: paint-pad coverage meter plus tiled optical blend distance preview
+- **Gamification reward loop implemented** (completed):
+  - Scoring: +100 first solve, +25 pet rescue, +50 station complete, +200 final canvas, +10 practice (cap 30/puzzle)
+  - Streak tracking: currentStreak / bestStreak
+  - Pet milestones: Color Apprentice (6), Palette Keeper (12), Chromatic Master (18)
+  - HUD: Score / Pets / Best Streak tiles always visible
+  - Pet milestone badges rendered in Progress card
+  - Reward toast on every successful Check
+  - Save snapshot extended with all gamification fields (backward compatible)
 
 ## Priority backlog for cloud agents
 
 1. ~~Fix Paint Workbench gameplay so the art-station game reliably renders and is playable after entering the station (current blocker).~~ ✓ Done
 2. ~~Add/expand Playwright coverage for Paint Workbench interaction (draw on pad, color select, clear, and state updates) to prevent regressions.~~ ✓ Done (6 e2e tests passing)
 3. ~~Rich station-specific visual interactions beyond current prototype overlays~~ ✓ Done (all stations now have interactive mini-game patterns; continue polish/testing).
-4. Expand Playwright coverage for upgraded puzzle interactions (especially puzzle-03, 07, 09, 13, 14, 15, 17, 18 tiled preview).
-5. Final Canvas interaction system with pet-guided hinting.
-6. Save/load persistence backend for browser mode.
-7. Reward unlock loop (Free Paint Mode, decoration items, pet hats, advanced challenges).
+4. ~~Gamification reward loop (scoring, streaks, pet milestones, HUD, toast feedback)~~ ✓ Done (12 e2e tests + 18 unit tests passing)
+5. ~~Improve Golden Hour (puzzle-15) usability~~ ✓ Done (phase indicator, step guide, accent CTA, context-sensitive buttons)
+6. Expand Playwright coverage for upgraded puzzle interactions (especially puzzle-03, 07, 09, 13, 14, 17, 18 tiled preview).
+7. Final Canvas interaction system with pet-guided hinting.
+8. Save/load persistence backend for browser mode.
+9. Reward unlock loop (Free Paint Mode, decoration items, pet hats, advanced challenges).
 
 ## Stability constraints
 
