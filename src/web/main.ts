@@ -513,7 +513,7 @@ function updatePuzzlePanel(): void {
         const enterButton = document.createElement("button");
         enterButton.className = "btn";
         enterButton.textContent = "Enter";
-        enterButton.addEventListener("click", () => tryEnterNearbyStation(station.id));
+        enterButton.addEventListener("click", () => enterStation(station.id));
 
         wrapper.appendChild(info);
         wrapper.appendChild(enterButton);
