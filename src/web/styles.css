@@ -776,6 +776,52 @@ body {
   animation: fade-in 350ms ease;
 }
 
+/* ── Pet jellybean collection grid ───────────────────────────────────────── */
+
+.pet-collection {
+  display: grid;
+  grid-template-columns: repeat(9, 1fr);
+  gap: 0.3rem;
+  margin-bottom: 0.6rem;
+}
+
+.pet-slot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.35;
+  transition: opacity 220ms ease, transform 220ms ease;
+}
+
+.pet-slot svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.pet-slot--collected {
+  opacity: 1;
+  animation: pet-pop 320ms ease;
+}
+
+.pet-slot--collected:hover {
+  transform: scale(1.15);
+}
+
+@keyframes pet-pop {
+  0% {
+    transform: scale(0.6);
+    opacity: 0;
+  }
+  70% {
+    transform: scale(1.18);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
 /* ── Reward toast notifications ──────────────────────────────────────────── */
 
 .toast-container {
