@@ -419,8 +419,15 @@ function addCheckButton(wrapper: HTMLDivElement, puzzleId: string, inputFactory:
     const solved = game.completePuzzle(puzzleId, inputFactory());
     if (!solved) {
       button.textContent = "Try Again";
+      wrapper.classList.remove("--failed");
+      // Reading a layout property forces a reflow, which allows the browser to
+      // restart the shake CSS animation even when the class is removed and
+      // re-added in the same event-loop tick.
+      wrapper.getBoundingClientRect();
+      wrapper.classList.add("--failed");
       setTimeout(() => {
         button.textContent = "Check";
+        wrapper.classList.remove("--failed");
       }, 900);
       return;
     }
@@ -513,17 +520,89 @@ function renderPuzzleMiniGame(puzzleId: string, title: string, state: string): v
 
   if (puzzleId === "puzzle-01") {
     const s = ensureState(puzzleId, { red: false, green: false, blue: false, overlap: false });
-    addCheckbox(zone, "Red beam", s.red, (v) => { s.red = v; });
-    addCheckbox(zone, "Green beam", s.green, (v) => { s.green = v; });
-    addCheckbox(zone, "Blue beam", s.blue, (v) => { s.blue = v; });
-    addCheckbox(zone, "Align overlap", s.overlap, (v) => { s.overlap = v; });
+
+    // Live RGB preview
+    const previewRow = document.createElement("div");
+    previewRow.className = "color-preview-row";
+    const previewSwatch = document.createElement("div");
+    previewSwatch.className = "color-preview-swatch";
+    previewSwatch.style.background = "#1a1a2e";
+    const previewLabel = document.createElement("div");
+    previewLabel.className = "color-preview-label";
+    previewRow.appendChild(previewSwatch);
+    previewRow.appendChild(previewLabel);
+
+    const updateBeamPreview = (): void => {
+      const r = s.red && s.overlap ? 255 : 0;
+      const g = s.green && s.overlap ? 255 : 0;
+      const b = s.blue && s.overlap ? 255 : 0;
+      previewSwatch.style.background = s.overlap ? `rgb(${r}, ${g}, ${b})` : "#1a1a2e";
+      const parts = [s.red ? "R" : "", s.green ? "G" : "", s.blue ? "B" : ""].filter(Boolean);
+      if (!s.overlap) {
+        previewLabel.textContent = parts.length > 0 ? `${parts.join("+")} beams — align overlap to mix` : "No beams active";
+      } else {
+        previewLabel.textContent = parts.length === 3 ? "White light! ✓ All beams aligned" : parts.join("+") || "No beams";
+      }
+    };
+
+    // Beam toggle buttons
+    const btnRow = document.createElement("div");
+    btnRow.className = "beam-btns";
+    const beamDefs: Array<{ key: "red" | "green" | "blue" | "overlap"; label: string }> = [
+      { key: "red", label: "Red Beam" },
+      { key: "green", label: "Green Beam" },
+      { key: "blue", label: "Blue Beam" },
+      { key: "overlap", label: "Align Overlap" },
+    ];
+    beamDefs.forEach(({ key, label }) => {
+      const btn = document.createElement("button");
+      btn.className = `beam-btn${s[key] ? " --on" : ""}`;
+      btn.dataset.beam = key;
+      btn.textContent = label;
+      btn.addEventListener("click", () => {
+        s[key] = !s[key];
+        btn.classList.toggle("--on", s[key]);
+        updateBeamPreview();
+      });
+      btnRow.appendChild(btn);
+    });
+
+    zone.appendChild(btnRow);
+    zone.appendChild(previewRow);
+    updateBeamPreview();
     addCheckButton(wrapper, puzzleId, () => ({ redBeam: s.red, greenBeam: s.green, blueBeam: s.blue, overlap: s.overlap }));
   } else if (puzzleId === "puzzle-02") {
     const s = ensureState(puzzleId, { c: 0.1, m: 0.1, y: 0.1 });
-    addSlider(zone, "Cyan", s.c, 0, 1, 0.01, (v) => { s.c = v; });
-    addSlider(zone, "Magenta", s.m, 0, 1, 0.01, (v) => { s.m = v; });
-    addSlider(zone, "Yellow", s.y, 0, 1, 0.01, (v) => { s.y = v; });
-    addMiniLabel(zone, "Target shown in station display. Match all channels.");
+
+    // Live CMY mix preview
+    const previewRow = document.createElement("div");
+    previewRow.className = "color-preview-row";
+    const previewSwatch = document.createElement("div");
+    previewSwatch.className = "color-preview-swatch";
+    const targetSwatch = document.createElement("div");
+    targetSwatch.className = "color-preview-swatch";
+    // Target is C=0.4, M=0.5, Y=0.2 → rgb(153, 127, 204)
+    targetSwatch.style.background = "rgb(153, 127, 204)";
+    targetSwatch.title = "Target color";
+    const previewLabel = document.createElement("div");
+    previewLabel.className = "color-preview-label";
+    previewRow.appendChild(previewSwatch);
+    previewRow.appendChild(targetSwatch);
+    previewRow.appendChild(previewLabel);
+
+    const updateCMYPreview = (): void => {
+      const r = Math.round(255 * (1 - s.c));
+      const g = Math.round(255 * (1 - s.m));
+      const b = Math.round(255 * (1 - s.y));
+      previewSwatch.style.background = `rgb(${r}, ${g}, ${b})`;
+      previewLabel.textContent = "Current → Target";
+    };
+
+    addSlider(zone, "Cyan", s.c, 0, 1, 0.01, (v) => { s.c = v; updateCMYPreview(); });
+    addSlider(zone, "Magenta", s.m, 0, 1, 0.01, (v) => { s.m = v; updateCMYPreview(); });
+    addSlider(zone, "Yellow", s.y, 0, 1, 0.01, (v) => { s.y = v; updateCMYPreview(); });
+    zone.appendChild(previewRow);
+    updateCMYPreview();
     addCheckButton(wrapper, puzzleId, () => ({ cyan: s.c, magenta: s.m, yellow: s.y, target: { cyan: 0.4, magenta: 0.5, yellow: 0.2 } }));
   } else if (puzzleId === "puzzle-03") {
     const s = ensureState(puzzleId, { a: "blue", b: "orange", luminousShadow: false });
@@ -625,9 +704,43 @@ function renderPuzzleMiniGame(puzzleId: string, title: string, state: string): v
     addCheckButton(wrapper, puzzleId, () => ({ warmPaletteMixed: s.warm, completedBeforeNightfall: s.onTime, adaptedToBlueHour: s.blueHour }));
   } else if (puzzleId === "puzzle-16") {
     const s = ensureState(puzzleId, { phthalo: false, hansa: false, mud: 0.5 });
-    addCheckbox(zone, "Add Phthalo Blue", s.phthalo, (v) => { s.phthalo = v; });
-    addCheckbox(zone, "Add Hansa Yellow", s.hansa, (v) => { s.hansa = v; });
-    addSlider(zone, "Mud level", s.mud, 0, 1, 0.01, (v) => { s.mud = v; });
+
+    // Live pigment mix preview
+    const previewRow = document.createElement("div");
+    previewRow.className = "color-preview-row";
+    const previewSwatch = document.createElement("div");
+    previewSwatch.className = "color-preview-swatch";
+    const previewLabel = document.createElement("div");
+    previewLabel.className = "color-preview-label";
+    previewRow.appendChild(previewSwatch);
+    previewRow.appendChild(previewLabel);
+
+    const updateMixPreview = (): void => {
+      if (s.phthalo && s.hansa && s.mud <= 0.25) {
+        const sat = Math.round(70 - s.mud * 100);
+        previewSwatch.style.background = `hsl(115, ${sat}%, 38%)`;
+        previewLabel.textContent = "Vibrant green! ✓";
+      } else if (s.phthalo && s.hansa) {
+        const sat = Math.max(5, 30 - Math.round((s.mud - 0.25) * 60));
+        previewSwatch.style.background = `hsl(80, ${sat}%, 32%)`;
+        previewLabel.textContent = "Muddy green — reduce mud level";
+      } else if (s.phthalo) {
+        previewSwatch.style.background = "#0077a3";
+        previewLabel.textContent = "Phthalo Blue only";
+      } else if (s.hansa) {
+        previewSwatch.style.background = "#e8c820";
+        previewLabel.textContent = "Hansa Yellow only";
+      } else {
+        previewSwatch.style.background = "#f0ede8";
+        previewLabel.textContent = "No pigments selected";
+      }
+    };
+
+    addCheckbox(zone, "Add Phthalo Blue", s.phthalo, (v) => { s.phthalo = v; updateMixPreview(); });
+    addCheckbox(zone, "Add Hansa Yellow", s.hansa, (v) => { s.hansa = v; updateMixPreview(); });
+    addSlider(zone, "Mud level", s.mud, 0, 1, 0.01, (v) => { s.mud = v; updateMixPreview(); });
+    zone.appendChild(previewRow);
+    updateMixPreview();
     addCheckButton(wrapper, puzzleId, () => ({ pigments: [s.phthalo ? "phthalo blue" : "", s.hansa ? "hansa yellow" : ""].filter(Boolean), mudLevel: s.mud }));
   } else if (puzzleId === "puzzle-17") {
     const s = ensureState(puzzleId, { complements: 2, muddy: true });
@@ -656,7 +769,7 @@ function renderArtStationMiniGame(container: HTMLElement, wrapper: HTMLDivElemen
 
   const heading = document.createElement("div");
   heading.className = "art-game-heading";
-  heading.innerHTML = "<strong>Art Station Mini Game</strong><div class=\"puzzle-meta\">Paint dots, build a palette, and practice optical mixing.</div>";
+  heading.innerHTML = "<strong>Art Station Mini Game</strong><div class=\"puzzle-meta\">Paint dots of pure color. Step back to see optical mixing at work.</div>";
   card.appendChild(heading);
 
   const swatchRow = document.createElement("div");
@@ -679,6 +792,21 @@ function renderArtStationMiniGame(container: HTMLElement, wrapper: HTMLDivElemen
   paintCanvas.width = 360;
   paintCanvas.height = 200;
   card.appendChild(paintCanvas);
+
+  // Coverage bar
+  const coverageWrap = document.createElement("div");
+  coverageWrap.className = "coverage-wrap";
+  const coverageTrack = document.createElement("div");
+  coverageTrack.className = "coverage-bar-track";
+  const coverageFill = document.createElement("div");
+  coverageFill.className = "coverage-bar-fill";
+  coverageFill.style.width = "0%";
+  coverageTrack.appendChild(coverageFill);
+  const coverageLabel = document.createElement("div");
+  coverageLabel.className = "coverage-bar-label";
+  coverageWrap.appendChild(coverageTrack);
+  coverageWrap.appendChild(coverageLabel);
+  card.appendChild(coverageWrap);
 
   const controls = document.createElement("div");
   controls.className = "action-row";
@@ -711,6 +839,16 @@ function renderArtStationMiniGame(container: HTMLElement, wrapper: HTMLDivElemen
   const cellW = paintCanvas.width / artPad.cols;
   const cellH = paintCanvas.height / artPad.rows;
 
+  const updateCoverage = (): void => {
+    const pct = Math.round(getArtCoverage() * 100);
+    coverageFill.style.width = `${pct}%`;
+    const ready = pct >= 12;
+    coverageFill.classList.toggle("--ready", ready);
+    coverageLabel.textContent = ready
+      ? `Coverage: ${pct}% ✓ Optical mixing visible!`
+      : `Coverage: ${pct}% — paint more dots (need 12%)`;
+  };
+
   const drawPad = (): void => {
     for (let row = 0; row < artPad.rows; row += 1) {
       for (let col = 0; col < artPad.cols; col += 1) {
@@ -733,6 +871,8 @@ function renderArtStationMiniGame(container: HTMLElement, wrapper: HTMLDivElemen
       padCtx.lineTo(paintCanvas.width, row * cellH);
       padCtx.stroke();
     }
+
+    updateCoverage();
   };
 
   const paintAt = (clientX: number, clientY: number): void => {
@@ -748,6 +888,7 @@ function renderArtStationMiniGame(container: HTMLElement, wrapper: HTMLDivElemen
   let isPainting = false;
   paintCanvas.addEventListener("pointerdown", (event) => {
     isPainting = true;
+    paintCanvas.setPointerCapture(event.pointerId);
     paintAt(event.clientX, event.clientY);
   });
   paintCanvas.addEventListener("pointermove", (event) => {

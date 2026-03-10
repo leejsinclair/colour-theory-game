@@ -29,12 +29,12 @@ Finish gameplay tasks incrementally while keeping architecture stable and tests 
 
 ## Priority backlog for cloud agents
 
-1. Fix Paint Workbench gameplay so the art-station game reliably renders and is playable after entering the station (current blocker).
-2. Add/expand Playwright coverage for Paint Workbench interaction (draw on pad, color select, clear, and state updates) to prevent regressions.
-3. Final Canvas interaction system with pet-guided hinting.
-4. Save/load persistence backend for browser mode.
-5. Reward unlock loop (Free Paint Mode, decoration items, pet hats, advanced challenges).
-6. Rich station-specific visual interactions beyond current prototype overlays.
+1. ~~Fix Paint Workbench gameplay so the art-station game reliably renders and is playable after entering the station (current blocker).~~ ✓ Done
+2. ~~Add/expand Playwright coverage for Paint Workbench interaction (draw on pad, color select, clear, and state updates) to prevent regressions.~~ ✓ Done (6 e2e tests passing)
+3. ~~Rich station-specific visual interactions beyond current prototype overlays~~ ✓ Partially done: beam buttons (puzzle-01), CMY preview (puzzle-02), pigment preview (puzzle-16), coverage bar + pointer capture (puzzle-18), shake fail feedback (all puzzles).
+4. Final Canvas interaction system with pet-guided hinting.
+5. Save/load persistence backend for browser mode.
+6. Reward unlock loop (Free Paint Mode, decoration items, pet hats, advanced challenges).
 
 ## Stability constraints
 

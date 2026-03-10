@@ -475,10 +475,18 @@ This section tracks implementation against this story plan and `game-architectur
 	- Browser/canvas prototype (`npm run play:web`) for visual station progression
 - Unit tests for core progression and save/load (`npm test`)
 - Shared demo-solution map used by tests and prototypes for deterministic solves
+- Mini-game UX improvements:
+	- Puzzle-01 (RGB beams): visual toggle beam buttons with live additive-color preview replacing plain checkboxes
+	- Puzzle-02 (CMY print): live CMY-to-RGB preview swatches (current mix vs. target)
+	- Puzzle-16 (Vibrant Green): live pigment mix color preview showing clean vs. muddy outcomes
+	- Puzzle-18 (Optical Mixing): coverage bar tracks painted area percentage; pointer capture for uninterrupted drag-to-paint across canvas boundary
+	- All puzzles: shake animation + red border feedback on incorrect Check submission
+- Playwright e2e coverage expanded (6 tests):
+	- RGB beam button toggling and color preview rendering
+	- Optical mixing coverage bar visibility and update-on-draw behavior
 
 ## Next implementation milestones
 
-- Fix Paint Workbench station so the art mini-game consistently displays and is actually playable in browser mode
 - Add rendering layer implementation (studio, player, pets, puzzle UI, effects)
 - Build final canvas painting interaction with pet hint reactions
 - Add persistent storage backend for save data (file/local storage)

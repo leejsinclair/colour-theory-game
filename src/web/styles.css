@@ -251,6 +251,96 @@ body {
   border-radius: 8px;
   background: #fff;
   touch-action: none;
+  cursor: crosshair;
+}
+
+/* Fail/success feedback on puzzle items */
+.puzzle-item.--failed {
+  border-color: rgba(224, 49, 49, 0.45);
+  animation: shake 320ms ease;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20%       { transform: translateX(-5px); }
+  40%       { transform: translateX(5px); }
+  60%       { transform: translateX(-4px); }
+  80%       { transform: translateX(3px); }
+}
+
+/* Beam toggle buttons (puzzle-01) */
+.beam-btns {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.beam-btn {
+  padding: 0.35rem 0.7rem;
+  border-radius: 8px;
+  border: 2px solid rgba(31, 32, 48, 0.2);
+  background: white;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 180ms, border-color 180ms, color 180ms;
+  font-family: inherit;
+}
+
+.beam-btn.--on[data-beam="red"]     { background: #e84343; border-color: #e84343; color: #fff; }
+.beam-btn.--on[data-beam="green"]   { background: #2f9e44; border-color: #2f9e44; color: #fff; }
+.beam-btn.--on[data-beam="blue"]    { background: #2166c0; border-color: #2166c0; color: #fff; }
+.beam-btn.--on[data-beam="overlap"] { background: #6f42c1; border-color: #6f42c1; color: #fff; }
+
+/* Live color preview row */
+.color-preview-row {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  margin-top: 0.3rem;
+}
+
+.color-preview-swatch {
+  width: 38px;
+  height: 38px;
+  border-radius: 8px;
+  border: 1px solid rgba(31, 32, 48, 0.2);
+  flex-shrink: 0;
+  transition: background 120ms;
+}
+
+.color-preview-label {
+  font-size: 0.78rem;
+  color: var(--ink-muted);
+}
+
+/* Optical mixing coverage bar (puzzle-18) */
+.coverage-wrap {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.coverage-bar-track {
+  height: 8px;
+  background: rgba(31, 32, 48, 0.1);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.coverage-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  border-radius: 999px;
+  transition: width 80ms;
+}
+
+.coverage-bar-fill.--ready {
+  background: linear-gradient(90deg, #2f9e44, #40c057);
+}
+
+.coverage-bar-label {
+  font-size: 0.78rem;
+  color: var(--ink-muted);
 }
 
 @keyframes fade-in {
