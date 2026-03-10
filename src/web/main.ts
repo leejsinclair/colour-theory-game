@@ -746,10 +746,90 @@ function renderPuzzleMiniGame(puzzleId: string, title: string, state: string): v
     updateCMYPreview();
     addCheckButton(wrapper, puzzleId, () => ({ cyan: s.c, magenta: s.m, yellow: s.y, target: { cyan: 0.4, magenta: 0.5, yellow: 0.2 } }));
   } else if (puzzleId === "puzzle-03") {
-    const s = ensureState(puzzleId, { a: "blue", b: "orange", luminousShadow: false });
-    addSelect(zone, "Pigment A", ["blue", "orange", "red", "green", "yellow", "purple"], s.a, (v) => { s.a = v; });
-    addSelect(zone, "Pigment B", ["blue", "orange", "red", "green", "yellow", "purple"], s.b, (v) => { s.b = v; });
-    addCheckbox(zone, "Shadow looks luminous", s.luminousShadow, (v) => { s.luminousShadow = v; });
+    const s = ensureState(puzzleId, { a: "blue", b: "orange", luminousShadow: false, gloss: 0.3 });
+
+    const bowl = document.createElement("div");
+    bowl.className = "mix-bowl";
+    const swatch = document.createElement("div");
+    swatch.className = "mix-bowl-swatch";
+    bowl.appendChild(swatch);
+    zone.appendChild(bowl);
+
+    const palette = document.createElement("div");
+    palette.className = "chip-grid";
+    zone.appendChild(palette);
+
+    const chipHue: Record<string, number> = {
+      red: 8,
+      orange: 28,
+      yellow: 52,
+      green: 132,
+      blue: 220,
+      purple: 282,
+    };
+    const colors = Object.keys(chipHue);
+
+    const feedback = document.createElement("div");
+    feedback.className = "mini-label";
+    zone.appendChild(feedback);
+
+    const isComplement = (a: string, b: string): boolean => {
+      const pair = [a, b].sort().join("+");
+      return ["blue+orange", "green+red", "purple+yellow"].includes(pair);
+    };
+
+    const updateMix = (): void => {
+      const h1 = chipHue[s.a] ?? 0;
+      const h2 = chipHue[s.b] ?? 0;
+      const hue = Math.round((h1 + h2) / 2);
+      const complement = isComplement(s.a, s.b);
+      const sat = complement ? Math.max(8, Math.round(20 + s.gloss * 20)) : Math.round(38 + s.gloss * 15);
+      const light = complement ? Math.round(18 + s.gloss * 12) : Math.round(24 + s.gloss * 8);
+      swatch.style.background = `radial-gradient(circle at 35% 30%, rgba(255,255,255,${0.16 + s.gloss * 0.4}), transparent 42%), hsl(${hue}, ${sat}%, ${light}%)`;
+      s.luminousShadow = complement && s.gloss >= 0.55;
+      feedback.textContent = s.luminousShadow
+        ? "Luminous chromatic black achieved ✓"
+        : complement
+          ? "Add a touch of gloss to lift the shadow from flat to luminous"
+          : "These pigments neutralize poorly. Try a true complement pair.";
+    };
+
+    const makeChipButton = (name: string, target: "a" | "b"): HTMLButtonElement => {
+      const btn = document.createElement("button");
+      btn.className = "chip-btn";
+      btn.textContent = `${target === "a" ? "A" : "B"}: ${name}`;
+      btn.style.background = `hsl(${chipHue[name]}, 80%, 52%)`;
+      btn.addEventListener("click", () => {
+        s[target] = name;
+        render();
+      });
+      return btn;
+    };
+
+    const titleA = document.createElement("div");
+    titleA.className = "mini-label";
+    titleA.textContent = `Pigment A: ${s.a}`;
+    palette.appendChild(titleA);
+    const rowA = document.createElement("div");
+    rowA.className = "chip-row";
+    colors.forEach((name) => rowA.appendChild(makeChipButton(name, "a")));
+    palette.appendChild(rowA);
+
+    const titleB = document.createElement("div");
+    titleB.className = "mini-label";
+    titleB.textContent = `Pigment B: ${s.b}`;
+    palette.appendChild(titleB);
+    const rowB = document.createElement("div");
+    rowB.className = "chip-row";
+    colors.forEach((name) => rowB.appendChild(makeChipButton(name, "b")));
+    palette.appendChild(rowB);
+
+    addSlider(zone, "Shadow gloss", s.gloss, 0, 1, 0.01, (v) => {
+      s.gloss = v;
+      updateMix();
+    });
+
+    updateMix();
     addCheckButton(wrapper, puzzleId, () => ({ pigments: [s.a, s.b], luminousShadow: s.luminousShadow }));
   } else if (puzzleId === "puzzle-04") {
     const s = ensureState(puzzleId, { tones: [30, 220, 40, 210, 50, 200], blur: true });
@@ -931,9 +1011,69 @@ function renderPuzzleMiniGame(puzzleId: string, title: string, state: string): v
       discoveredDifferentChromaPeaks: Object.values(s.foundPeak).every(Boolean),
     }));
   } else if (puzzleId === "puzzle-07") {
-    const s = ensureState(puzzleId, { a: "red", b: "green" });
-    addSelect(zone, "Color A", ["red", "green", "blue", "orange", "yellow", "purple"], s.a, (v) => { s.a = v; });
-    addSelect(zone, "Color B", ["red", "green", "blue", "orange", "yellow", "purple"], s.b, (v) => { s.b = v; });
+    const s = ensureState(puzzleId, { a: "red", b: "green", rounds: 0, streak: 0 });
+
+    const defs = [
+      { name: "red", hue: 8 },
+      { name: "orange", hue: 28 },
+      { name: "yellow", hue: 52 },
+      { name: "green", hue: 130 },
+      { name: "blue", hue: 220 },
+      { name: "purple", hue: 282 },
+    ];
+    const comp: Record<string, string> = { red: "green", green: "red", blue: "orange", orange: "blue", yellow: "purple", purple: "yellow" };
+
+    const wheel = document.createElement("div");
+    wheel.className = "chip-row";
+    zone.appendChild(wheel);
+
+    const prompt = document.createElement("div");
+    prompt.className = "mini-label";
+    zone.appendChild(prompt);
+
+    const result = document.createElement("div");
+    result.className = "mini-label";
+    zone.appendChild(result);
+
+    const updatePrompt = (): void => {
+      prompt.textContent = `Target: pick the complement for ${s.a.toUpperCase()}`;
+    };
+
+    const targetBtnRow = document.createElement("div");
+    targetBtnRow.className = "chip-row";
+    zone.appendChild(targetBtnRow);
+
+    defs.forEach((def) => {
+      const pickA = document.createElement("button");
+      pickA.className = "chip-btn";
+      pickA.textContent = `Target ${def.name}`;
+      pickA.style.background = `hsl(${def.hue}, 78%, 54%)`;
+      pickA.addEventListener("click", () => {
+        s.a = def.name;
+        updatePrompt();
+      });
+      wheel.appendChild(pickA);
+
+      const pickB = document.createElement("button");
+      pickB.className = "chip-btn";
+      pickB.textContent = def.name;
+      pickB.style.background = `hsl(${def.hue}, 78%, 54%)`;
+      pickB.addEventListener("click", () => {
+        s.b = def.name;
+        s.rounds += 1;
+        if (comp[s.a] === s.b) {
+          s.streak += 1;
+          result.textContent = `Correct complement! Streak ${s.streak}`;
+        } else {
+          s.streak = 0;
+          result.textContent = `Not opposite on the wheel. ${s.a} pairs with ${comp[s.a]}.`;
+        }
+      });
+      targetBtnRow.appendChild(pickB);
+    });
+
+    updatePrompt();
+    result.textContent = "Build intuition: switch targets and test quick matches.";
     addCheckButton(wrapper, puzzleId, () => ({ selectedColorA: s.a, selectedColorB: s.b }));
   } else if (puzzleId === "puzzle-08") {
     const s = ensureState(puzzleId, { h1: 0, h2: 120, h3: 240 });
@@ -1010,30 +1150,107 @@ function renderPuzzleMiniGame(puzzleId: string, title: string, state: string): v
 
     addCheckButton(wrapper, puzzleId, () => ({ hueAngles: [s.h1, s.h2, s.h3] }));
   } else if (puzzleId === "puzzle-09") {
-    const s = ensureState(puzzleId, { prompt: "calm ocean", blue: true, teal: true, lowContrast: true, warm: false, highContrast: false, saturated: false, desat: false, green: false, dark: false });
-    addSelect(zone, "Prompt", ["joyful carnival", "calm ocean", "creepy dungeon"], s.prompt, (v) => { s.prompt = v; });
-    addCheckbox(zone, "Tag: blue", s.blue, (v) => { s.blue = v; });
-    addCheckbox(zone, "Tag: teal", s.teal, (v) => { s.teal = v; });
-    addCheckbox(zone, "Tag: low contrast", s.lowContrast, (v) => { s.lowContrast = v; });
-    addCheckbox(zone, "Tag: warm", s.warm, (v) => { s.warm = v; });
-    addCheckbox(zone, "Tag: high contrast", s.highContrast, (v) => { s.highContrast = v; });
-    addCheckbox(zone, "Tag: saturated", s.saturated, (v) => { s.saturated = v; });
-    addCheckbox(zone, "Tag: desaturated", s.desat, (v) => { s.desat = v; });
-    addCheckbox(zone, "Tag: green", s.green, (v) => { s.green = v; });
-    addCheckbox(zone, "Tag: dark", s.dark, (v) => { s.dark = v; });
-    addCheckButton(wrapper, puzzleId, () => {
-      const tags: string[] = [];
-      if (s.blue) tags.push("blue");
-      if (s.teal) tags.push("teal");
-      if (s.lowContrast) tags.push("low contrast");
-      if (s.warm) tags.push("warm");
-      if (s.highContrast) tags.push("high contrast");
-      if (s.saturated) tags.push("saturated");
-      if (s.desat) tags.push("desaturated");
-      if (s.green) tags.push("green");
-      if (s.dark) tags.push("dark");
-      return { prompt: s.prompt, paletteTags: tags };
+    const s = ensureState(puzzleId, {
+      prompt: "calm ocean",
+      swatches: [200, 185, 210] as number[],
+      sat: 55,
+      light: 52,
+      contrast: 0.3,
     });
+
+    addSelect(zone, "Prompt", ["joyful carnival", "calm ocean", "creepy dungeon"], s.prompt, (v) => {
+      s.prompt = v;
+      updateMoodBoard();
+    });
+
+    const board = document.createElement("div");
+    board.className = "mood-board";
+    zone.appendChild(board);
+
+    const swatchRow = document.createElement("div");
+    swatchRow.className = "swatch-row";
+    board.appendChild(swatchRow);
+
+    const insight = document.createElement("div");
+    insight.className = "mini-label";
+    board.appendChild(insight);
+
+    const tagReadout = document.createElement("div");
+    tagReadout.className = "mini-label";
+    board.appendChild(tagReadout);
+
+    const inferredTags = (): string[] => {
+      const tags: string[] = [];
+      const avgHue = s.swatches.reduce((a: number, b: number) => a + b, 0) / s.swatches.length;
+      if (avgHue >= 160 && avgHue <= 250) {
+        tags.push("blue");
+      }
+      if (avgHue >= 150 && avgHue <= 190) {
+        tags.push("teal");
+      }
+      if (avgHue <= 60 || avgHue >= 330) {
+        tags.push("warm");
+      }
+      if (s.contrast >= 0.55) {
+        tags.push("high contrast");
+      }
+      if (s.contrast <= 0.4) {
+        tags.push("low contrast");
+      }
+      if (s.sat >= 68) {
+        tags.push("saturated");
+      }
+      if (s.sat <= 42) {
+        tags.push("desaturated");
+      }
+      if (avgHue >= 90 && avgHue <= 160) {
+        tags.push("green");
+      }
+      if (s.light <= 36) {
+        tags.push("dark");
+      }
+      return Array.from(new Set(tags));
+    };
+
+    const updateMoodBoard = (): void => {
+      swatchRow.innerHTML = "";
+      const step = Math.round(18 + s.contrast * 36);
+      s.swatches.forEach((hue: number, idx: number) => {
+        const chip = document.createElement("button");
+        chip.className = "swatch";
+        chip.style.width = "48px";
+        chip.style.height = "48px";
+        chip.style.borderRadius = "10px";
+        const localLight = Math.max(15, Math.min(85, s.light + (idx - 1) * step));
+        chip.style.background = `hsl(${hue}, ${s.sat}%, ${localLight}%)`;
+        chip.title = `Hue ${Math.round(hue)}`;
+        chip.addEventListener("click", () => {
+          s.swatches[idx] = (s.swatches[idx] + 28) % 360;
+          updateMoodBoard();
+        });
+        swatchRow.appendChild(chip);
+      });
+
+      const tags = inferredTags();
+      tagReadout.textContent = `Inferred tags: ${tags.join(", ") || "none"}`;
+      insight.textContent = `Click swatches to rotate hue. Prompt: ${s.prompt}`;
+    };
+
+    addSlider(zone, "Palette saturation", s.sat, 0, 100, 1, (v) => {
+      s.sat = v;
+      updateMoodBoard();
+    });
+    addSlider(zone, "Palette value", s.light, 10, 80, 1, (v) => {
+      s.light = v;
+      updateMoodBoard();
+    });
+    addSlider(zone, "Contrast spread", s.contrast, 0, 1, 0.01, (v) => {
+      s.contrast = v;
+      updateMoodBoard();
+    });
+
+    updateMoodBoard();
+    addCheckButton(wrapper, puzzleId, () => ({ prompt: s.prompt, paletteTags: inferredTags() }));
   } else if (puzzleId === "puzzle-10") {
     const s = ensureState(puzzleId, { leftHue: 40, rightHue: 230, leftSat: 65, rightSat: 65, leftLight: 52, rightLight: 52, adjusted: false });
 
@@ -1168,18 +1385,122 @@ function renderPuzzleMiniGame(puzzleId: string, title: string, state: string): v
 
     addCheckButton(wrapper, puzzleId, () => ({ neutralCount: s.neutralCount, accentContrast: s.contrast }));
   } else if (puzzleId === "puzzle-13") {
-    const s = ensureState(puzzleId, { edges: false, sat: false, cool: false });
-    addCheckbox(zone, "Edges soften with distance", s.edges, (v) => { s.edges = v; });
-    addCheckbox(zone, "Saturation drops with distance", s.sat, (v) => { s.sat = v; });
-    addCheckbox(zone, "Hue shifts cooler in distance", s.cool, (v) => { s.cool = v; });
-    addCheckButton(wrapper, puzzleId, () => ({ edgeSharpnessDropsWithDistance: s.edges, saturationDropsWithDistance: s.sat, hueShiftsCoolerWithDistance: s.cool }));
+    const s = ensureState(puzzleId, { edgeDrop: 0.15, satDrop: 0.2, coolShift: 0.15 });
+
+    const scene = document.createElement("div");
+    scene.className = "depth-scene";
+    const near = document.createElement("div");
+    near.className = "mountain near";
+    const mid = document.createElement("div");
+    mid.className = "mountain mid";
+    const far = document.createElement("div");
+    far.className = "mountain far";
+    scene.appendChild(far);
+    scene.appendChild(mid);
+    scene.appendChild(near);
+    zone.appendChild(scene);
+
+    const feedback = document.createElement("div");
+    feedback.className = "mini-label";
+    zone.appendChild(feedback);
+
+    const updateDepth = (): void => {
+      const nearHue = 120;
+      const midHue = Math.round(nearHue + s.coolShift * 30);
+      const farHue = Math.round(nearHue + s.coolShift * 65);
+      near.style.background = `hsl(${nearHue}, ${Math.round(70 - s.satDrop * 20)}%, 36%)`;
+      mid.style.background = `hsl(${midHue}, ${Math.round(62 - s.satDrop * 40)}%, 43%)`;
+      far.style.background = `hsl(${farHue}, ${Math.round(54 - s.satDrop * 55)}%, 56%)`;
+      near.style.filter = "none";
+      mid.style.filter = `blur(${(s.edgeDrop * 4).toFixed(1)}px)`;
+      far.style.filter = `blur(${(s.edgeDrop * 8).toFixed(1)}px)`;
+
+      const edgesOk = s.edgeDrop >= 0.45;
+      const satOk = s.satDrop >= 0.45;
+      const coolOk = s.coolShift >= 0.45;
+      feedback.textContent = `Depth cues: edges ${edgesOk ? "✓" : "..."} | saturation ${satOk ? "✓" : "..."} | cooler distance ${coolOk ? "✓" : "..."}`;
+    };
+
+    addSlider(zone, "Edge softening", s.edgeDrop, 0, 1, 0.01, (v) => { s.edgeDrop = v; updateDepth(); });
+    addSlider(zone, "Saturation drop", s.satDrop, 0, 1, 0.01, (v) => { s.satDrop = v; updateDepth(); });
+    addSlider(zone, "Cool shift", s.coolShift, 0, 1, 0.01, (v) => { s.coolShift = v; updateDepth(); });
+    updateDepth();
+
+    addCheckButton(wrapper, puzzleId, () => ({
+      edgeSharpnessDropsWithDistance: s.edgeDrop >= 0.45,
+      saturationDropsWithDistance: s.satDrop >= 0.45,
+      hueShiftsCoolerWithDistance: s.coolShift >= 0.45,
+    }));
   } else if (puzzleId === "puzzle-14") {
-    const s = ensureState(puzzleId, { shiftBlue: false, scatter: 0.2 });
-    addCheckbox(zone, "Far objects shift blue", s.shiftBlue, (v) => { s.shiftBlue = v; });
-    addSlider(zone, "Scattering strength", s.scatter, 0, 1, 0.01, (v) => { s.scatter = v; });
-    addCheckButton(wrapper, puzzleId, () => ({ farObjectsShiftBlue: s.shiftBlue, scatteringStrength: s.scatter }));
+    const s = ensureState(puzzleId, { scatter: 0.2, haze: 0.2 });
+
+    const board = document.createElement("div");
+    board.className = "scatter-board";
+    const sky = document.createElement("div");
+    sky.className = "scatter-sky";
+    const ridgeNear = document.createElement("div");
+    ridgeNear.className = "scatter-ridge near";
+    const ridgeFar = document.createElement("div");
+    ridgeFar.className = "scatter-ridge far";
+    sky.appendChild(ridgeFar);
+    sky.appendChild(ridgeNear);
+    board.appendChild(sky);
+    zone.appendChild(board);
+
+    const feedback = document.createElement("div");
+    feedback.className = "mini-label";
+    zone.appendChild(feedback);
+
+    const updateScatter = (): void => {
+      const skyHue = Math.round(200 + s.scatter * 24);
+      sky.style.background = `linear-gradient(180deg, hsl(${skyHue}, ${45 + s.scatter * 30}%, 68%), hsl(${skyHue + 14}, ${30 + s.scatter * 25}%, 52%))`;
+      ridgeNear.style.background = `hsl(125, ${48 - s.haze * 18}%, ${34 + s.haze * 8}%)`;
+      ridgeFar.style.background = `hsl(${198 + s.scatter * 18}, ${28 + s.haze * 25}%, ${54 + s.haze * 18}%)`;
+      ridgeFar.style.opacity = `${0.55 + s.haze * 0.4}`;
+
+      const shiftBlue = s.scatter >= 0.6;
+      feedback.textContent = shiftBlue
+        ? "Far ridge shifts blue with stronger scattering ✓"
+        : "Increase scattering to push far forms toward blue.";
+    };
+
+    addSlider(zone, "Scattering strength", s.scatter, 0, 1, 0.01, (v) => {
+      s.scatter = v;
+      updateScatter();
+    });
+    addSlider(zone, "Atmospheric haze", s.haze, 0, 1, 0.01, (v) => {
+      s.haze = v;
+      updateScatter();
+    });
+
+    const gust = document.createElement("button");
+    gust.className = "btn";
+    gust.textContent = "Add Blue Haze Burst";
+    gust.addEventListener("click", () => {
+      s.scatter = Math.min(1, s.scatter + 0.14);
+      s.haze = Math.min(1, s.haze + 0.12);
+      render();
+    });
+    zone.appendChild(gust);
+
+    updateScatter();
+    addCheckButton(wrapper, puzzleId, () => ({
+      farObjectsShiftBlue: s.scatter >= 0.6,
+      scatteringStrength: s.scatter,
+    }));
   } else if (puzzleId === "puzzle-15") {
-    const s = ensureState(puzzleId, { timeLeft: 100, warmMix: 0.2, coolMix: 0.1, warmedInTime: false, adapted: false, phase: "sunset" as "sunset" | "bluehour" });
+    const s = ensureState(puzzleId, {
+      timeLeft: 100,
+      warmMix: 0.2,
+      coolMix: 0.1,
+      peakWarm: 0.2,
+      peakCool: 0.1,
+      warmedInTime: false,
+      adapted: false,
+      phase: "sunset" as "sunset" | "bluehour",
+    });
+    const warmTarget = 0.62;
+    const coolTarget = 0.52;
 
     const board = document.createElement("div");
     board.className = "golden-hour-board";
@@ -1208,37 +1529,85 @@ function renderPuzzleMiniGame(puzzleId: string, title: string, state: string): v
     feedback.className = "mini-label";
     zone.appendChild(feedback);
 
+    const warmMeter = document.createElement("div");
+    warmMeter.className = "coverage-wrap";
+    const warmTrack = document.createElement("div");
+    warmTrack.className = "coverage-bar-track";
+    const warmFill = document.createElement("div");
+    warmFill.className = "coverage-bar-fill";
+    warmFill.style.background = "linear-gradient(90deg, #f08c00, #e8590c)";
+    warmTrack.appendChild(warmFill);
+    const warmLabel = document.createElement("div");
+    warmLabel.className = "coverage-bar-label";
+    warmMeter.appendChild(warmTrack);
+    warmMeter.appendChild(warmLabel);
+    zone.appendChild(warmMeter);
+
+    const coolMeter = document.createElement("div");
+    coolMeter.className = "coverage-wrap";
+    const coolTrack = document.createElement("div");
+    coolTrack.className = "coverage-bar-track";
+    const coolFill = document.createElement("div");
+    coolFill.className = "coverage-bar-fill";
+    coolFill.style.background = "linear-gradient(90deg, #1c7ed6, #3b5bdb)";
+    coolTrack.appendChild(coolFill);
+    const coolLabel = document.createElement("div");
+    coolLabel.className = "coverage-bar-label";
+    coolMeter.appendChild(coolTrack);
+    coolMeter.appendChild(coolLabel);
+    zone.appendChild(coolMeter);
+
+    const checklist = document.createElement("div");
+    checklist.className = "mini-label";
+    zone.appendChild(checklist);
+
     const updateBoard = (): void => {
+      s.peakWarm = Math.max(s.peakWarm, s.warmMix);
+      s.peakCool = Math.max(s.peakCool, s.coolMix);
+      if (s.phase === "sunset" && s.timeLeft > 0 && s.warmMix >= warmTarget) {
+        s.warmedInTime = true;
+      }
+      if (s.phase === "bluehour" && s.coolMix >= coolTarget) {
+        s.adapted = true;
+      }
+
       fill.style.width = `${s.timeLeft}%`;
+      warmFill.style.width = `${Math.round(s.warmMix * 100)}%`;
+      coolFill.style.width = `${Math.round(s.coolMix * 100)}%`;
+      warmLabel.textContent = `Warm palette: ${Math.round(s.warmMix * 100)}% (target >= ${Math.round(warmTarget * 100)}% before dusk)`;
+      coolLabel.textContent = `Cool adaptation: ${Math.round(s.coolMix * 100)}% (target >= ${Math.round(coolTarget * 100)}% in blue hour)`;
+
+      const progressToNight = 1 - s.timeLeft / 100;
+      const warmBoost = s.warmMix * (1 - progressToNight * 0.45);
+      const coolBoost = s.coolMix * (0.35 + progressToNight * 0.9);
       if (s.phase === "sunset") {
-        const hue = 22 + (1 - s.warmMix) * 16;
-        sky.style.background = `linear-gradient(180deg, hsl(${hue}, ${50 + s.warmMix * 35}%, 58%), hsl(${30 + s.warmMix * 14}, ${35 + s.warmMix * 30}%, 42%))`;
+        const hue = 22 + (1 - warmBoost) * 16 - coolBoost * 6;
+        sky.style.background = `linear-gradient(180deg, hsl(${hue}, ${50 + warmBoost * 38}%, ${58 - coolBoost * 9}%), hsl(${30 + warmBoost * 14 - coolBoost * 10}, ${35 + warmBoost * 32}%, ${42 - coolBoost * 10}%))`;
       } else {
-        const cool = Math.max(s.coolMix, 0.3);
-        sky.style.background = `linear-gradient(180deg, hsl(${220 + cool * 24}, ${35 + cool * 45}%, 42%), hsl(${245 + cool * 15}, ${35 + cool * 40}%, 22%))`;
+        const cool = Math.max(coolBoost, 0.3);
+        sky.style.background = `linear-gradient(180deg, hsl(${220 + cool * 24 - warmBoost * 6}, ${35 + cool * 45}%, ${42 + warmBoost * 5}% ), hsl(${245 + cool * 15 - warmBoost * 8}, ${35 + cool * 40}%, ${22 + warmBoost * 4}%))`;
       }
       sun.style.left = `${Math.max(4, Math.min(92, s.timeLeft))}%`;
       meterLabel.textContent = s.phase === "sunset"
         ? `Sunset timer: ${Math.round(s.timeLeft)}% daylight remaining`
         : "Blue hour active";
       feedback.textContent = s.phase === "sunset"
-        ? `Warm mix: ${(s.warmMix * 100).toFixed(0)}%`
-        : `Cool adaptation: ${(s.coolMix * 100).toFixed(0)}%`;
+        ? `Sunset phase: build warmth now. Cool adaptation still tints sky by ${(coolBoost * 100).toFixed(0)}%.`
+        : `Blue-hour phase: push cool adaptation. Warm underpainting still influences glow by ${(warmBoost * 100).toFixed(0)}%.`;
+
+      const warmReached = s.warmMix >= warmTarget || s.peakWarm >= warmTarget;
+      const coolReached = s.coolMix >= coolTarget || s.peakCool >= coolTarget;
+      const preNightWarm = s.warmedInTime || warmReached;
+      checklist.textContent = `Checklist: warm mix ${warmReached ? "✓" : "..."} | warmed before nightfall ${preNightWarm ? "✓" : "..."} | blue-hour adaptation ${s.phase === "bluehour" && (s.adapted || coolReached) ? "✓" : "..."}`;
     };
 
     addSlider(zone, "Warm palette strength", s.warmMix, 0, 1, 0.01, (v) => {
       s.warmMix = v;
-      if (s.phase === "sunset" && s.timeLeft > 30 && s.warmMix >= 0.68) {
-        s.warmedInTime = true;
-      }
       updateBoard();
     });
 
     addSlider(zone, "Cool adaptation", s.coolMix, 0, 1, 0.01, (v) => {
       s.coolMix = v;
-      if (s.phase === "bluehour" && s.coolMix >= 0.55) {
-        s.adapted = true;
-      }
       updateBoard();
     });
 
@@ -1264,11 +1633,20 @@ function renderPuzzleMiniGame(puzzleId: string, title: string, state: string): v
     });
     zone.appendChild(triggerBlueHour);
 
+    const resetCycle = document.createElement("button");
+    resetCycle.className = "btn";
+    resetCycle.textContent = "Reset Day Cycle";
+    resetCycle.addEventListener("click", () => {
+      puzzleUiState.delete(puzzleId);
+      render();
+    });
+    zone.appendChild(resetCycle);
+
     updateBoard();
     addCheckButton(wrapper, puzzleId, () => ({
-      warmPaletteMixed: s.warmMix >= 0.68,
-      completedBeforeNightfall: s.warmedInTime,
-      adaptedToBlueHour: s.phase === "bluehour" && s.adapted,
+      warmPaletteMixed: s.warmMix >= warmTarget || s.peakWarm >= warmTarget,
+      completedBeforeNightfall: s.warmedInTime || s.peakWarm >= warmTarget,
+      adaptedToBlueHour: s.phase === "bluehour" && (s.adapted || s.coolMix >= coolTarget || s.peakCool >= coolTarget),
     }));
   } else if (puzzleId === "puzzle-16") {
     const s = ensureState(puzzleId, { phthalo: false, hansa: false, redContam: 0.0, purpleContam: 0.0 });
@@ -1490,6 +1868,19 @@ function renderArtStationMiniGame(container: HTMLElement, wrapper: HTMLDivElemen
   paintCanvas.height = 200;
   card.appendChild(paintCanvas);
 
+  const opticalPreviewWrap = document.createElement("div");
+  opticalPreviewWrap.className = "optical-preview-wrap";
+  const opticalPreviewLabel = document.createElement("div");
+  opticalPreviewLabel.className = "mini-label";
+  opticalPreviewLabel.textContent = "Distance view (tiled blend preview)";
+  const opticalPreviewCanvas = document.createElement("canvas");
+  opticalPreviewCanvas.className = "optical-preview-canvas";
+  opticalPreviewCanvas.width = 180;
+  opticalPreviewCanvas.height = 100;
+  opticalPreviewWrap.appendChild(opticalPreviewLabel);
+  opticalPreviewWrap.appendChild(opticalPreviewCanvas);
+  card.appendChild(opticalPreviewWrap);
+
   // Coverage bar
   const coverageWrap = document.createElement("div");
   coverageWrap.className = "coverage-wrap";
@@ -1529,12 +1920,76 @@ function renderArtStationMiniGame(container: HTMLElement, wrapper: HTMLDivElemen
   }
 
   const padCtx = paintCanvas.getContext("2d");
-  if (!padCtx) {
+  const previewCtx = opticalPreviewCanvas.getContext("2d");
+  if (!padCtx || !previewCtx) {
     return;
   }
 
   const cellW = paintCanvas.width / artPad.cols;
   const cellH = paintCanvas.height / artPad.rows;
+  const previewCols = 9;
+  const previewRows = 5;
+  const sampleW = artPad.cols / previewCols;
+  const sampleH = artPad.rows / previewRows;
+  const previewCellW = opticalPreviewCanvas.width / previewCols;
+  const previewCellH = opticalPreviewCanvas.height / previewRows;
+
+  const hexToRgb = (hex: string): [number, number, number] => {
+    const h = hex.replace("#", "");
+    if (h.length !== 6) {
+      return [255, 255, 255];
+    }
+    const r = Number.parseInt(h.slice(0, 2), 16);
+    const g = Number.parseInt(h.slice(2, 4), 16);
+    const b = Number.parseInt(h.slice(4, 6), 16);
+    return [r, g, b];
+  };
+
+  const renderOpticalPreview = (): void => {
+    for (let py = 0; py < previewRows; py += 1) {
+      for (let px = 0; px < previewCols; px += 1) {
+        const startX = Math.floor(px * sampleW);
+        const endX = Math.min(artPad.cols, Math.floor((px + 1) * sampleW));
+        const startY = Math.floor(py * sampleH);
+        const endY = Math.min(artPad.rows, Math.floor((py + 1) * sampleH));
+
+        let r = 0;
+        let g = 0;
+        let b = 0;
+        let count = 0;
+        for (let y = startY; y < endY; y += 1) {
+          for (let x = startX; x < endX; x += 1) {
+            const idx = y * artPad.cols + x;
+            const [pr, pg, pb] = hexToRgb(artPad.pixels[idx]);
+            r += pr;
+            g += pg;
+            b += pb;
+            count += 1;
+          }
+        }
+
+        const rr = Math.round(r / Math.max(1, count));
+        const gg = Math.round(g / Math.max(1, count));
+        const bb = Math.round(b / Math.max(1, count));
+        previewCtx.fillStyle = `rgb(${rr}, ${gg}, ${bb})`;
+        previewCtx.fillRect(px * previewCellW, py * previewCellH, previewCellW, previewCellH);
+      }
+    }
+
+    previewCtx.strokeStyle = "rgba(31, 32, 48, 0.16)";
+    for (let x = 0; x <= previewCols; x += 1) {
+      previewCtx.beginPath();
+      previewCtx.moveTo(x * previewCellW, 0);
+      previewCtx.lineTo(x * previewCellW, opticalPreviewCanvas.height);
+      previewCtx.stroke();
+    }
+    for (let y = 0; y <= previewRows; y += 1) {
+      previewCtx.beginPath();
+      previewCtx.moveTo(0, y * previewCellH);
+      previewCtx.lineTo(opticalPreviewCanvas.width, y * previewCellH);
+      previewCtx.stroke();
+    }
+  };
 
   const updateCoverage = (): void => {
     const pct = Math.round(getArtCoverage() * 100);
@@ -1570,6 +2025,7 @@ function renderArtStationMiniGame(container: HTMLElement, wrapper: HTMLDivElemen
     }
 
     updateCoverage();
+    renderOpticalPreview();
   };
 
   const paintAt = (clientX: number, clientY: number): void => {

@@ -478,9 +478,16 @@ This section tracks implementation against this story plan and `game-architectur
 - Mini-game UX improvements:
 	- Puzzle-01 (RGB beams): visual toggle beam buttons with live additive-color preview replacing plain checkboxes
 	- Puzzle-02 (CMY print): live CMY-to-RGB preview swatches (current mix vs. target)
+	- Puzzle-03 (Chromatic Black): bowl-based pigment selection with live chromatic black preview and luminous-shadow feedback
 	- Puzzle-16 (Vibrant Green): live pigment mix color preview showing clean vs. muddy outcomes
 	- Puzzle-17 (Mud Monster): interactive mix board with action buttons, live mud meter, monster-state feedback, recipe log, and reset flow
 	- Puzzle-18 (Optical Mixing): coverage bar tracks painted area percentage; pointer capture for uninterrupted drag-to-paint across canvas boundary
+	- Puzzle-07 (Complementary Colors): target-and-response complement drill using clickable color chips and streak feedback
+	- Puzzle-09 (Mood Palette): palette-builder board with inferred tags from hue/saturation/value/contrast interactions
+	- Puzzle-13 (Depth Painting): layered mountain scene with live edge-softening, saturation-drop, and cool-shift controls
+	- Puzzle-14 (Rayleigh Scattering): atmospheric board with scattering/haze controls and visible far-ridge blue shift
+	- Puzzle-15 (Golden Hour): dual warm/cool progress meters, live completion checklist, reset-day-cycle control, and more reliable/forgiving completion tracking
+	- Puzzle-18 (Optical Mixing): added live tiled distance preview canvas to visualize optical blending while painting
 	- All puzzles: shake animation + red border feedback on incorrect Check submission
 - Playwright e2e coverage expanded (6 tests):
 	- RGB beam button toggling and color preview rendering
@@ -489,14 +496,14 @@ This section tracks implementation against this story plan and `game-architectur
 ## Improvements Needed (Priority Backlog)
 
 - Improve gameplay depth for remaining prototype-like puzzles:
-	- Puzzle-03 (Chromatic Black): move from simple selection to a richer bowl-mixing interaction with luminance/value feedback
-	- Puzzle-07 (Complements), Puzzle-08 (Triad), Puzzle-09 (Mood Palette): add more tactile wheel/palette interactions and better visual success criteria
-	- Puzzle-13 and Puzzle-14 (Atmosphere): strengthen visual before/after depth cues and make rule effects more obvious while playing
+	- Puzzle-08 (Triadic Harmony): add direct wheel dragging/snapping and visual spacing aids (arcs/wedge guides) for faster learning
+	- Puzzle-10 to Puzzle-12 (Relativity set): add explicit "perception before/after" overlays and richer challenge tiers
+	- Puzzle-15 (Golden Hour): add consequence-based scoring tiers for early/on-time/late transitions and stronger phase-specific coaching
 - Improve puzzle instruction clarity:
 	- Add one-sentence "How to win" hints and one-sentence "Why this failed" hints directly in each mini-game state panel
 	- Standardize wording so terms like "mud", "contrast", and "neutral" are always explained in context
 - Expand automated test coverage for recent UX additions:
-	- Add e2e assertions for puzzle-specific interactions beyond station entry/visibility
+	- Add e2e assertions for puzzle-specific interactions in upgraded mini-games (not only station entry/visibility)
 	- Add regression checks for practice-mode replay behavior and check/fail feedback loops
 - Strengthen final-game loop completeness:
 	- Implement final canvas playable challenge (currently represented as progression state only)
@@ -504,8 +511,8 @@ This section tracks implementation against this story plan and `game-architectur
 
 ## Next Steps (Execution Plan)
 
-1. Add e2e tests for upgraded puzzle interactions (`puzzle-10`/`11`/`12`, `puzzle-15`, `puzzle-16`, `puzzle-17`) to lock current behavior before further redesign.
-2. Upgrade one remaining high-impact prototype puzzle (recommended: `puzzle-03`) to a board-based interaction pattern used in newer mini-games.
+1. Add e2e tests for upgraded puzzle interactions (`puzzle-03`, `puzzle-07`, `puzzle-09`, `puzzle-13`, `puzzle-14`, `puzzle-15`, `puzzle-16`, `puzzle-17`, `puzzle-18` tiled preview) to lock current engagement behavior.
+2. Add tiered challenge variants for the relativity and harmony puzzles (`puzzle-08` through `puzzle-12`) to improve replay value.
 3. Implement per-puzzle fail-reason messaging (not just "Try Again") using puzzle-specific validation feedback.
 4. Build final canvas interaction loop with measurable completion criteria tied to the five final principles.
 5. Add post-completion flow: free paint mode entry, reward unlock messaging, and pet ambient behaviors in free play.

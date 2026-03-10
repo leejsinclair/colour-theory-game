@@ -301,6 +301,20 @@ body {
   cursor: crosshair;
 }
 
+.optical-preview-wrap {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.optical-preview-canvas {
+  width: 100%;
+  max-width: 220px;
+  border: 1px solid rgba(31, 32, 48, 0.16);
+  border-radius: 8px;
+  background: #fff;
+  image-rendering: pixelated;
+}
+
 .illusion-board {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -443,6 +457,113 @@ body {
   border-radius: 8px;
   border: 1px solid rgba(31, 32, 48, 0.25);
   box-shadow: 0 3px 12px rgba(31, 32, 48, 0.2);
+}
+
+.mix-bowl {
+  border: 1px solid rgba(31, 32, 48, 0.16);
+  border-radius: 10px;
+  background: linear-gradient(180deg, #fff, #f7f4ec);
+  padding: 0.45rem;
+}
+
+.mix-bowl-swatch {
+  width: 100%;
+  min-height: 56px;
+  border-radius: 8px;
+  border: 1px solid rgba(31, 32, 48, 0.16);
+}
+
+.chip-grid {
+  display: grid;
+  gap: 0.3rem;
+}
+
+.chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.chip-btn {
+  border: 1px solid rgba(31, 32, 48, 0.18);
+  border-radius: 8px;
+  padding: 0.28rem 0.5rem;
+  color: #fff;
+  font-size: 0.74rem;
+  font-weight: 700;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.24);
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.mood-board {
+  border: 1px solid rgba(31, 32, 48, 0.14);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.86);
+  padding: 0.5rem;
+  display: grid;
+  gap: 0.35rem;
+}
+
+.depth-scene {
+  min-height: 112px;
+  border: 1px solid rgba(31, 32, 48, 0.15);
+  border-radius: 10px;
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(180deg, #d7efff, #b1d1eb);
+}
+
+.mountain {
+  position: absolute;
+  left: -5%;
+  width: 110%;
+  clip-path: polygon(0% 100%, 18% 55%, 33% 72%, 52% 36%, 69% 68%, 84% 49%, 100% 100%);
+  transition: filter 120ms ease, background 120ms ease;
+}
+
+.mountain.far {
+  bottom: 20px;
+  height: 62px;
+}
+
+.mountain.mid {
+  bottom: 12px;
+  height: 68px;
+}
+
+.mountain.near {
+  bottom: 0;
+  height: 74px;
+}
+
+.scatter-board {
+  border: 1px solid rgba(31, 32, 48, 0.14);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.scatter-sky {
+  min-height: 108px;
+  position: relative;
+}
+
+.scatter-ridge {
+  position: absolute;
+  left: -8%;
+  width: 116%;
+  clip-path: polygon(0% 100%, 15% 60%, 28% 73%, 44% 42%, 63% 76%, 80% 55%, 100% 100%);
+  transition: background 120ms ease, opacity 120ms ease;
+}
+
+.scatter-ridge.far {
+  bottom: 20px;
+  height: 62px;
+}
+
+.scatter-ridge.near {
+  bottom: 0;
+  height: 66px;
 }
 
 .golden-hour-board {
