@@ -83,6 +83,8 @@ const artPad = {
   pixels: [] as string[],
 };
 
+const puzzleUiState = new Map<string, unknown>();
+
 const player = {
   x: 80,
   y: 460,
@@ -119,8 +121,19 @@ function initializeGame(): void {
   player.targetX = 80;
   player.targetY = 460;
   artPad.pixels = new Array(artPad.cols * artPad.rows).fill("#ffffff");
+  puzzleUiState.clear();
   selectedArtColor = artPalette[0];
   render();
+}
+
+function ensureState<T>(puzzleId: string, initial: T): T {
+  const existing = puzzleUiState.get(puzzleId) as T | undefined;
+  if (existing) {
+    return existing;
+  }
+
+  puzzleUiState.set(puzzleId, initial);
+  return initial;
 }
 
 function distance(aX: number, aY: number, bX: number, bY: number): number {
@@ -357,19 +370,7 @@ function updateProgressPanel(): void {
   ].join("\n");
 }
 
-function makePuzzleButton(puzzleId: string, title: string, state: string): HTMLButtonElement {
-  const button = document.createElement("button");
-  button.className = "btn";
-  button.textContent = state === "solved" ? "Solved" : "Solve";
-  button.disabled = state !== "available";
-  button.addEventListener("click", () => {
-    game.completePuzzle(puzzleId, getDemoSolution(puzzleId));
-    if (game.getProgress().finalCanvasUnlocked) {
-      activeStationId = null;
-    }
-    render();
-  });
-
+function makePuzzleCard(puzzleId: string, title: string, state: string): HTMLDivElement {
   const wrapper = document.createElement("div");
   wrapper.className = "puzzle-item";
 
@@ -377,12 +378,279 @@ function makePuzzleButton(puzzleId: string, title: string, state: string): HTMLB
   meta.innerHTML = `<strong>${title}</strong><div class="puzzle-meta">${puzzleId} | ${state}</div>`;
 
   wrapper.appendChild(meta);
-  wrapper.appendChild(button);
-  puzzleListEl.appendChild(wrapper);
-  return button;
+  return wrapper;
 }
 
-function renderArtStationMiniGame(container: HTMLDivElement): void {
+function renderLockedOrSolvedControls(wrapper: HTMLDivElement, puzzleId: string, state: string): boolean {
+  if (state === "locked") {
+    const label = document.createElement("span");
+    label.className = "pill locked";
+    label.textContent = "Locked";
+    wrapper.appendChild(label);
+    return true;
+  }
+
+  if (state === "solved") {
+    const label = document.createElement("span");
+    label.className = "pill solved";
+    label.textContent = "Solved";
+    wrapper.appendChild(label);
+
+    const replayButton = document.createElement("button");
+    replayButton.className = "btn";
+    replayButton.textContent = "Replay";
+    replayButton.addEventListener("click", () => {
+      const input = getDemoSolution(puzzleId);
+      game.completePuzzle(puzzleId, input);
+      render();
+    });
+    wrapper.appendChild(replayButton);
+    return true;
+  }
+
+  return false;
+}
+
+function addCheckButton(wrapper: HTMLDivElement, puzzleId: string, inputFactory: () => unknown): void {
+  const button = document.createElement("button");
+  button.className = "btn btn-accent";
+  button.textContent = "Check";
+  button.addEventListener("click", () => {
+    const solved = game.completePuzzle(puzzleId, inputFactory());
+    if (!solved) {
+      button.textContent = "Try Again";
+      setTimeout(() => {
+        button.textContent = "Check";
+      }, 900);
+      return;
+    }
+
+    if (game.getProgress().finalCanvasUnlocked) {
+      activeStationId = null;
+    }
+    render();
+  });
+  wrapper.appendChild(button);
+}
+
+function addMiniLabel(container: HTMLElement, text: string): void {
+  const label = document.createElement("div");
+  label.className = "mini-label";
+  label.textContent = text;
+  container.appendChild(label);
+}
+
+function addSlider(container: HTMLElement, label: string, value: number, min = 0, max = 1, step = 0.01, onInput: (value: number) => void): HTMLInputElement {
+  const row = document.createElement("label");
+  row.className = "mini-row";
+  row.textContent = `${label}: ${value.toFixed(2)}`;
+  const slider = document.createElement("input");
+  slider.type = "range";
+  slider.min = String(min);
+  slider.max = String(max);
+  slider.step = String(step);
+  slider.value = String(value);
+  slider.addEventListener("input", () => {
+    const next = Number(slider.value);
+    row.textContent = `${label}: ${next.toFixed(2)}`;
+    row.appendChild(slider);
+    onInput(next);
+  });
+  row.appendChild(slider);
+  container.appendChild(row);
+  return slider;
+}
+
+function addSelect(container: HTMLElement, label: string, options: string[], current: string, onChange: (value: string) => void): HTMLSelectElement {
+  const row = document.createElement("label");
+  row.className = "mini-row";
+  row.textContent = `${label}: `;
+  const select = document.createElement("select");
+  options.forEach((option) => {
+    const item = document.createElement("option");
+    item.value = option;
+    item.textContent = option;
+    if (option === current) {
+      item.selected = true;
+    }
+    select.appendChild(item);
+  });
+  select.addEventListener("change", () => onChange(select.value));
+  row.appendChild(select);
+  container.appendChild(row);
+  return select;
+}
+
+function addCheckbox(container: HTMLElement, label: string, checked: boolean, onChange: (checked: boolean) => void): HTMLInputElement {
+  const row = document.createElement("label");
+  row.className = "mini-check";
+  const input = document.createElement("input");
+  input.type = "checkbox";
+  input.checked = checked;
+  input.addEventListener("change", () => onChange(input.checked));
+  row.appendChild(input);
+  row.append(label);
+  container.appendChild(row);
+  return input;
+}
+
+function createInteractionZone(wrapper: HTMLDivElement): HTMLDivElement {
+  const zone = document.createElement("div");
+  zone.className = "mini-zone";
+  wrapper.appendChild(zone);
+  return zone;
+}
+
+function renderPuzzleMiniGame(puzzleId: string, title: string, state: string): void {
+  const wrapper = makePuzzleCard(puzzleId, title, state);
+  const isArtPuzzle = puzzleId === "puzzle-18";
+  if (!isArtPuzzle && renderLockedOrSolvedControls(wrapper, puzzleId, state)) {
+    puzzleListEl.appendChild(wrapper);
+    return;
+  }
+
+  const zone = createInteractionZone(wrapper);
+
+  if (puzzleId === "puzzle-01") {
+    const s = ensureState(puzzleId, { red: false, green: false, blue: false, overlap: false });
+    addCheckbox(zone, "Red beam", s.red, (v) => { s.red = v; });
+    addCheckbox(zone, "Green beam", s.green, (v) => { s.green = v; });
+    addCheckbox(zone, "Blue beam", s.blue, (v) => { s.blue = v; });
+    addCheckbox(zone, "Align overlap", s.overlap, (v) => { s.overlap = v; });
+    addCheckButton(wrapper, puzzleId, () => ({ redBeam: s.red, greenBeam: s.green, blueBeam: s.blue, overlap: s.overlap }));
+  } else if (puzzleId === "puzzle-02") {
+    const s = ensureState(puzzleId, { c: 0.1, m: 0.1, y: 0.1 });
+    addSlider(zone, "Cyan", s.c, 0, 1, 0.01, (v) => { s.c = v; });
+    addSlider(zone, "Magenta", s.m, 0, 1, 0.01, (v) => { s.m = v; });
+    addSlider(zone, "Yellow", s.y, 0, 1, 0.01, (v) => { s.y = v; });
+    addMiniLabel(zone, "Target shown in station display. Match all channels.");
+    addCheckButton(wrapper, puzzleId, () => ({ cyan: s.c, magenta: s.m, yellow: s.y, target: { cyan: 0.4, magenta: 0.5, yellow: 0.2 } }));
+  } else if (puzzleId === "puzzle-03") {
+    const s = ensureState(puzzleId, { a: "blue", b: "orange", luminousShadow: false });
+    addSelect(zone, "Pigment A", ["blue", "orange", "red", "green", "yellow", "purple"], s.a, (v) => { s.a = v; });
+    addSelect(zone, "Pigment B", ["blue", "orange", "red", "green", "yellow", "purple"], s.b, (v) => { s.b = v; });
+    addCheckbox(zone, "Shadow looks luminous", s.luminousShadow, (v) => { s.luminousShadow = v; });
+    addCheckButton(wrapper, puzzleId, () => ({ pigments: [s.a, s.b], luminousShadow: s.luminousShadow }));
+  } else if (puzzleId === "puzzle-04") {
+    const s = ensureState(puzzleId, { bwOnly: true, readability: 0.5 });
+    addCheckbox(zone, "Use only black/white", s.bwOnly, (v) => { s.bwOnly = v; });
+    addSlider(zone, "Blur readability", s.readability, 0, 1, 0.01, (v) => { s.readability = v; });
+    addCheckButton(wrapper, puzzleId, () => ({ usesOnlyBlackAndWhite: s.bwOnly, blurReadability: s.readability }));
+  } else if (puzzleId === "puzzle-05") {
+    const s = ensureState(puzzleId, { values: "0.05,0.2,0.4,0.6,0.8,0.95", image: false });
+    const input = document.createElement("input");
+    input.className = "text-input";
+    input.value = s.values;
+    input.addEventListener("input", () => { s.values = input.value; });
+    zone.appendChild(input);
+    addCheckbox(zone, "Hidden image appears", s.image, (v) => { s.image = v; });
+    addCheckButton(wrapper, puzzleId, () => ({
+      orderedValues: s.values.split(",").map((part: string) => Number(part.trim())).filter((n: number) => !Number.isNaN(n)),
+      hiddenImageRevealed: s.image,
+    }));
+  } else if (puzzleId === "puzzle-06") {
+    const s = ensureState(puzzleId, { red: true, green: true, blue: true, peaks: false });
+    addCheckbox(zone, "Explored red branch", s.red, (v) => { s.red = v; });
+    addCheckbox(zone, "Explored green branch", s.green, (v) => { s.green = v; });
+    addCheckbox(zone, "Explored blue branch", s.blue, (v) => { s.blue = v; });
+    addCheckbox(zone, "Observed different chroma peaks", s.peaks, (v) => { s.peaks = v; });
+    addCheckButton(wrapper, puzzleId, () => ({ exploredHues: [s.red ? "red" : "", s.green ? "green" : "", s.blue ? "blue" : ""].filter(Boolean), discoveredDifferentChromaPeaks: s.peaks }));
+  } else if (puzzleId === "puzzle-07") {
+    const s = ensureState(puzzleId, { a: "red", b: "green" });
+    addSelect(zone, "Color A", ["red", "green", "blue", "orange", "yellow", "purple"], s.a, (v) => { s.a = v; });
+    addSelect(zone, "Color B", ["red", "green", "blue", "orange", "yellow", "purple"], s.b, (v) => { s.b = v; });
+    addCheckButton(wrapper, puzzleId, () => ({ selectedColorA: s.a, selectedColorB: s.b }));
+  } else if (puzzleId === "puzzle-08") {
+    const s = ensureState(puzzleId, { h1: 0, h2: 120, h3: 240 });
+    addSlider(zone, "Hue 1", s.h1, 0, 360, 1, (v) => { s.h1 = v; });
+    addSlider(zone, "Hue 2", s.h2, 0, 360, 1, (v) => { s.h2 = v; });
+    addSlider(zone, "Hue 3", s.h3, 0, 360, 1, (v) => { s.h3 = v; });
+    addCheckButton(wrapper, puzzleId, () => ({ hueAngles: [s.h1, s.h2, s.h3] }));
+  } else if (puzzleId === "puzzle-09") {
+    const s = ensureState(puzzleId, { prompt: "calm ocean", blue: true, teal: true, lowContrast: true, warm: false, highContrast: false, saturated: false, desat: false, green: false, dark: false });
+    addSelect(zone, "Prompt", ["joyful carnival", "calm ocean", "creepy dungeon"], s.prompt, (v) => { s.prompt = v; });
+    addCheckbox(zone, "Tag: blue", s.blue, (v) => { s.blue = v; });
+    addCheckbox(zone, "Tag: teal", s.teal, (v) => { s.teal = v; });
+    addCheckbox(zone, "Tag: low contrast", s.lowContrast, (v) => { s.lowContrast = v; });
+    addCheckbox(zone, "Tag: warm", s.warm, (v) => { s.warm = v; });
+    addCheckbox(zone, "Tag: high contrast", s.highContrast, (v) => { s.highContrast = v; });
+    addCheckbox(zone, "Tag: saturated", s.saturated, (v) => { s.saturated = v; });
+    addCheckbox(zone, "Tag: desaturated", s.desat, (v) => { s.desat = v; });
+    addCheckbox(zone, "Tag: green", s.green, (v) => { s.green = v; });
+    addCheckbox(zone, "Tag: dark", s.dark, (v) => { s.dark = v; });
+    addCheckButton(wrapper, puzzleId, () => {
+      const tags: string[] = [];
+      if (s.blue) tags.push("blue");
+      if (s.teal) tags.push("teal");
+      if (s.lowContrast) tags.push("low contrast");
+      if (s.warm) tags.push("warm");
+      if (s.highContrast) tags.push("high contrast");
+      if (s.saturated) tags.push("saturated");
+      if (s.desat) tags.push("desaturated");
+      if (s.green) tags.push("green");
+      if (s.dark) tags.push("dark");
+      return { prompt: s.prompt, paletteTags: tags };
+    });
+  } else if (puzzleId === "puzzle-10") {
+    const s = ensureState(puzzleId, { difference: 0.5, adjusted: false });
+    addSlider(zone, "Perceived difference", s.difference, 0, 1, 0.01, (v) => { s.difference = v; });
+    addCheckbox(zone, "Backgrounds adjusted", s.adjusted, (v) => { s.adjusted = v; });
+    addCheckButton(wrapper, puzzleId, () => ({ perceivedDifference: s.difference, backgroundsAdjusted: s.adjusted }));
+  } else if (puzzleId === "puzzle-11") {
+    const s = ensureState(puzzleId, { orangeAround: false, changedGrey: false });
+    addCheckbox(zone, "Use orange surroundings", s.orangeAround, (v) => { s.orangeAround = v; });
+    addCheckbox(zone, "Changed grey square", s.changedGrey, (v) => { s.changedGrey = v; });
+    addCheckButton(wrapper, puzzleId, () => ({ usedOrangeSurroundings: s.orangeAround, greySquareChanged: s.changedGrey }));
+  } else if (puzzleId === "puzzle-12") {
+    const s = ensureState(puzzleId, { neutralCount: 1, contrast: 0.4 });
+    addSlider(zone, "Neutral mixes count", s.neutralCount, 0, 5, 1, (v) => { s.neutralCount = v; });
+    addSlider(zone, "Accent contrast", s.contrast, 0, 1, 0.01, (v) => { s.contrast = v; });
+    addCheckButton(wrapper, puzzleId, () => ({ neutralCount: s.neutralCount, accentContrast: s.contrast }));
+  } else if (puzzleId === "puzzle-13") {
+    const s = ensureState(puzzleId, { edges: false, sat: false, cool: false });
+    addCheckbox(zone, "Edges soften with distance", s.edges, (v) => { s.edges = v; });
+    addCheckbox(zone, "Saturation drops with distance", s.sat, (v) => { s.sat = v; });
+    addCheckbox(zone, "Hue shifts cooler in distance", s.cool, (v) => { s.cool = v; });
+    addCheckButton(wrapper, puzzleId, () => ({ edgeSharpnessDropsWithDistance: s.edges, saturationDropsWithDistance: s.sat, hueShiftsCoolerWithDistance: s.cool }));
+  } else if (puzzleId === "puzzle-14") {
+    const s = ensureState(puzzleId, { shiftBlue: false, scatter: 0.2 });
+    addCheckbox(zone, "Far objects shift blue", s.shiftBlue, (v) => { s.shiftBlue = v; });
+    addSlider(zone, "Scattering strength", s.scatter, 0, 1, 0.01, (v) => { s.scatter = v; });
+    addCheckButton(wrapper, puzzleId, () => ({ farObjectsShiftBlue: s.shiftBlue, scatteringStrength: s.scatter }));
+  } else if (puzzleId === "puzzle-15") {
+    const s = ensureState(puzzleId, { warm: false, onTime: false, blueHour: false });
+    addCheckbox(zone, "Warm palette mixed", s.warm, (v) => { s.warm = v; });
+    addCheckbox(zone, "Completed before nightfall", s.onTime, (v) => { s.onTime = v; });
+    addCheckbox(zone, "Adapted palette to blue hour", s.blueHour, (v) => { s.blueHour = v; });
+    addCheckButton(wrapper, puzzleId, () => ({ warmPaletteMixed: s.warm, completedBeforeNightfall: s.onTime, adaptedToBlueHour: s.blueHour }));
+  } else if (puzzleId === "puzzle-16") {
+    const s = ensureState(puzzleId, { phthalo: false, hansa: false, mud: 0.5 });
+    addCheckbox(zone, "Add Phthalo Blue", s.phthalo, (v) => { s.phthalo = v; });
+    addCheckbox(zone, "Add Hansa Yellow", s.hansa, (v) => { s.hansa = v; });
+    addSlider(zone, "Mud level", s.mud, 0, 1, 0.01, (v) => { s.mud = v; });
+    addCheckButton(wrapper, puzzleId, () => ({ pigments: [s.phthalo ? "phthalo blue" : "", s.hansa ? "hansa yellow" : ""].filter(Boolean), mudLevel: s.mud }));
+  } else if (puzzleId === "puzzle-17") {
+    const s = ensureState(puzzleId, { complements: 2, muddy: true });
+    addSlider(zone, "Complement pairs added", s.complements, 0, 4, 1, (v) => { s.complements = v; });
+    addCheckbox(zone, "Result turned muddy", s.muddy, (v) => { s.muddy = v; });
+    addCheckButton(wrapper, puzzleId, () => ({ complementPairsAdded: s.complements, muddyResult: s.muddy }));
+  } else if (puzzleId === "puzzle-18") {
+    renderArtStationMiniGame(zone, wrapper, puzzleId, state);
+    puzzleListEl.appendChild(wrapper);
+    return;
+  } else {
+    addCheckButton(wrapper, puzzleId, () => getDemoSolution(puzzleId));
+  }
+
+  puzzleListEl.appendChild(wrapper);
+}
+
+function getArtCoverage(): number {
+  const colored = artPad.pixels.filter((pixel) => pixel !== "#ffffff").length;
+  return colored / artPad.pixels.length;
+}
+
+function renderArtStationMiniGame(container: HTMLElement, wrapper: HTMLDivElement, puzzleId: string, state: string): void {
   const card = document.createElement("div");
   card.className = "art-game-card";
 
@@ -419,10 +687,21 @@ function renderArtStationMiniGame(container: HTMLDivElement): void {
   clearButton.textContent = "Clear Pad";
   clearButton.addEventListener("click", () => {
     artPad.pixels.fill("#ffffff");
-    updatePuzzlePanel();
+    render();
   });
   controls.appendChild(clearButton);
   card.appendChild(controls);
+
+  if (state === "available") {
+    addCheckButton(wrapper, puzzleId, () => {
+      const usedColors = new Set(artPad.pixels.filter((pixel) => pixel !== "#ffffff"));
+      return {
+        usedPureDots: getArtCoverage() >= 0.12,
+        mixedOnPalette: false,
+        opticalBlendVisible: usedColors.size >= 3,
+      };
+    });
+  }
 
   const padCtx = paintCanvas.getContext("2d");
   if (!padCtx) {
@@ -568,12 +847,8 @@ function updatePuzzlePanel(): void {
   puzzleListEl.appendChild(backWrapper);
 
   station.puzzles.forEach((puzzle) => {
-    makePuzzleButton(puzzle.id, puzzle.title, puzzle.state);
+    renderPuzzleMiniGame(puzzle.id, puzzle.title, puzzle.state);
   });
-
-  if (activeStationId === "station-06") {
-    renderArtStationMiniGame(puzzleListEl);
-  }
 }
 
 function render(time = 0): void {
