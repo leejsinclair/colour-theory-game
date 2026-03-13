@@ -220,10 +220,10 @@ test("progress panel shows Score line", async ({ page }) => {
   await expect(page.locator("#progress")).toContainText("Score");
 });
 
-test("Golden Hour puzzle shows phase indicator on entry", async ({ page }) => {
+test("Chromatic Mastery puzzle shows stage indicator and palette cards on entry", async ({ page }) => {
   await page.goto("/");
 
-  // Auto-solve all puzzles up to puzzle-14 so station-05 is available
+  // Auto-solve all puzzles so station-05 is available
   await page.getByRole("button", { name: "Auto Solve Journey" }).click();
   await page.getByRole("button", { name: "Return" }).click();
 
@@ -234,13 +234,18 @@ test("Golden Hour puzzle shows phase indicator on entry", async ({ page }) => {
   await landscapeEnter.click();
 
   // Enter puzzle-15 via Practice (it was solved by auto-solve)
-  const goldenHourPractice = page.locator(".puzzle-item", {
-    has: page.getByText("Golden Hour"),
+  const chromaticPractice = page.locator(".puzzle-item", {
+    has: page.getByText("Chromatic Mastery"),
   }).getByRole("button", { name: "Practice" });
-  await goldenHourPractice.click();
+  await chromaticPractice.click();
 
-  // Phase indicator must be visible
+  // Stage indicator must be visible showing Stage 1
   await expect(page.locator(".phase-indicator")).toBeVisible();
-  // Phase guide must be visible with step instructions
-  await expect(page.locator(".phase-guide")).toBeVisible();
+  await expect(page.locator(".phase-indicator")).toContainText("Stage 1");
+
+  // Palette buttons should be visible (4 palettes: A, B, C, D)
+  await expect(page.locator(".tod-palette-btn")).toHaveCount(4);
+
+  // Time-of-day slots should be visible
+  await expect(page.locator(".tod-slot")).toHaveCount(4);
 });

@@ -22,7 +22,7 @@ export const demoSolutions: Record<string, unknown> = {
     hueShiftsCoolerWithDistance: true,
   },
   "puzzle-14": { farObjectsShiftBlue: true, scatteringStrength: 0.8 },
-  "puzzle-15": { warmPaletteMixed: true, completedBeforeNightfall: true, adaptedToBlueHour: true },
+  "puzzle-15": { palettesMatched: true, sunHeight: 0.25, colorTemperature: 0.80, atmosphere: 0.50 },
   "puzzle-16": { pigments: ["phthalo blue", "hansa yellow"], mudLevel: 0.2 },
   "puzzle-17": { complementPairsAdded: 1, muddyResult: false },
   "puzzle-18": { usedPureDots: true, mixedOnPalette: false, opticalBlendVisible: true },
