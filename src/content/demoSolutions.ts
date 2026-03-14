@@ -28,6 +28,12 @@ export const demoSolutions: Record<string, unknown> = {
   "puzzle-18": { usedPureDots: true, mixedOnPalette: false, opticalBlendVisible: true },
 };
 
+export const moodPaletteSolutions: Record<string, { prompt: string; paletteTags: string[] }> = {
+  "calm ocean": { prompt: "calm ocean", paletteTags: ["blue", "teal", "low contrast"] },
+  "joyful carnival": { prompt: "joyful carnival", paletteTags: ["warm", "high contrast", "saturated"] },
+  "creepy dungeon": { prompt: "creepy dungeon", paletteTags: ["desaturated", "green", "dark"] },
+};
+
 export function getDemoSolution(puzzleId: string): unknown {
   return demoSolutions[puzzleId] ?? true;
 }
