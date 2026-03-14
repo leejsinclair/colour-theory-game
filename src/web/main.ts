@@ -27,6 +27,47 @@ const hudStreakValue = document.getElementById("hud-streak-value") as HTMLElemen
 const milestoneBadgesEl = document.getElementById("milestone-badges") as HTMLElement;
 const petCollectionEl = document.getElementById("pet-collection") as HTMLElement;
 const toastContainerEl = document.getElementById("toast-container") as HTMLElement;
+const infoModalEl = document.getElementById("info-modal") as HTMLElement;
+const infoModalTitleEl = document.getElementById("info-modal-title") as HTMLElement;
+const infoModalBodyEl = document.getElementById("info-modal-body") as HTMLElement;
+const infoModalCloseEl = document.getElementById("info-modal-close") as HTMLButtonElement;
+
+function openInfoModal(puzzleId: string): void {
+  const concept = puzzleConcepts[puzzleId];
+  if (!concept) {
+    return;
+  }
+
+  infoModalTitleEl.textContent = concept.title;
+  infoModalBodyEl.innerHTML = "";
+  for (const line of concept.body.split("\n")) {
+    if (line.trim()) {
+      const p = document.createElement("p");
+      p.textContent = line;
+      infoModalBodyEl.appendChild(p);
+    }
+  }
+  infoModalEl.removeAttribute("hidden");
+  infoModalCloseEl.focus();
+}
+
+function closeInfoModal(): void {
+  infoModalEl.setAttribute("hidden", "");
+}
+
+infoModalCloseEl.addEventListener("click", closeInfoModal);
+
+infoModalEl.addEventListener("click", (e) => {
+  if (e.target === infoModalEl) {
+    closeInfoModal();
+  }
+});
+
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && !infoModalEl.hasAttribute("hidden")) {
+    closeInfoModal();
+  }
+});
 
 /** Colour assigned to each pet's jellybean. */
 const PET_COLOURS: Record<string, string> = {
@@ -248,6 +289,81 @@ const puzzleObjectives: Record<string, string> = {
   "puzzle-16": "Mix phthalo blue + hansa yellow and keep mud low for vibrant green.",
   "puzzle-17": "Avoid overmixing complements to prevent muddy results.",
   "puzzle-18": "Paint pure color dots and reach enough coverage for optical blending.",
+};
+
+const puzzleConcepts: Record<string, { title: string; body: string }> = {
+  "puzzle-01": {
+    title: "Additive Color Mixing (RGB Light)",
+    body: "Light mixes additively: red + green = yellow, red + blue = magenta, green + blue = cyan, and red + green + blue together create white. This is how screens and stage lighting work — each beam adds brightness. Overlapping all three primary light beams at full intensity produces pure white light.",
+  },
+  "puzzle-02": {
+    title: "Subtractive Color Mixing (CMY Print)",
+    body: "Ink and pigment absorb (subtract) light rather than emitting it. The three subtractive primaries are Cyan, Magenta, and Yellow. Mixing all three at full strength absorbs most visible wavelengths, producing black. Adjusting each channel shifts the hue, saturation, and lightness of the printed result.",
+  },
+  "puzzle-03": {
+    title: "Chromatic Black",
+    body: "A pure black from the tube can look flat and lifeless. Painters mix complementary pigments — colors opposite each other on the color wheel (e.g. red + green, blue + orange) — to create rich, luminous darks called chromatic blacks. These blacks carry hidden color that makes shadows vibrate with life rather than sink into dullness.",
+  },
+  "puzzle-04": {
+    title: "Value Structure and the Squint Test",
+    body: "Value is the lightness or darkness of a color, independent of hue. A strong value structure keeps a painting readable even at a distance or when squinted at — details blur away, leaving only the pattern of lights and darks. Artists use the squint test to check that the big shapes read clearly before adding color.",
+  },
+  "puzzle-05": {
+    title: "The Value Scale",
+    body: "A value scale runs from pure black (0) through a series of grays to pure white (10). Training your eye to see and sort values accurately is foundational to painting and design. Hidden imagery only becomes visible when values are arranged in the correct order, revealing the underlying structure of the image.",
+  },
+  "puzzle-06": {
+    title: "Chroma Tree and Hue-Dependent Saturation",
+    body: "Chroma (saturation) does not peak at the same value for every hue. Yellow reaches maximum chroma near a light value, while blue-violet peaks near a dark value. This is the Munsell color system's key insight: each hue climbs its own 'chroma tree,' and ignoring this leads to muddy mixes. Understanding where each hue's chroma peaks helps you mix cleaner, more vibrant colors.",
+  },
+  "puzzle-07": {
+    title: "Complementary Color Pairs",
+    body: "Complementary colors sit directly opposite each other on the color wheel: red–green, blue–orange, yellow–purple. When placed side by side they intensify each other through simultaneous contrast. When mixed as pigments they neutralize each other toward gray or brown. Knowing true complements is essential for creating vibrant color contrast and controlled neutrals.",
+  },
+  "puzzle-08": {
+    title: "Triadic Color Harmony",
+    body: "A triadic harmony uses three hues spaced equally around the color wheel — approximately 120° apart. This creates a vibrant, balanced palette with high contrast while still feeling unified. Examples include red–yellow–blue (primary triad) and orange–green–violet (secondary triad). One hue typically dominates while the others serve as accents.",
+  },
+  "puzzle-09": {
+    title: "Color Psychology and Mood Palettes",
+    body: "Color carries emotional associations shaped by culture and biology. Warm, saturated hues (reds, oranges, yellows) feel energetic and festive. Cool, desaturated hues (blues, grays) feel calm or melancholy. Low contrast palettes feel quiet; high contrast palettes feel dynamic. Designers and artists deliberately build palettes to evoke specific emotional responses in the viewer.",
+  },
+  "puzzle-10": {
+    title: "Simultaneous Contrast and the Same-Square Illusion",
+    body: "The famous checker-shadow illusion demonstrates that our brain judges color relative to its surroundings, not in absolute terms. Two physically identical gray squares can look dramatically different depending on what sits next to them. This simultaneous contrast effect means context is as powerful as pigment — a color 'changes' simply by changing its neighbors.",
+  },
+  "puzzle-11": {
+    title: "Color Relativity: Making Grey Look Blue",
+    body: "Surrounding a neutral gray with warm orange tones causes the gray to appear cooler and bluer by contrast — even though the gray itself never changes. This is simultaneous color contrast in action: the visual system exaggerates differences between adjacent colors. Artists exploit this to suggest cool shadows without using much actual blue pigment.",
+  },
+  "puzzle-12": {
+    title: "The Neutral Hero Principle",
+    body: "A single accent color gains maximum impact when surrounded by neutrals — grays, off-whites, or desaturated earth tones. Neutrals don't compete; they recede and let the accent pop. Overusing saturated colors dilutes their power. Deliberately reserving saturation for one key element creates visual hierarchy and draws the eye exactly where you want it.",
+  },
+  "puzzle-13": {
+    title: "Atmospheric Perspective and Landscape Depth",
+    body: "Objects further away look lighter, less saturated, and cooler in hue because particles in the atmosphere scatter and absorb light. Near objects have sharp edges, rich color, and strong contrast. Far objects shift toward pale blue-gray. This gradient of value, saturation, and hue temperature is one of the most powerful tools for creating the illusion of depth in landscape art.",
+  },
+  "puzzle-14": {
+    title: "Rayleigh Scattering",
+    body: "The sky is blue because air molecules scatter short (blue) wavelengths of sunlight more than long (red) wavelengths — a phenomenon called Rayleigh scattering. The same physics makes distant mountains appear blue-gray. Increasing simulated atmospheric scattering shifts far objects toward blue, accurately mimicking how deep atmosphere desaturates and cools distant forms.",
+  },
+  "puzzle-15": {
+    title: "Time-of-Day Light and Golden Hour",
+    body: "The color temperature of sunlight changes dramatically across the day. At noon, light is white-blue and harsh with short shadows. At golden hour — roughly the first and last hour of sunlight — the sun is near the horizon, light travels through more atmosphere, and short wavelengths scatter away, leaving warm orange-amber light with long soft shadows. Mastering these shifts is essential for convincing landscape and plein-air painting.",
+  },
+  "puzzle-16": {
+    title: "Clean Pigment Mixing: Vibrant Green",
+    body: "Not all yellows and blues make clean greens. Pigments that already lean toward the green part of the spectrum mix cleanly: Phthalo Blue (green shade) and Hansa Yellow (a cool, greenish yellow) produce vibrant, clear greens with very little mud. Using pigments that lean the wrong way introduces unwanted red or orange undertones, quickly dulling the mix.",
+  },
+  "puzzle-17": {
+    title: "Mud Prevention: Avoiding Complement Overload",
+    body: "When complementary pigments (colors opposite on the color wheel) are mixed, they neutralize each other toward brown or gray mud. A small amount creates a beautiful neutral; too much creates dull, lifeless color. Avoiding muddiness means limiting how many complementary pairs you combine in a single mix and keeping your palette clean.",
+  },
+  "puzzle-18": {
+    title: "Optical Color Mixing and Pointillism",
+    body: "Pointillist painters like Seurat and Signac discovered that small dots of pure, unmixed color placed close together are blended by the eye and brain at a distance — a phenomenon called optical mixing. Unlike palette mixing, this keeps each pigment's full intensity. The result is a luminous, vibrating surface that feels more colorful than any single mixed pigment could achieve.",
+  },
 };
 
 const artPalette = ["#0d8db0", "#ec7755", "#2f9e44", "#f0b429", "#6f42c1", "#1f2030"];
@@ -652,6 +768,16 @@ function makePuzzleCard(puzzleId: string, title: string, state: string): HTMLDiv
   meta.innerHTML = `<strong>${title}</strong><div class="puzzle-meta">${puzzleId} | ${state}</div><div class="puzzle-objective">Objective: ${objective}</div>`;
 
   wrapper.appendChild(meta);
+
+  if (puzzleConcepts[puzzleId]) {
+    const infoBtn = document.createElement("button");
+    infoBtn.className = "info-btn";
+    infoBtn.textContent = "i";
+    infoBtn.setAttribute("aria-label", `Learn about ${title}`);
+    infoBtn.addEventListener("click", () => openInfoModal(puzzleId));
+    wrapper.appendChild(infoBtn);
+  }
+
   return wrapper;
 }
 

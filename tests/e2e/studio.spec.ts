@@ -249,3 +249,103 @@ test("Chromatic Mastery puzzle shows stage indicator and palette cards on entry"
   // Time-of-day slots should be visible
   await expect(page.locator(".tod-slot")).toHaveCount(4);
 });
+
+test("info button is present on puzzle cards", async ({ page }) => {
+  await page.goto("/");
+
+  // Enter Light Laboratory to see puzzle cards
+  const labEnter = page.locator(".puzzle-item", {
+    has: page.getByText("Light Laboratory"),
+  }).getByRole("button", { name: "Enter" });
+  await labEnter.click();
+
+  // The first puzzle card (RGB Light) should have an info button
+  const infoBtns = page.locator(".info-btn");
+  await expect(infoBtns.first()).toBeVisible();
+  await expect(infoBtns.first()).toHaveAttribute("aria-label", /Learn about/);
+});
+
+test("info button opens modal with concept explanation and closes on button click", async ({ page }) => {
+  await page.goto("/");
+
+  // Enter Light Laboratory
+  const labEnter = page.locator(".puzzle-item", {
+    has: page.getByText("Light Laboratory"),
+  }).getByRole("button", { name: "Enter" });
+  await labEnter.click();
+
+  // Modal should be hidden initially
+  await expect(page.locator("#info-modal")).toBeHidden();
+
+  // Click the first info button (RGB Light puzzle)
+  await page.locator(".info-btn").first().click();
+
+  // Modal should now be visible with content
+  await expect(page.locator("#info-modal")).toBeVisible();
+  await expect(page.locator("#info-modal-title")).not.toBeEmpty();
+  await expect(page.locator("#info-modal-body")).not.toBeEmpty();
+
+  // Close via the close button
+  await page.locator("#info-modal-close").click();
+  await expect(page.locator("#info-modal")).toBeHidden();
+});
+
+test("info modal closes on backdrop click", async ({ page }) => {
+  await page.goto("/");
+
+  // Enter Light Laboratory
+  const labEnter = page.locator(".puzzle-item", {
+    has: page.getByText("Light Laboratory"),
+  }).getByRole("button", { name: "Enter" });
+  await labEnter.click();
+
+  // Open modal
+  await page.locator(".info-btn").first().click();
+  await expect(page.locator("#info-modal")).toBeVisible();
+
+  // Click the overlay backdrop (outside the card)
+  await page.locator("#info-modal").click({ position: { x: 5, y: 5 } });
+  await expect(page.locator("#info-modal")).toBeHidden();
+});
+
+test("info modal closes on Escape key", async ({ page }) => {
+  await page.goto("/");
+
+  // Enter Light Laboratory
+  const labEnter = page.locator(".puzzle-item", {
+    has: page.getByText("Light Laboratory"),
+  }).getByRole("button", { name: "Enter" });
+  await labEnter.click();
+
+  // Open modal
+  await page.locator(".info-btn").first().click();
+  await expect(page.locator("#info-modal")).toBeVisible();
+
+  // Press Escape
+  await page.keyboard.press("Escape");
+  await expect(page.locator("#info-modal")).toBeHidden();
+});
+
+test("info modal shows Chroma Tree concept when info button clicked for puzzle-06", async ({ page }) => {
+  await page.goto("/");
+
+  // Solve first station so Value Sketchboard is unlocked
+  await page.getByRole("button", { name: "Auto Solve Journey" }).click();
+  await page.getByRole("button", { name: "Return" }).click();
+
+  // Enter Value Sketchboard
+  const sketchEnter = page.locator(".puzzle-item", {
+    has: page.getByText("Value Sketchboard"),
+  }).getByRole("button", { name: "Enter" });
+  await sketchEnter.click();
+
+  // Find the Chroma Tree puzzle card and click its info button
+  const chromaCard = page.locator(".puzzle-item", {
+    has: page.getByText("Chroma Tree"),
+  });
+  await chromaCard.locator(".info-btn").click();
+
+  // Modal title should mention Chroma Tree
+  await expect(page.locator("#info-modal-title")).toContainText("Chroma Tree");
+  await expect(page.locator("#info-modal-body")).toContainText("chroma");
+});
