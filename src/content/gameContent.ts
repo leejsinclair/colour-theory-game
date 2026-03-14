@@ -37,7 +37,7 @@ const petDefinitions: Array<{ id: string; name: string; type: PetType }> = [
   { id: "pet-12", name: "Neutral Turtle", type: PetType.NeutralTurtle },
   { id: "pet-13", name: "Sky Jelly", type: PetType.SkyJelly },
   { id: "pet-14", name: "Air Sprite", type: PetType.AirSprite },
-  { id: "pet-15", name: "Dusk Owl", type: PetType.DuskOwl },
+  { id: "pet-15", name: "Sun Finch", type: PetType.SunFinch },
   { id: "pet-16", name: "Paint Slime", type: PetType.PaintSlime },
   { id: "pet-17", name: "Mud Blob", type: PetType.MudBlob },
   { id: "pet-18", name: "Dot Bee", type: PetType.DotBee },
@@ -232,14 +232,19 @@ export function createStationsAndPuzzles(): Station[] {
       "pet-14",
       (input) => input.farObjectsShiftBlue && input.scatteringStrength >= 0.7,
     ),
-    createPuzzle<{ warmPaletteMixed: boolean; completedBeforeNightfall: boolean; adaptedToBlueHour: boolean }>(
+    createPuzzle<{ palettesMatched: boolean; sunHeight: number; colorTemperature: number; atmosphere: number }>(
       "puzzle-15",
       "station-05",
-      "Golden Hour",
-      "Mix warm palette under a shifting sunset timer.",
-      PuzzleType.GOLDEN_HOUR,
+      "Chromatic Mastery",
+      "Match time-of-day palettes, then recreate golden hour light.",
+      PuzzleType.TIME_OF_DAY,
       "pet-15",
-      (input) => input.warmPaletteMixed && input.completedBeforeNightfall && input.adaptedToBlueHour,
+      (input) =>
+        input.palettesMatched &&
+        input.sunHeight < 0.35 &&
+        input.colorTemperature > 0.70 &&
+        input.atmosphere >= 0.40 &&
+        input.atmosphere <= 0.60,
     ),
   ];
 

@@ -69,7 +69,7 @@ const PET_NAMES: Record<string, string> = {
   "pet-12": "Neutral Turtle",
   "pet-13": "Sky Jelly",
   "pet-14": "Air Sprite",
-  "pet-15": "Dusk Owl",
+  "pet-15": "Sun Finch",
   "pet-16": "Paint Slime",
   "pet-17": "Mud Blob",
   "pet-18": "Dot Bee",
@@ -244,7 +244,7 @@ const puzzleObjectives: Record<string, string> = {
   "puzzle-12": "Use neutrals so a single accent color stands out clearly.",
   "puzzle-13": "Apply depth cues: softer edges, lower saturation, and cooler distance hues.",
   "puzzle-14": "Increase atmospheric scattering so far objects shift toward blue.",
-  "puzzle-15": "Mix warm sunset colors before nightfall, then adapt to blue hour.",
+  "puzzle-15": "Stage 1: drag each palette onto its time-of-day card. Stage 2: adjust sun, atmosphere, and temperature to recreate golden hour.",
   "puzzle-16": "Mix phthalo blue + hansa yellow and keep mud low for vibrant green.",
   "puzzle-17": "Avoid overmixing complements to prevent muddy results.",
   "puzzle-18": "Paint pure color dots and reach enough coverage for optical blending.",
@@ -372,7 +372,13 @@ function validatePuzzleInput(puzzleId: string, input: any): boolean {
     case "puzzle-14":
       return Boolean(input.farObjectsShiftBlue && input.scatteringStrength >= 0.7);
     case "puzzle-15":
-      return Boolean(input.warmPaletteMixed && input.completedBeforeNightfall && input.adaptedToBlueHour);
+      return Boolean(
+        input.palettesMatched &&
+        input.sunHeight < 0.35 &&
+        input.colorTemperature > 0.70 &&
+        input.atmosphere >= 0.40 &&
+        input.atmosphere <= 0.60,
+      );
     case "puzzle-16": {
       const pigments = (input.pigments as string[]).map((p) => p.toLowerCase());
       return pigments.includes("phthalo blue") && pigments.includes("hansa yellow") && input.mudLevel <= 0.3;
@@ -1657,199 +1663,328 @@ function renderPuzzleMiniGame(puzzleId: string, title: string, state: string): v
       scatteringStrength: s.scatter,
     }));
   } else if (puzzleId === "puzzle-15") {
+    // ── Chromatic Mastery – Time of Day Puzzle ───────────────────────────────
+    // Stage 1: match color palettes to times of day
+    // Stage 2: adjust sun controls to recreate golden hour
+
+    const PALETTES: Array<{ id: string; label: string; swatches: string[] }> = [
+      { id: "A", label: "Palette A", swatches: ["#a8c8e8", "#f5e6a0", "#c8cad0", "#9ab89a", "#b8d8e8"] },
+      { id: "B", label: "Palette B", swatches: ["#6080b0", "#50c050", "#e8c020", "#505060", "#60a0d0"] },
+      { id: "C", label: "Palette C", swatches: ["#e87030", "#e0a020", "#a05030", "#f0c040", "#c098b8"] },
+      { id: "D", label: "Palette D", swatches: ["#203070", "#704090", "#202060", "#6068a0", "#404878"] },
+    ];
+    const SLOTS: Array<{ id: string; label: string; correctPaletteId: string }> = [
+      { id: "morning", label: "Morning", correctPaletteId: "A" },
+      { id: "midday", label: "Midday", correctPaletteId: "B" },
+      { id: "goldenHour", label: "Golden Hour", correctPaletteId: "C" },
+      { id: "afterSunset", label: "After Sunset", correctPaletteId: "D" },
+    ];
+
     const s = ensureState(puzzleId, {
-      timeLeft: 100,
-      warmMix: 0.2,
-      coolMix: 0.1,
-      peakWarm: 0.2,
-      peakCool: 0.1,
-      warmedInTime: false,
-      adapted: false,
-      phase: "sunset" as "sunset" | "bluehour",
+      stage: 1 as 1 | 2,
+      selected: null as string | null,
+      assignments: {} as Record<string, string>,
+      stage1Complete: false,
+      sunHeight: 0.5,
+      atmosphere: 0.5,
+      colorTemp: 0.5,
     });
-    const warmTarget = 0.62;
-    const coolTarget = 0.52;
 
-    // ── Phase indicator badge ──────────────────────────────────────────────
-    const phaseIndicator = document.createElement("div");
-    phaseIndicator.className = "phase-indicator";
-    zone.appendChild(phaseIndicator);
+    // ── Caretaker intro ────────────────────────────────────────────────────
+    const intro = document.createElement("div");
+    intro.className = "phase-guide";
+    intro.textContent =
+      "The sun paints the world with different colors throughout the day. " +
+      "If you learn how light changes, you can restore the landscape.";
+    zone.appendChild(intro);
 
-    // ── Per-phase guide text ───────────────────────────────────────────────
-    const phaseGuide = document.createElement("div");
-    phaseGuide.className = "phase-guide";
-    zone.appendChild(phaseGuide);
+    // ── Stage indicator ────────────────────────────────────────────────────
+    const stageIndicator = document.createElement("div");
+    stageIndicator.className = "phase-indicator";
+    stageIndicator.dataset.stage = String(s.stage);
+    zone.appendChild(stageIndicator);
 
-    const board = document.createElement("div");
-    board.className = "golden-hour-board";
-    const sky = document.createElement("div");
-    sky.className = "golden-sky";
-    const sun = document.createElement("div");
-    sun.className = "golden-sun";
-    sky.appendChild(sun);
-    board.appendChild(sky);
-    zone.appendChild(board);
+    // ── Stage 1 container ─────────────────────────────────────────────────
+    const stage1El = document.createElement("div");
+    stage1El.className = "tod-stage";
 
-    const meter = document.createElement("div");
-    meter.className = "coverage-wrap";
-    const track = document.createElement("div");
-    track.className = "coverage-bar-track";
-    const fill = document.createElement("div");
-    fill.className = "coverage-bar-fill";
-    track.appendChild(fill);
-    const meterLabel = document.createElement("div");
-    meterLabel.className = "coverage-bar-label";
-    meter.appendChild(track);
-    meter.appendChild(meterLabel);
-    zone.appendChild(meter);
+    const paletteGuide = document.createElement("div");
+    paletteGuide.className = "mini-label";
+    paletteGuide.textContent = "Click a palette to select it, then click a time-of-day card to assign it.";
+    stage1El.appendChild(paletteGuide);
 
-    const feedback = document.createElement("div");
-    feedback.className = "mini-label";
-    zone.appendChild(feedback);
+    // Palette tiles (draggable / clickable)
+    const paletteTray = document.createElement("div");
+    paletteTray.className = "tod-palette-tray";
 
-    const warmMeter = document.createElement("div");
-    warmMeter.className = "coverage-wrap";
-    const warmTrack = document.createElement("div");
-    warmTrack.className = "coverage-bar-track";
-    const warmFill = document.createElement("div");
-    warmFill.className = "coverage-bar-fill";
-    warmFill.style.background = "linear-gradient(90deg, #f08c00, #e8590c)";
-    warmTrack.appendChild(warmFill);
-    const warmLabel = document.createElement("div");
-    warmLabel.className = "coverage-bar-label";
-    warmMeter.appendChild(warmTrack);
-    warmMeter.appendChild(warmLabel);
-    zone.appendChild(warmMeter);
+    const paletteBtns: Record<string, HTMLButtonElement> = {};
 
-    const coolMeter = document.createElement("div");
-    coolMeter.className = "coverage-wrap";
-    const coolTrack = document.createElement("div");
-    coolTrack.className = "coverage-bar-track";
-    const coolFill = document.createElement("div");
-    coolFill.className = "coverage-bar-fill";
-    coolFill.style.background = "linear-gradient(90deg, #1c7ed6, #3b5bdb)";
-    coolTrack.appendChild(coolFill);
-    const coolLabel = document.createElement("div");
-    coolLabel.className = "coverage-bar-label";
-    coolMeter.appendChild(coolTrack);
-    coolMeter.appendChild(coolLabel);
-    zone.appendChild(coolMeter);
+    PALETTES.forEach((pal) => {
+      const btn = document.createElement("button");
+      btn.className = "tod-palette-btn";
+      btn.dataset.paletteId = pal.id;
+      btn.setAttribute("aria-label", `Select ${pal.label}`);
 
-    const checklist = document.createElement("div");
-    checklist.className = "mini-label";
-    zone.appendChild(checklist);
+      const lbl = document.createElement("span");
+      lbl.className = "tod-palette-name";
+      lbl.textContent = pal.label;
+      btn.appendChild(lbl);
 
-    const updateBoard = (): void => {
-      s.peakWarm = Math.max(s.peakWarm, s.warmMix);
-      s.peakCool = Math.max(s.peakCool, s.coolMix);
-      if (s.phase === "sunset" && s.timeLeft > 0 && s.warmMix >= warmTarget) {
-        s.warmedInTime = true;
-      }
-      if (s.phase === "bluehour" && s.coolMix >= coolTarget) {
-        s.adapted = true;
-      }
+      const swatchRow = document.createElement("div");
+      swatchRow.className = "tod-swatch-row";
+      pal.swatches.forEach((color) => {
+        const sw = document.createElement("div");
+        sw.className = "tod-swatch";
+        sw.style.background = color;
+        swatchRow.appendChild(sw);
+      });
+      btn.appendChild(swatchRow);
 
-      // Update phase indicator and guide text
-      phaseIndicator.dataset.phase = s.phase;
-      if (s.phase === "sunset") {
-        phaseIndicator.textContent = "🌅 Sunset Phase";
-        phaseGuide.textContent =
-          `Step 1 of 2: Raise the Warm palette slider to ≥${Math.round(warmTarget * 100)}% ` +
-          `before daylight runs out. Click "Advance Time" to move toward nightfall, or ` +
-          `"Shift To Blue Hour" when you're ready to move on.`;
-        advance.style.display = "";
-        triggerBlueHour.style.display = "";
+      btn.addEventListener("click", () => {
+        if (s.stage !== 1) return;
+        const alreadyAssigned = Object.values(s.assignments).includes(pal.id);
+        if (alreadyAssigned) return;
+        s.selected = s.selected === pal.id ? null : pal.id;
+        updateStage1();
+      });
+
+      paletteBtns[pal.id] = btn;
+      paletteTray.appendChild(btn);
+    });
+    stage1El.appendChild(paletteTray);
+
+    // Landscape drop slots
+    const slotGrid = document.createElement("div");
+    slotGrid.className = "tod-slot-grid";
+
+    const slotEls: Record<string, HTMLDivElement> = {};
+
+    SLOTS.forEach((slot) => {
+      const card = document.createElement("div");
+      card.className = "tod-slot";
+      card.dataset.slotId = slot.id;
+
+      const slotLabel = document.createElement("div");
+      slotLabel.className = "tod-slot-label";
+      slotLabel.textContent = slot.label;
+      card.appendChild(slotLabel);
+
+      const slotContent = document.createElement("div");
+      slotContent.className = "tod-slot-content";
+      card.appendChild(slotContent);
+
+      card.addEventListener("click", () => {
+        if (s.stage !== 1 || !s.selected) return;
+        s.assignments[slot.id] = s.selected;
+        s.selected = null;
+        checkStage1Complete();
+        updateStage1();
+        syncStages();
+      });
+
+      slotEls[slot.id] = card;
+      slotGrid.appendChild(card);
+    });
+    stage1El.appendChild(slotGrid);
+
+    const stage1Feedback = document.createElement("div");
+    stage1Feedback.className = "mini-label";
+    stage1El.appendChild(stage1Feedback);
+
+    const resetStage1Btn = document.createElement("button");
+    resetStage1Btn.className = "btn";
+    resetStage1Btn.textContent = "Reset Palettes";
+    resetStage1Btn.addEventListener("click", () => {
+      s.assignments = {};
+      s.selected = null;
+      s.stage1Complete = false;
+      s.stage = 1;
+      updateStage1();
+      syncStages();
+    });
+    stage1El.appendChild(resetStage1Btn);
+
+    zone.appendChild(stage1El);
+
+    // ── Stage 2 container ─────────────────────────────────────────────────
+    const stage2El = document.createElement("div");
+    stage2El.className = "tod-stage";
+
+    const postcardGuide = document.createElement("div");
+    postcardGuide.className = "phase-guide";
+    postcardGuide.textContent =
+      "Target postcard: Golden Hour – warm orange sunlight, long shadows, soft glowing horizon. " +
+      "Adjust the controls below until the window view matches.";
+    stage2El.appendChild(postcardGuide);
+
+    // Visual window scene
+    const windowBoard = document.createElement("div");
+    windowBoard.className = "tod-window-board";
+    const windowSky = document.createElement("div");
+    windowSky.className = "tod-window-sky";
+    const windowSun = document.createElement("div");
+    windowSun.className = "tod-window-sun";
+    const windowGround = document.createElement("div");
+    windowGround.className = "tod-window-ground";
+    const windowShadow = document.createElement("div");
+    windowShadow.className = "tod-window-shadow";
+    windowGround.appendChild(windowShadow);
+    windowSky.appendChild(windowSun);
+    windowBoard.appendChild(windowSky);
+    windowBoard.appendChild(windowGround);
+    stage2El.appendChild(windowBoard);
+
+    const stage2Feedback = document.createElement("div");
+    stage2Feedback.className = "mini-label";
+    stage2El.appendChild(stage2Feedback);
+
+    const stage2Checklist = document.createElement("div");
+    stage2Checklist.className = "mini-label";
+    stage2El.appendChild(stage2Checklist);
+
+    const updateStage2 = (): void => {
+      // Sun position: sunHeight=0 → sun near top, sunHeight=1 → sun near horizon
+      const sunTopPct = 8 + s.sunHeight * 60;
+      const sunLeftPct = 50 + (s.sunHeight - 0.5) * 30;
+      windowSun.style.top = `${sunTopPct}%`;
+      windowSun.style.left = `${sunLeftPct}%`;
+
+      // Sky color changes with colorTemp (cool ↔ warm) and sunHeight
+      const hue = Math.round(30 + s.colorTemp * 190);        // 30 = warm orange, 220 = cool blue
+      const sat = Math.round(30 + s.colorTemp * 50 * (1 - s.sunHeight * 0.4));
+      const light = Math.round(38 + (1 - s.sunHeight) * 24);
+      const hazeAlpha = s.atmosphere * 0.55;
+      windowSky.style.background =
+        `linear-gradient(180deg, hsl(${hue}, ${sat}%, ${light + 14}%), hsl(${hue - 10}, ${sat + 8}%, ${light}%))`;
+      windowSky.style.filter = `blur(0)`;
+      windowBoard.style.filter = s.atmosphere > 0.5
+        ? `blur(${((s.atmosphere - 0.5) * 2).toFixed(2)}px)`
+        : "none";
+      windowBoard.style.setProperty("--haze-alpha", String(hazeAlpha));
+
+      // Shadow: low sun (high sunHeight) → longer shadow
+      const MIN_SHADOW_WIDTH = 8;
+      const SHADOW_WIDTH_RANGE = 6;
+      const MIN_SHADOW_LENGTH = 20;
+      const MAX_SHADOW_LENGTH = 70;
+      const shadowWidth = Math.round(MIN_SHADOW_WIDTH + s.sunHeight * SHADOW_WIDTH_RANGE);
+      const shadowLength = Math.round(MIN_SHADOW_LENGTH + (1 - s.sunHeight) * MAX_SHADOW_LENGTH);
+      windowShadow.style.width = `${shadowWidth}px`;
+      windowShadow.style.height = `${shadowLength}px`;
+
+      // Ground color warms with colorTemp
+      const groundHue = Math.round(25 + s.colorTemp * 30);
+      windowGround.style.background = `linear-gradient(180deg, hsl(${groundHue}, ${20 + s.colorTemp * 35}%, ${28 + s.colorTemp * 10}%), hsl(${groundHue - 5}, ${18 + s.colorTemp * 28}%, ${20 + s.colorTemp * 8}%))`;
+
+      // Sun glow: warm temp → orange glow (hue ~40), cool temp → blue glow (hue ~180)
+      const MIN_GLOW_HUE = 40;
+      const GLOW_HUE_RANGE = 140;
+      const glowHue = Math.round(MIN_GLOW_HUE + (1 - s.colorTemp) * GLOW_HUE_RANGE);
+      const glowAlpha = 0.25 + s.colorTemp * 0.45;
+      windowSun.style.background = `radial-gradient(circle, rgba(255,240,180,${glowAlpha}), hsl(${glowHue}, 95%, 65%) 40%, transparent 72%)`;
+
+      const heightOk = s.sunHeight < 0.35;
+      const tempOk = s.colorTemp > 0.70;
+      const atmosOk = s.atmosphere >= 0.40 && s.atmosphere <= 0.60;
+      const heightIcon = heightOk ? "✓" : "…";
+      const tempIcon = tempOk ? "✓" : "…";
+      const atmosIcon = atmosOk ? "✓" : "…";
+      stage2Checklist.textContent =
+        `Sun height ${heightIcon} | Color temperature ${tempIcon} | Atmosphere ${atmosIcon}`;
+
+      if (heightOk && tempOk && atmosOk) {
+        stage2Feedback.textContent = "Golden hour achieved! The Sun Finch has arrived. ✓";
       } else {
-        phaseIndicator.textContent = "🌙 Blue Hour Phase";
-        phaseGuide.textContent =
-          `Step 2 of 2: Raise the Cool adaptation slider to ≥${Math.round(coolTarget * 100)}% ` +
-          `to capture the cool twilight glow. Then click Check to validate both phases.`;
-        advance.style.display = "none";
-        triggerBlueHour.style.display = "none";
+        const hints: string[] = [];
+        if (!heightOk) hints.push("lower the sun toward the horizon");
+        if (!tempOk) hints.push("warm the color temperature toward orange");
+        if (!atmosOk) hints.push("set atmosphere to a moderate haze");
+        stage2Feedback.textContent = `Adjust: ${hints.join("; ")}.`;
       }
-
-      fill.style.width = `${s.timeLeft}%`;
-      warmFill.style.width = `${Math.round(s.warmMix * 100)}%`;
-      coolFill.style.width = `${Math.round(s.coolMix * 100)}%`;
-      warmLabel.textContent = `Warm palette: ${Math.round(s.warmMix * 100)}% (target >= ${Math.round(warmTarget * 100)}% before dusk)`;
-      coolLabel.textContent = `Cool adaptation: ${Math.round(s.coolMix * 100)}% (target >= ${Math.round(coolTarget * 100)}% in blue hour)`;
-
-      const progressToNight = 1 - s.timeLeft / 100;
-      const warmBoost = s.warmMix * (1 - progressToNight * 0.45);
-      const coolBoost = s.coolMix * (0.35 + progressToNight * 0.9);
-      if (s.phase === "sunset") {
-        const hue = 22 + (1 - warmBoost) * 16 - coolBoost * 6;
-        sky.style.background = `linear-gradient(180deg, hsl(${hue}, ${50 + warmBoost * 38}%, ${58 - coolBoost * 9}%), hsl(${30 + warmBoost * 14 - coolBoost * 10}, ${35 + warmBoost * 32}%, ${42 - coolBoost * 10}%))`;
-      } else {
-        const cool = Math.max(coolBoost, 0.3);
-        sky.style.background = `linear-gradient(180deg, hsl(${220 + cool * 24 - warmBoost * 6}, ${35 + cool * 45}%, ${42 + warmBoost * 5}% ), hsl(${245 + cool * 15 - warmBoost * 8}, ${35 + cool * 40}%, ${22 + warmBoost * 4}%))`;
-      }
-      sun.style.left = `${Math.max(4, Math.min(92, s.timeLeft))}%`;
-      meterLabel.textContent = s.phase === "sunset"
-        ? `Sunset timer: ${Math.round(s.timeLeft)}% daylight remaining`
-        : "Blue hour active — daylight gone";
-      feedback.textContent = s.phase === "sunset"
-        ? `Sunset phase: build warmth now. Cool adaptation still tints sky by ${(coolBoost * 100).toFixed(0)}%.`
-        : `Blue-hour phase: push cool adaptation. Warm underpainting still influences glow by ${(warmBoost * 100).toFixed(0)}%.`;
-
-      const warmReached = s.warmMix >= warmTarget || s.peakWarm >= warmTarget;
-      const coolReached = s.coolMix >= coolTarget || s.peakCool >= coolTarget;
-      const preNightWarm = s.warmedInTime || warmReached;
-      const blueHourAdapted = s.phase === "bluehour" && (s.adapted || coolReached);
-      const warmIcon = warmReached ? "✓" : "…";
-      const nightIcon = preNightWarm ? "✓" : "…";
-      const blueIcon = blueHourAdapted ? "✓" : "…";
-      checklist.textContent = `Checklist: warm mix ${warmIcon} | warmed before nightfall ${nightIcon} | blue-hour adaptation ${blueIcon}`;
     };
 
-    addSlider(zone, "Warm palette strength", s.warmMix, 0, 1, 0.01, (v) => {
-      s.warmMix = v;
-      updateBoard();
+    addSlider(stage2El, "Sun Height (low = near horizon)", s.sunHeight, 0, 1, 0.01, (v) => {
+      s.sunHeight = v;
+      updateStage2();
+    });
+    addSlider(stage2El, "Atmosphere (haze)", s.atmosphere, 0, 1, 0.01, (v) => {
+      s.atmosphere = v;
+      updateStage2();
+    });
+    addSlider(stage2El, "Color Temperature (cool ← → warm)", s.colorTemp, 0, 1, 0.01, (v) => {
+      s.colorTemp = v;
+      updateStage2();
     });
 
-    addSlider(zone, "Cool adaptation", s.coolMix, 0, 1, 0.01, (v) => {
-      s.coolMix = v;
-      updateBoard();
-    });
+    zone.appendChild(stage2El);
 
-    const advance = document.createElement("button");
-    advance.className = "btn";
-    advance.textContent = "Advance Time (−20%)";
-    advance.setAttribute("title", "Move time forward — reach 0% to enter Blue Hour");
-    advance.addEventListener("click", () => {
-      s.timeLeft = Math.max(0, s.timeLeft - 20);
-      if (s.timeLeft === 0) {
-        s.phase = "bluehour";
+    // ── Helpers ───────────────────────────────────────────────────────────
+    function checkStage1Complete(): void {
+      const allAssigned = SLOTS.every((sl) => Boolean(s.assignments[sl.id]));
+      if (!allAssigned) return;
+      const allCorrect = SLOTS.every((sl) => s.assignments[sl.id] === sl.correctPaletteId);
+      if (allCorrect) {
+        s.stage1Complete = true;
+        s.stage = 2;
+      } else {
+        stage1Feedback.textContent = "The sun's color changes as it moves across the sky. Try again!";
+        s.assignments = {};
+        s.selected = null;
       }
-      updateBoard();
-    });
-    zone.appendChild(advance);
+    }
 
-    const triggerBlueHour = document.createElement("button");
-    triggerBlueHour.className = "btn btn-accent";
-    triggerBlueHour.textContent = "Shift To Blue Hour →";
-    triggerBlueHour.setAttribute("title", "Skip to Blue Hour once your warm palette is ready (≥62%)");
-    triggerBlueHour.addEventListener("click", () => {
-      s.phase = "bluehour";
-      s.timeLeft = 0;
-      updateBoard();
-    });
-    zone.appendChild(triggerBlueHour);
+    function updateStage1(): void {
+      PALETTES.forEach((pal) => {
+        const btn = paletteBtns[pal.id];
+        const isAssigned = Object.values(s.assignments).includes(pal.id);
+        const isSelected = s.selected === pal.id;
+        btn.classList.toggle("--assigned", isAssigned);
+        btn.classList.toggle("--selected", isSelected);
+        btn.disabled = isAssigned;
+      });
 
-    const resetCycle = document.createElement("button");
-    resetCycle.className = "btn";
-    resetCycle.textContent = "Reset Day Cycle";
-    resetCycle.addEventListener("click", () => {
-      puzzleUiState.delete(puzzleId);
-      render();
-    });
-    zone.appendChild(resetCycle);
+      SLOTS.forEach((slot) => {
+        const card = slotEls[slot.id];
+        const assignedId = s.assignments[slot.id];
+        const content = card.querySelector(".tod-slot-content") as HTMLDivElement;
+        if (assignedId) {
+          const pal = PALETTES.find((p) => p.id === assignedId)!;
+          content.textContent = pal.label;
+          card.classList.add("--assigned");
+        } else {
+          content.textContent = s.selected ? "← click to assign" : "";
+          card.classList.remove("--assigned");
+        }
+        card.classList.toggle("--drop-ready", Boolean(s.selected) && !assignedId);
+      });
 
-    updateBoard();
+      stage1Feedback.textContent = s.selected
+        ? `${PALETTES.find((p) => p.id === s.selected)!.label} selected – now click a time-of-day card.`
+        : "";
+    }
+
+    function syncStages(): void {
+      stageIndicator.dataset.stage = String(s.stage);
+      if (s.stage === 1) {
+        stageIndicator.textContent = "Stage 1 – Match the Palette";
+        stage1El.style.display = "";
+        stage2El.style.display = "none";
+      } else {
+        stageIndicator.textContent = "Stage 2 – Control the Sun";
+        stage1El.style.display = "none";
+        stage2El.style.display = "";
+        updateStage2();
+      }
+    }
+
+    updateStage1();
+    syncStages();
+
     addCheckButton(wrapper, puzzleId, () => ({
-      warmPaletteMixed: s.warmMix >= warmTarget || s.peakWarm >= warmTarget,
-      completedBeforeNightfall: s.warmedInTime || s.peakWarm >= warmTarget,
-      adaptedToBlueHour: s.phase === "bluehour" && (s.adapted || s.coolMix >= coolTarget || s.peakCool >= coolTarget),
+      palettesMatched: s.stage1Complete,
+      sunHeight: s.sunHeight,
+      colorTemperature: s.colorTemp,
+      atmosphere: s.atmosphere,
     }));
   } else if (puzzleId === "puzzle-16") {
     const s = ensureState(puzzleId, { phthalo: false, hansa: false, redContam: 0.0, purpleContam: 0.0 });
