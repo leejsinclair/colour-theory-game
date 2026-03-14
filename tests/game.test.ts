@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { getDemoSolution } from "../src/content/demoSolutions";
+import { getDemoSolution, moodPaletteSolutions } from "../src/content/demoSolutions";
 import { Game } from "../src/game/Game";
 import { SceneType } from "../src/types/gameTypes";
 
@@ -242,5 +242,61 @@ describe("Save/load with gamification fields", () => {
     expect(loaded!.petMilestonesUnlocked).toEqual([]);
     expect(loaded!.currentStreak).toBe(0);
     expect(loaded!.bestStreak).toBe(0);
+  });
+});
+
+describe("Mood Palette puzzle solutions", () => {
+  function solveUpToPuzzle09(game: Game): void {
+    for (let i = 1; i <= 8; i += 1) {
+      const puzzleId = `puzzle-${String(i).padStart(2, "0")}`;
+      game.completePuzzle(puzzleId, getDemoSolution(puzzleId));
+    }
+  }
+
+  test("calm ocean solution is accepted by puzzle-09 validator", () => {
+    const game = new Game();
+    game.initialize();
+    solveUpToPuzzle09(game);
+    const event = game.completePuzzle("puzzle-09", moodPaletteSolutions["calm ocean"]);
+    expect(event).not.toBeNull();
+  });
+
+  test("joyful carnival solution is accepted by puzzle-09 validator", () => {
+    const game = new Game();
+    game.initialize();
+    solveUpToPuzzle09(game);
+    const event = game.completePuzzle("puzzle-09", moodPaletteSolutions["joyful carnival"]);
+    expect(event).not.toBeNull();
+  });
+
+  test("creepy dungeon solution is accepted by puzzle-09 validator", () => {
+    const game = new Game();
+    game.initialize();
+    solveUpToPuzzle09(game);
+    const event = game.completePuzzle("puzzle-09", moodPaletteSolutions["creepy dungeon"]);
+    expect(event).not.toBeNull();
+  });
+
+  test("wrong tags for a prompt are rejected", () => {
+    const game = new Game();
+    game.initialize();
+    solveUpToPuzzle09(game);
+    // calm ocean tags don't satisfy joyful carnival requirements
+    const event = game.completePuzzle("puzzle-09", {
+      prompt: "joyful carnival",
+      paletteTags: ["blue", "teal", "low contrast"],
+    });
+    expect(event).toBeNull();
+  });
+
+  test("unknown prompt is rejected", () => {
+    const game = new Game();
+    game.initialize();
+    solveUpToPuzzle09(game);
+    const event = game.completePuzzle("puzzle-09", {
+      prompt: "unknown mood",
+      paletteTags: ["warm", "saturated"],
+    });
+    expect(event).toBeNull();
   });
 });

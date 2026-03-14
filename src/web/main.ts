@@ -1479,6 +1479,18 @@ function renderPuzzleMiniGame(puzzleId: string, title: string, state: string): v
     tagReadout.className = "mini-label";
     board.appendChild(tagReadout);
 
+    const reqReadout = document.createElement("div");
+    reqReadout.className = "mini-label";
+    board.appendChild(reqReadout);
+
+    const moodReqs: Record<string, string[]> = {
+      "joyful carnival": ["warm", "high contrast", "saturated"],
+      "calm ocean": ["blue", "teal", "low contrast"],
+      "creepy dungeon": ["desaturated", "green", "dark"],
+    };
+
+    const MATCHED_CHECKMARK = "✓";
+
     const inferredTags = (): string[] => {
       const tags: string[] = [];
       const avgHue = s.swatches.reduce((a: number, b: number) => a + b, 0) / s.swatches.length;
@@ -1532,7 +1544,12 @@ function renderPuzzleMiniGame(puzzleId: string, title: string, state: string): v
       });
 
       const tags = inferredTags();
-      tagReadout.textContent = `Inferred tags: ${tags.join(", ") || "none"}`;
+      const required = moodReqs[s.prompt] ?? [];
+      const missing = required.filter((t) => !tags.includes(t));
+      tagReadout.textContent = `Your tags: ${tags.join(", ") || "none"}`;
+      reqReadout.textContent = missing.length
+        ? `Required: ${required.join(", ")} — still need: ${missing.join(", ")}`
+        : `Required: ${required.join(", ")} ${MATCHED_CHECKMARK} all matched!`;
       insight.textContent = `Click swatches to rotate hue. Prompt: ${s.prompt}`;
     };
 
