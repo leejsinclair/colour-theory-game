@@ -1843,14 +1843,14 @@ function renderPuzzleMiniGame(puzzleId: string, title: string, state: string): v
     stage2El.appendChild(stage2Checklist);
 
     const updateStage2 = (): void => {
-      // Sun position: sunHeight=0 → sun near top, sunHeight=1 → sun near horizon
-      const sunTopPct = 8 + s.sunHeight * 60;
+      // Sun position: sunHeight=0 → sun near horizon, sunHeight=1 → sun near top
+      const sunTopPct = 68 - s.sunHeight * 60;
       const sunLeftPct = 50 + (s.sunHeight - 0.5) * 30;
       windowSun.style.top = `${sunTopPct}%`;
       windowSun.style.left = `${sunLeftPct}%`;
 
       // Sky color changes with colorTemp (cool ↔ warm) and sunHeight
-      const hue = Math.round(30 + s.colorTemp * 190);        // 30 = warm orange, 220 = cool blue
+      const hue = Math.round(220 - s.colorTemp * 190);        // 220 = cool blue, 30 = warm orange
       const sat = Math.round(30 + s.colorTemp * 50 * (1 - s.sunHeight * 0.4));
       const light = Math.round(38 + (1 - s.sunHeight) * 24);
       const hazeAlpha = s.atmosphere * 0.55;
@@ -1862,7 +1862,7 @@ function renderPuzzleMiniGame(puzzleId: string, title: string, state: string): v
         : "none";
       windowBoard.style.setProperty("--haze-alpha", String(hazeAlpha));
 
-      // Shadow: low sun (high sunHeight) → longer shadow
+      // Shadow: low sun (low sunHeight) → longer shadow
       const MIN_SHADOW_WIDTH = 8;
       const SHADOW_WIDTH_RANGE = 6;
       const MIN_SHADOW_LENGTH = 20;
