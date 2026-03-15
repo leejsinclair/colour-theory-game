@@ -63,8 +63,20 @@ export function PuzzleActionButton({ children, onClick, disabled = false, small 
       variant="contained"
       color="secondary"
       size={small ? "small" : "medium"}
+      disableElevation
       disabled={disabled}
       onClick={onClick}
+      sx={small
+        ? {
+            minWidth: 0,
+            width: 24,
+            height: 22,
+            px: 0,
+            py: 0,
+            fontSize: "0.72rem",
+            lineHeight: 1,
+          }
+        : undefined}
     >
       {children}
     </Button>
