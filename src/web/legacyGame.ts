@@ -1,22 +1,9 @@
 import { getDemoSolution } from "../content/demoSolutions";
 import { Game } from "../game/Game";
 import { SceneType } from "../types/gameTypes";
+import { mountMuiCheckbox, mountMuiSelect, mountMuiSlider, renderMuiMilestoneChips, upgradeMuiButtons } from "./muiControls";
 import "./styles.css";
 
-type NodePoint = {
-  x: number;
-  y: number;
-  hue: number;
-};
-
-type TransitionState = {
-  active: boolean;
-  startedAt: number;
-  durationMs: number;
-  label: string;
-};
-
-const canvas = document.getElementById("studio-canvas") as HTMLCanvasElement;
 const progressEl = document.getElementById("progress") as HTMLPreElement;
 const puzzleListEl = document.getElementById("puzzle-list") as HTMLDivElement;
 const autoSolveButton = document.getElementById("auto-solve") as HTMLButtonElement;
@@ -184,32 +171,31 @@ function renderPetCollection(): void {
   }
 }
 
-function requireContext2D(target: HTMLCanvasElement): CanvasRenderingContext2D {
-  const value = target.getContext("2d");
-  if (!value) {
-    throw new Error("Canvas context unavailable");
-  }
-  return value;
-}
-
-const ctx = requireContext2D(canvas);
-
 let game = new Game();
 let activeStationId: string | null = null;
 let practicePuzzleId: string | null = null;
 
-const transition: TransitionState = {
-  active: false,
-  startedAt: 0,
-  durationMs: 520,
-  label: "",
-};
-
 /** Show a brief floating reward toast message. */
-function showToast(message: string): void {
+function showToast(
+  message: string,
+  options: { kind?: "default" | "success"; icon?: string } = {},
+): void {
   const el = document.createElement("div");
-  el.className = "toast";
-  el.textContent = message;
+  const kind = options.kind ?? "default";
+  el.className = `toast${kind === "success" ? " toast--success" : ""}`;
+
+  if (options.icon) {
+    const iconEl = document.createElement("span");
+    iconEl.className = "toast-icon";
+    iconEl.textContent = options.icon;
+    el.appendChild(iconEl);
+  }
+
+  const textEl = document.createElement("span");
+  textEl.className = "toast-text";
+  textEl.textContent = message;
+  el.appendChild(textEl);
+
   toastContainerEl.appendChild(el);
   setTimeout(() => {
     el.style.animation = "toast-out 280ms ease forwards";
@@ -224,14 +210,7 @@ function updateHud(): void {
   hudPetsValue.textContent = `${progress.petsCollected}/18`;
   hudStreakValue.textContent = String(progress.bestStreak);
 
-  // Rebuild milestone badges
-  milestoneBadgesEl.innerHTML = "";
-  for (const badge of progress.petMilestonesUnlocked) {
-    const span = document.createElement("span");
-    span.className = "milestone-badge";
-    span.textContent = `🏅 ${badge}`;
-    milestoneBadgesEl.appendChild(span);
-  }
+  renderMuiMilestoneChips(milestoneBadgesEl, progress.petMilestonesUnlocked);
 
   // Rebuild jellybean pet collection grid
   renderPetCollection();
@@ -376,47 +355,17 @@ const artPad = {
 
 const puzzleUiState = new Map<string, unknown>();
 
-const player = {
-  x: 80,
-  y: 460,
-  targetX: 80,
-  targetY: 460,
-  speed: 210,
-};
-
-const stationNodes: Record<string, NodePoint> = {
-  "station-01": { x: 220, y: 160, hue: 18 },
-  "station-02": { x: 140, y: 360, hue: 245 },
-  "station-03": { x: 430, y: 360, hue: 45 },
-  "station-04": { x: 660, y: 300, hue: 310 },
-  "station-05": { x: 820, y: 160, hue: 196 },
-  "station-06": { x: 560, y: 110, hue: 126 },
-};
-
-const stationLinks: Array<[string, string]> = [
-  ["station-01", "station-02"],
-  ["station-01", "station-03"],
-  ["station-03", "station-04"],
-  ["station-04", "station-05"],
-  ["station-01", "station-06"],
-  ["station-06", "station-05"],
-];
-
 function initializeGame(): void {
   game = new Game();
   game.initialize();
   activeStationId = null;
   practicePuzzleId = null;
-  transition.active = false;
-  player.x = 80;
-  player.y = 460;
-  player.targetX = 80;
-  player.targetY = 460;
   artPad.pixels = new Array(artPad.cols * artPad.rows).fill("#ffffff");
   puzzleUiState.clear();
   selectedArtColor = artPalette[0];
   _lastCollectedSnapshot = "";
   render();
+  window.dispatchEvent(new Event("ctg:ready"));
 }
 
 function circularHueDistance(a: number, b: number): number {
@@ -518,244 +467,20 @@ function ensureState<T>(puzzleId: string, initial: T): T {
   return initial;
 }
 
-function distance(aX: number, aY: number, bX: number, bY: number): number {
-  const dx = aX - bX;
-  const dy = aY - bY;
-  return Math.sqrt(dx * dx + dy * dy);
-}
-
-function updatePlayer(deltaSeconds: number): void {
-  const dx = player.targetX - player.x;
-  const dy = player.targetY - player.y;
-  const len = Math.sqrt(dx * dx + dy * dy);
-
-  if (len < 0.2) {
-    return;
-  }
-
-  const maxStep = player.speed * deltaSeconds;
-  if (len <= maxStep) {
-    player.x = player.targetX;
-    player.y = player.targetY;
-    return;
-  }
-
-  player.x += (dx / len) * maxStep;
-  player.y += (dy / len) * maxStep;
-}
-
-function getCanvasPoint(event: MouseEvent): { x: number; y: number } {
-  const rect = canvas.getBoundingClientRect();
-  const x = ((event.clientX - rect.left) / rect.width) * canvas.width;
-  const y = ((event.clientY - rect.top) / rect.height) * canvas.height;
-  return { x, y };
-}
-
-function startTransition(label: string): void {
-  transition.active = true;
-  transition.startedAt = performance.now();
-  transition.label = label;
-}
-
 function enterStation(stationId: string): void {
   activeStationId = stationId;
-  const stationName = game.stationManager.getStation(stationId)?.name ?? "Station";
-  startTransition(`Entering ${stationName}`);
   game.sceneManager.transitionScene(SceneType.PuzzleScene);
   render();
 }
 
 function leaveStation(): void {
-  startTransition("Returning to Studio");
   activeStationId = null;
   game.sceneManager.transitionScene(SceneType.StudioScene);
   render();
 }
 
-function tryEnterNearbyStation(stationId: string): void {
-  const node = stationNodes[stationId];
-  const nearEnough = distance(player.x, player.y, node.x, node.y) <= 95;
-  if (nearEnough) {
-    enterStation(stationId);
-    return;
-  }
-
-  player.targetX = node.x;
-  player.targetY = node.y;
-}
-
-function findStationAtPoint(x: number, y: number): string | null {
-  const stations = game.stationManager.getAllStations();
-  for (const station of stations) {
-    if (!station.unlocked) {
-      continue;
-    }
-
-    const node = stationNodes[station.id];
-    if (distance(x, y, node.x, node.y) <= 40) {
-      return station.id;
-    }
-  }
-
-  return null;
-}
-
-function drawBackground(time: number): void {
-  const phase = Math.sin(time / 800) * 6;
-  const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
-  gradient.addColorStop(0, "#fff9e8");
-  gradient.addColorStop(1, "#e8f5ff");
-  ctx.fillStyle = gradient;
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-  ctx.fillStyle = "rgba(60, 90, 150, 0.05)";
-  for (let i = 0; i < 4; i += 1) {
-    ctx.beginPath();
-    ctx.arc(110 + i * 240 + phase, 60 + i * 30, 58 + i * 9, 0, Math.PI * 2);
-    ctx.fill();
-  }
-}
-
-function drawStations(time: number): void {
-  const stations = game.stationManager.getAllStations();
-
-  stationLinks.forEach(([from, to]) => {
-    const a = stationNodes[from];
-    const b = stationNodes[to];
-    ctx.beginPath();
-    ctx.moveTo(a.x, a.y);
-    ctx.lineTo(b.x, b.y);
-    ctx.lineWidth = 4;
-    ctx.strokeStyle = "rgba(46, 59, 82, 0.15)";
-    ctx.stroke();
-  });
-
-  stations.forEach((station, index) => {
-    const node = stationNodes[station.id];
-    const solvedCount = station.puzzles.filter((p) => p.solved).length;
-    const pulse = Math.sin(time / 360 + index) * 3;
-    const radius = 34 + pulse + (station.id === activeStationId ? 4 : 0);
-
-    ctx.beginPath();
-    if (!station.unlocked) {
-      ctx.fillStyle = "rgba(100, 100, 120, 0.35)";
-    } else if (station.id === activeStationId) {
-      ctx.fillStyle = `hsla(${node.hue}, 85%, 54%, 0.95)`;
-    } else {
-      ctx.fillStyle = `hsla(${node.hue}, 80%, 58%, 0.85)`;
-    }
-    ctx.arc(node.x, node.y, radius, 0, Math.PI * 2);
-    ctx.fill();
-
-    ctx.lineWidth = 2;
-    ctx.strokeStyle = "rgba(30, 30, 40, 0.35)";
-    ctx.stroke();
-
-    ctx.fillStyle = "#1f2030";
-    ctx.font = "600 14px 'Space Grotesk', sans-serif";
-    ctx.fillText(station.name, node.x - 58, node.y + 56);
-    ctx.font = "500 12px 'Space Grotesk', sans-serif";
-    ctx.fillStyle = "rgba(31, 32, 48, 0.75)";
-    ctx.fillText(`${solvedCount}/3 solved`, node.x - 35, node.y + 72);
-  });
-}
-
-function drawPlayer(time: number): void {
-  const bob = Math.sin(time / 220) * 1.5;
-  const x = player.x;
-  const y = player.y + bob;
-
-  ctx.beginPath();
-  ctx.fillStyle = "rgba(13, 141, 176, 0.18)";
-  ctx.arc(x, y + 12, 14, 0, Math.PI * 2);
-  ctx.fill();
-
-  ctx.beginPath();
-  ctx.fillStyle = "#0d8db0";
-  ctx.arc(x, y, 10, 0, Math.PI * 2);
-  ctx.fill();
-
-  ctx.beginPath();
-  ctx.fillStyle = "#f8fdff";
-  ctx.arc(x - 3, y - 2, 2, 0, Math.PI * 2);
-  ctx.arc(x + 3, y - 2, 2, 0, Math.PI * 2);
-  ctx.fill();
-}
-
-function drawSceneOverlay(): void {
-  const scene = game.sceneManager.getCurrentScene();
-  if (scene !== SceneType.PuzzleScene || !activeStationId) {
-    return;
-  }
-
-  const node = stationNodes[activeStationId];
-  const flavor = stationSceneFlavor[activeStationId];
-
-  ctx.fillStyle = flavor.tint;
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-  const gradient = ctx.createRadialGradient(node.x, node.y, 44, node.x, node.y, 240);
-  gradient.addColorStop(0, "rgba(255, 255, 255, 0)");
-  gradient.addColorStop(1, "rgba(20, 22, 32, 0.42)");
-  ctx.fillStyle = gradient;
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-  ctx.fillStyle = "rgba(255, 255, 255, 0.9)";
-  ctx.fillRect(24, canvas.height - 88, canvas.width - 48, 58);
-  ctx.strokeStyle = "rgba(31, 32, 48, 0.2)";
-  ctx.lineWidth = 1;
-  ctx.strokeRect(24, canvas.height - 88, canvas.width - 48, 58);
-
-  ctx.fillStyle = "#1f2030";
-  ctx.font = "700 16px 'Space Grotesk', sans-serif";
-  ctx.fillText(flavor.title, 40, canvas.height - 62);
-  ctx.font = "500 13px 'Space Grotesk', sans-serif";
-  ctx.fillStyle = "rgba(31, 32, 48, 0.78)";
-  ctx.fillText(flavor.subtitle, 40, canvas.height - 42);
-}
-
-function drawTransitionOverlay(time: number): void {
-  if (!transition.active) {
-    return;
-  }
-
-  const elapsed = time - transition.startedAt;
-  const t = Math.min(1, elapsed / transition.durationMs);
-  const alpha = t < 0.5 ? t * 1.5 : (1 - t) * 1.5;
-
-  ctx.fillStyle = `rgba(20, 22, 32, ${Math.max(0, alpha * 0.6)})`;
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-  if (alpha > 0.02) {
-    ctx.fillStyle = "rgba(255, 255, 255, 0.95)";
-    ctx.font = "700 24px 'Fraunces', serif";
-    const width = ctx.measureText(transition.label).width;
-    ctx.fillText(transition.label, canvas.width / 2 - width / 2, canvas.height / 2);
-  }
-
-  if (t >= 1) {
-    transition.active = false;
-  }
-}
-
 function updateProgressPanel(): void {
-  const progress = game.getProgress();
-  const scene = game.sceneManager.getCurrentScene();
-  const stationLabel = activeStationId ? game.stationManager.getStation(activeStationId)?.name ?? "Unknown" : "None";
-  const milestoneText = progress.petMilestonesUnlocked.length > 0
-    ? `Pet Badges    : ${progress.petMilestonesUnlocked.join(", ")}`
-    : `Pet Badges    : None yet (collect 6, 12, or 18 pets)`;
-  progressEl.textContent = [
-    `Score          : ${progress.score}`,
-    `Solved Puzzles : ${progress.solved}/${progress.total}`,
-    `Pets Collected : ${progress.petsCollected}/18`,
-    milestoneText,
-    `Best Streak    : ${progress.bestStreak}`,
-    `Current Scene  : ${scene}`,
-    `Active Station : ${stationLabel}`,
-    "Tip: Click unlocked stations to enter puzzle mode.",
-    `Final Canvas   : ${progress.finalCanvasUnlocked ? "Unlocked" : "Locked"}`,
-  ].join("\n");
+  progressEl.textContent = "";
   updateHud();
 }
 
@@ -797,7 +522,7 @@ function renderLockedOrSolvedControls(wrapper: HTMLDivElement, puzzleId: string,
     wrapper.appendChild(label);
 
     const replayButton = document.createElement("button");
-    replayButton.className = "btn";
+    replayButton.className = "btn btn-secondary";
     replayButton.textContent = "Practice";
     replayButton.addEventListener("click", () => {
       practicePuzzleId = puzzleId;
@@ -833,10 +558,11 @@ function triggerFailFeedback(wrapper: HTMLDivElement, button: HTMLButtonElement)
 
 function addCheckButton(wrapper: HTMLDivElement, puzzleId: string, inputFactory: () => unknown): void {
   const button = document.createElement("button");
-  button.className = "btn btn-accent";
+  button.className = "btn btn-primary";
   button.textContent = "Check";
   button.addEventListener("click", () => {
     const input = inputFactory();
+    const puzzleMeta = game.puzzleManager.getPuzzle(puzzleId);
     const puzzle = game.puzzleManager.getPuzzle(puzzleId);
     if (puzzle?.solved) {
       const valid = validatePuzzleInput(puzzleId, input as any);
@@ -847,7 +573,7 @@ function addCheckButton(wrapper: HTMLDivElement, puzzleId: string, inputFactory:
 
       const practiceEvent = game.practiceComplete(puzzleId, true);
       if (practiceEvent && practiceEvent.delta > 0) {
-        showToast(practiceEvent.reason);
+        showToast(practiceEvent.reason, { kind: "success", icon: "🎯" });
         updateHud();
       }
       button.textContent = "Practiced ✓";
@@ -863,7 +589,17 @@ function addCheckButton(wrapper: HTMLDivElement, puzzleId: string, inputFactory:
       return;
     }
 
-    showToast(scoreEvent.reason);
+    showToast(scoreEvent.reason, { kind: "success", icon: "🏆" });
+
+    if (scoreEvent.reason.includes("Pet Rescued") && puzzleMeta) {
+      const petName = PET_NAMES[puzzleMeta.rewardPetId] ?? "New Pet";
+      showToast(`Pet unlocked: ${petName}`, { kind: "success", icon: "🐾" });
+    }
+
+    if (scoreEvent.reason.includes("Station Complete") && puzzleMeta) {
+      const stationName = game.stationManager.getStation(puzzleMeta.stationId)?.name ?? "Station";
+      showToast(`Level complete: ${stationName}`, { kind: "success", icon: "✅" });
+    }
 
     if (game.getProgress().finalCanvasUnlocked) {
       activeStationId = null;
@@ -881,57 +617,15 @@ function addMiniLabel(container: HTMLElement, text: string): void {
 }
 
 function addSlider(container: HTMLElement, label: string, value: number, min = 0, max = 1, step = 0.01, onInput: (value: number) => void): HTMLInputElement {
-  const row = document.createElement("label");
-  row.className = "mini-row";
-  row.textContent = `${label}: ${value.toFixed(2)}`;
-  const slider = document.createElement("input");
-  slider.type = "range";
-  slider.min = String(min);
-  slider.max = String(max);
-  slider.step = String(step);
-  slider.value = String(value);
-  slider.addEventListener("input", () => {
-    const next = Number(slider.value);
-    row.textContent = `${label}: ${next.toFixed(2)}`;
-    row.appendChild(slider);
-    onInput(next);
-  });
-  row.appendChild(slider);
-  container.appendChild(row);
-  return slider;
+  return mountMuiSlider(container, label, value, min, max, step, onInput);
 }
 
 function addSelect(container: HTMLElement, label: string, options: string[], current: string, onChange: (value: string) => void): HTMLSelectElement {
-  const row = document.createElement("label");
-  row.className = "mini-row";
-  row.textContent = `${label}: `;
-  const select = document.createElement("select");
-  options.forEach((option) => {
-    const item = document.createElement("option");
-    item.value = option;
-    item.textContent = option;
-    if (option === current) {
-      item.selected = true;
-    }
-    select.appendChild(item);
-  });
-  select.addEventListener("change", () => onChange(select.value));
-  row.appendChild(select);
-  container.appendChild(row);
-  return select;
+  return mountMuiSelect(container, label, options, current, onChange);
 }
 
 function addCheckbox(container: HTMLElement, label: string, checked: boolean, onChange: (checked: boolean) => void): HTMLInputElement {
-  const row = document.createElement("label");
-  row.className = "mini-check";
-  const input = document.createElement("input");
-  input.type = "checkbox";
-  input.checked = checked;
-  input.addEventListener("change", () => onChange(input.checked));
-  row.appendChild(input);
-  row.append(label);
-  container.appendChild(row);
-  return input;
+  return mountMuiCheckbox(container, label, checked, onChange);
 }
 
 function createInteractionZone(wrapper: HTMLDivElement): HTMLDivElement {
@@ -1164,7 +858,7 @@ function renderPuzzleMiniGame(puzzleId: string, title: string, state: string): v
     zone.appendChild(blurPreview);
 
     const blurToggle = document.createElement("button");
-    blurToggle.className = "btn";
+    blurToggle.className = "btn btn-secondary";
     blurToggle.textContent = "Toggle Squint Blur";
     blurToggle.addEventListener("click", () => {
       s.blur = !s.blur;
@@ -1619,7 +1313,7 @@ function renderPuzzleMiniGame(puzzleId: string, title: string, state: string): v
     addSlider(zone, "Right lightness", s.rightLight, 20, 80, 1, (v) => { s.rightLight = v; s.adjusted = true; updateBoard(); });
 
     const matchButton = document.createElement("button");
-    matchButton.className = "btn";
+    matchButton.className = "btn btn-secondary";
     matchButton.textContent = "Normalize Values";
     matchButton.addEventListener("click", () => {
       s.rightLight = s.leftLight;
@@ -1791,7 +1485,7 @@ function renderPuzzleMiniGame(puzzleId: string, title: string, state: string): v
     });
 
     const gust = document.createElement("button");
-    gust.className = "btn";
+    gust.className = "btn btn-secondary";
     gust.textContent = "Add Blue Haze Burst";
     gust.addEventListener("click", () => {
       s.scatter = Math.min(1, s.scatter + 0.14);
@@ -1935,7 +1629,7 @@ function renderPuzzleMiniGame(puzzleId: string, title: string, state: string): v
     stage1El.appendChild(stage1Feedback);
 
     const resetStage1Btn = document.createElement("button");
-    resetStage1Btn.className = "btn";
+    resetStage1Btn.className = "btn btn-secondary";
     resetStage1Btn.textContent = "Reset Palettes";
     resetStage1Btn.addEventListener("click", () => {
       s.assignments = {};
@@ -2252,7 +1946,7 @@ function renderPuzzleMiniGame(puzzleId: string, title: string, state: string): v
 
     const addActionButton = (label: string, onClick: () => void): void => {
       const btn = document.createElement("button");
-      btn.className = "btn";
+      btn.className = "btn btn-secondary";
       btn.textContent = label;
       btn.addEventListener("click", () => {
         onClick();
@@ -2288,7 +1982,7 @@ function renderPuzzleMiniGame(puzzleId: string, title: string, state: string): v
     });
 
     const resetBtn = document.createElement("button");
-    resetBtn.className = "btn";
+    resetBtn.className = "btn btn-secondary";
     resetBtn.textContent = "Reset Bowl";
     resetBtn.addEventListener("click", () => {
       s.complementPairs = 0;
@@ -2380,7 +2074,7 @@ function renderArtStationMiniGame(container: HTMLElement, wrapper: HTMLDivElemen
   const controls = document.createElement("div");
   controls.className = "action-row";
   const clearButton = document.createElement("button");
-  clearButton.className = "btn";
+  clearButton.className = "btn btn-secondary";
   clearButton.textContent = "Clear Pad";
   clearButton.addEventListener("click", () => {
     artPad.pixels.fill("#ffffff");
@@ -2549,31 +2243,34 @@ function updatePuzzlePanel(): void {
   if (scene === SceneType.StudioScene) {
     const hint = document.createElement("div");
     hint.className = "puzzle-item";
-    hint.innerHTML = "<div><strong>Studio Exploration</strong><div class=\"puzzle-meta\">Move by clicking the map. Click an unlocked station while nearby to enter its puzzle scene.</div></div>";
+    hint.innerHTML = "<div><strong>Studio Exploration</strong><div class=\"puzzle-meta\">All stations are shown below. Locked stations are disabled.</div></div>";
     puzzleListEl.appendChild(hint);
 
     game
       .stationManager
       .getAllStations()
-      .filter((station) => station.unlocked)
       .forEach((station) => {
         const wrapper = document.createElement("div");
         wrapper.className = "puzzle-item";
 
         const info = document.createElement("div");
         const solved = station.puzzles.filter((puzzle) => puzzle.solved).length;
-        info.innerHTML = `<strong>${station.name}</strong><div class=\"puzzle-meta\">${solved}/3 solved</div>`;
+        info.innerHTML = `<strong>${station.name}</strong><div class=\"puzzle-meta\">${solved}/3 solved${station.unlocked ? "" : " • Locked"}</div>`;
 
         const enterButton = document.createElement("button");
-        enterButton.className = "btn";
-        enterButton.textContent = "Enter";
-        enterButton.addEventListener("click", () => enterStation(station.id));
+        enterButton.className = station.unlocked ? "btn btn-primary" : "btn";
+        enterButton.textContent = station.unlocked ? "Enter" : "Locked";
+        enterButton.disabled = !station.unlocked;
+        if (station.unlocked) {
+          enterButton.addEventListener("click", () => enterStation(station.id));
+        }
 
         wrapper.appendChild(info);
         wrapper.appendChild(enterButton);
         puzzleListEl.appendChild(wrapper);
       });
 
+    upgradeMuiButtons(puzzleListEl);
     return;
   }
 
@@ -2588,7 +2285,7 @@ function updatePuzzlePanel(): void {
     const backInfo = document.createElement("div");
     backInfo.innerHTML = "<strong>Explore Unlocked Studio</strong><div class=\"puzzle-meta\">Return to station scenes and keep experimenting.</div>";
     const backButton = document.createElement("button");
-    backButton.className = "btn";
+    backButton.className = "btn btn-secondary";
     backButton.textContent = "Return";
     backButton.addEventListener("click", () => {
       game.sceneManager.transitionScene(SceneType.StudioScene);
@@ -2597,6 +2294,7 @@ function updatePuzzlePanel(): void {
     backWrapper.appendChild(backInfo);
     backWrapper.appendChild(backButton);
     puzzleListEl.appendChild(backWrapper);
+    upgradeMuiButtons(puzzleListEl);
     return;
   }
 
@@ -2614,7 +2312,7 @@ function updatePuzzlePanel(): void {
   const label = document.createElement("div");
   label.innerHTML = `<strong>${station.name}</strong><div class=\"puzzle-meta\">Puzzle Scene</div>`;
   const backButton = document.createElement("button");
-  backButton.className = "btn";
+  backButton.className = "btn btn-secondary";
   backButton.textContent = "Back";
   backButton.addEventListener("click", () => leaveStation());
   backWrapper.appendChild(label);
@@ -2624,31 +2322,13 @@ function updatePuzzlePanel(): void {
   station.puzzles.forEach((puzzle) => {
     renderPuzzleMiniGame(puzzle.id, puzzle.title, puzzle.state);
   });
+
+  upgradeMuiButtons(puzzleListEl);
 }
 
-function render(time = 0): void {
-  drawBackground(time);
-  drawStations(time);
-  drawPlayer(time);
-  drawSceneOverlay();
-  drawTransitionOverlay(time);
+function render(): void {
   updateProgressPanel();
   updatePuzzlePanel();
-}
-
-let previousTime = performance.now();
-
-function animate(time: number): void {
-  const deltaSeconds = Math.min(0.05, (time - previousTime) / 1000);
-  previousTime = time;
-
-  updatePlayer(deltaSeconds);
-  drawBackground(time);
-  drawStations(time);
-  drawPlayer(time);
-  drawSceneOverlay();
-  drawTransitionOverlay(time);
-  requestAnimationFrame(animate);
 }
 
 autoSolveButton.addEventListener("click", () => {
@@ -2666,25 +2346,4 @@ autoSolveButton.addEventListener("click", () => {
 
 resetButton.addEventListener("click", () => initializeGame());
 
-canvas.addEventListener("click", (event) => {
-  const scene = game.sceneManager.getCurrentScene();
-  if (scene !== SceneType.StudioScene) {
-    return;
-  }
-
-  const point = getCanvasPoint(event);
-  const stationId = findStationAtPoint(point.x, point.y);
-
-  if (stationId) {
-    tryEnterNearbyStation(stationId);
-    render();
-    return;
-  }
-
-  player.targetX = point.x;
-  player.targetY = point.y;
-  render();
-});
-
 initializeGame();
-requestAnimationFrame(animate);
