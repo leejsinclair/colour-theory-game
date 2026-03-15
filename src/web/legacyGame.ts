@@ -323,7 +323,113 @@ const artPad = {
 
 const puzzleUiState = new Map<string, unknown>();
 
-function initializeGame(): void {
+const LOCAL_SAVE_KEY = "ctg:web-progress:v1";
+
+type LocalProgressSnapshot = {
+  completedPuzzleIds: string[];
+  activeStationId: string | null;
+  practicePuzzleId: string | null;
+};
+
+let skipNextPersist = false;
+
+function getSolvedPuzzleIds(): string[] {
+  return game.stationManager
+    .getAllStations()
+    .flatMap((station) => station.puzzles)
+    .filter((puzzle) => puzzle.solved)
+    .map((puzzle) => puzzle.id);
+}
+
+function persistLocalProgress(): void {
+  if (skipNextPersist) {
+    skipNextPersist = false;
+    return;
+  }
+
+  const payload: LocalProgressSnapshot = {
+    completedPuzzleIds: getSolvedPuzzleIds(),
+    activeStationId,
+    practicePuzzleId,
+  };
+
+  try {
+    localStorage.setItem(LOCAL_SAVE_KEY, JSON.stringify(payload));
+  } catch {
+    // Ignore storage failures (private mode/quota) and continue gameplay.
+  }
+}
+
+function clearLocalProgress(): void {
+  try {
+    localStorage.removeItem(LOCAL_SAVE_KEY);
+  } catch {
+    // Ignore storage failures.
+  }
+}
+
+function readLocalProgress(): LocalProgressSnapshot | null {
+  try {
+    const raw = localStorage.getItem(LOCAL_SAVE_KEY);
+    if (!raw) {
+      return null;
+    }
+
+    const parsed = JSON.parse(raw) as Partial<LocalProgressSnapshot>;
+    const completedPuzzleIds = Array.isArray(parsed.completedPuzzleIds)
+      ? parsed.completedPuzzleIds.filter((id): id is string => typeof id === "string")
+      : [];
+
+    return {
+      completedPuzzleIds,
+      activeStationId: typeof parsed.activeStationId === "string" ? parsed.activeStationId : null,
+      practicePuzzleId: typeof parsed.practicePuzzleId === "string" ? parsed.practicePuzzleId : null,
+    };
+  } catch {
+    return null;
+  }
+}
+
+function restoreLocalProgress(): void {
+  const snapshot = readLocalProgress();
+  if (!snapshot) {
+    return;
+  }
+
+  const orderedPuzzleIds = [...new Set(snapshot.completedPuzzleIds)].sort((a, b) => {
+    const ai = Number(a.split("-")[1] ?? 0);
+    const bi = Number(b.split("-")[1] ?? 0);
+    return ai - bi;
+  });
+
+  for (const puzzleId of orderedPuzzleIds) {
+    game.completePuzzle(puzzleId, getDemoSolution(puzzleId));
+  }
+
+  if (game.getProgress().finalCanvasUnlocked) {
+    activeStationId = null;
+    practicePuzzleId = null;
+    game.sceneManager.transitionScene(SceneType.FinalCanvasScene);
+    return;
+  }
+
+  const station = snapshot.activeStationId ? game.stationManager.getStation(snapshot.activeStationId) : null;
+  if (station?.unlocked) {
+    activeStationId = station.id;
+    game.sceneManager.transitionScene(SceneType.PuzzleScene);
+  } else {
+    activeStationId = null;
+    game.sceneManager.transitionScene(SceneType.StudioScene);
+  }
+
+  if (snapshot.practicePuzzleId) {
+    const puzzle = game.puzzleManager.getPuzzle(snapshot.practicePuzzleId);
+    practicePuzzleId = puzzle?.solved ? snapshot.practicePuzzleId : null;
+  }
+}
+
+function initializeGame(options: { restoreFromLocal?: boolean } = {}): void {
+  const restoreFromLocal = options.restoreFromLocal ?? true;
   game = new Game();
   game.initialize();
   activeStationId = null;
@@ -332,6 +438,11 @@ function initializeGame(): void {
   puzzleUiState.clear();
   selectedArtColor = artPalette[0];
   _lastCollectedSnapshot = "";
+
+  if (restoreFromLocal) {
+    restoreLocalProgress();
+  }
+
   render();
   window.dispatchEvent(new Event("ctg:ready"));
 }
@@ -971,6 +1082,7 @@ function updatePuzzlePanel(): void {
 function render(): void {
   updateProgressPanel();
   updatePuzzlePanel();
+  persistLocalProgress();
 }
 
 autoSolveButton.addEventListener("click", () => {
@@ -986,6 +1098,10 @@ autoSolveButton.addEventListener("click", () => {
   render();
 });
 
-resetButton.addEventListener("click", () => initializeGame());
+resetButton.addEventListener("click", () => {
+  clearLocalProgress();
+  skipNextPersist = true;
+  initializeGame({ restoreFromLocal: false });
+});
 
 initializeGame();
