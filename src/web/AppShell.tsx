@@ -79,7 +79,7 @@ export function AppShell() {
         <Card className="panel-card" variant="outlined" sx={{ mt: 2 }}>
           <CardContent>
             <Stack direction={{ xs: "column", sm: "row" }} spacing={1}>
-              <Button id="auto-solve" variant="contained" color="inherit" disabled={!isGameReady}>Auto Solve Journey</Button>
+              <Button id="auto-solve" variant="contained" color="primary" disabled={!isGameReady}>Auto Solve Journey</Button>
               <Button id="reset" variant="text" color="inherit" disabled={!isGameReady}>Reset Run</Button>
             </Stack>
           </CardContent>
