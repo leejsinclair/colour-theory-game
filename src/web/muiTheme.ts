@@ -95,28 +95,28 @@ export const appTheme = createTheme({
     },
     MuiSlider: {
       styleOverrides: {
-        root: {
-          color: "#3F9AAE",
-        },
+        root: ({ theme }) => ({
+          color: theme.palette.primary.main,
+        }),
       },
     },
     MuiCheckbox: {
       styleOverrides: {
-        root: {
-          color: "#3F9AAE",
+        root: ({ theme }) => ({
+          color: theme.palette.primary.main,
           "&.Mui-checked": {
-            color: "#3F9AAE",
+            color: theme.palette.primary.main,
           },
-        },
+        }),
       },
     },
     MuiSelect: {
       styleOverrides: {
-        root: {
+        root: ({ theme }) => ({
           "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-            borderColor: "#3F9AAE",
+            borderColor: theme.palette.primary.main,
           },
-        },
+        }),
       },
     },
   },
