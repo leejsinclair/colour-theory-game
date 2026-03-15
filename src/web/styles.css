@@ -501,6 +501,30 @@ body {
   gap: 0.35rem;
 }
 
+.mood-match-card {
+  border: 1px solid var(--card-edge);
+  border-radius: 8px;
+  background: var(--card);
+  padding: 0.5rem 0.6rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.mood-match-title {
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--ink);
+}
+
+.mood-match-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
 .depth-scene {
   min-height: 112px;
   border: 1px solid rgba(31, 32, 48, 0.15);

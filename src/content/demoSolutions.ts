@@ -12,7 +12,7 @@ export const demoSolutions: Record<string, unknown> = {
   "puzzle-06": { exploredHues: ["red", "green", "blue"], discoveredDifferentChromaPeaks: true },
   "puzzle-07": { selectedColorA: "red", selectedColorB: "green" },
   "puzzle-08": { hueAngles: [0, 120, 240] },
-  "puzzle-09": { prompt: "calm ocean", paletteTags: ["blue", "teal", "low contrast"] },
+  "puzzle-09": { selections: { "joyful carnival": "C", "calm ocean": "A", "creepy dungeon": "B" } },
   "puzzle-10": { perceivedDifference: 0.03, backgroundsAdjusted: true },
   "puzzle-11": { usedOrangeSurroundings: true, greySquareChanged: false },
   "puzzle-12": { neutralCount: 3, accentContrast: 0.75 },
@@ -28,10 +28,8 @@ export const demoSolutions: Record<string, unknown> = {
   "puzzle-18": { usedPureDots: true, mixedOnPalette: false, opticalBlendVisible: true },
 };
 
-export const moodPaletteSolutions: Record<string, { prompt: string; paletteTags: string[] }> = {
-  "calm ocean": { prompt: "calm ocean", paletteTags: ["blue", "teal", "low contrast"] },
-  "joyful carnival": { prompt: "joyful carnival", paletteTags: ["warm", "high contrast", "saturated"] },
-  "creepy dungeon": { prompt: "creepy dungeon", paletteTags: ["desaturated", "green", "dark"] },
+export const moodPaletteSolution = {
+  selections: { "joyful carnival": "C", "calm ocean": "A", "creepy dungeon": "B" },
 };
 
 export function getDemoSolution(puzzleId: string): unknown {
