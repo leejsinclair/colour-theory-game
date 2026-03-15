@@ -4,64 +4,9 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Chromatic Mastery Prototype</title>
-    <script type="module" src="/src/web/main.ts"></script>
+    <script type="module" src="/src/web/main.tsx"></script>
   </head>
   <body>
-    <div class="app-shell">
-      <header class="hero">
-        <p class="eyebrow">Chromatic Mastery</p>
-        <h1>Color Studio Prototype</h1>
-        <p class="subhead">Solve station puzzles, free pets, and relight the studio.</p>
-      </header>
-
-      <main class="layout">
-        <section class="canvas-panel">
-          <canvas id="studio-canvas" width="1000" height="540" aria-label="Studio map"></canvas>
-        </section>
-
-        <section class="control-panel">
-          <div class="panel-card progress-card">
-            <h2>Progress</h2>
-            <div class="hud" id="hud">
-              <div class="hud-stat" id="hud-score">
-                <div class="hud-stat-value" id="hud-score-value">0</div>
-                <div class="hud-stat-label">Score</div>
-              </div>
-              <div class="hud-stat" id="hud-pets">
-                <div class="hud-stat-value" id="hud-pets-value">0/18</div>
-                <div class="hud-stat-label">Pets</div>
-              </div>
-              <div class="hud-stat" id="hud-streak">
-                <div class="hud-stat-value" id="hud-streak-value">0</div>
-                <div class="hud-stat-label">Best Streak</div>
-              </div>
-            </div>
-            <div class="milestone-badges" id="milestone-badges"></div>
-            <div class="pet-collection" id="pet-collection" aria-label="Collected pets"></div>
-            <pre id="progress"></pre>
-          </div>
-
-          <div class="panel-card">
-            <h2>Puzzles</h2>
-            <div id="puzzle-list" class="puzzle-list"></div>
-          </div>
-
-          <div class="panel-card action-row">
-            <button id="auto-solve" class="btn btn-accent">Auto Solve Journey</button>
-            <button id="reset" class="btn">Reset Run</button>
-          </div>
-        </section>
-      </main>
-    </div>
-    <div class="toast-container" id="toast-container"></div>
-    <div class="info-modal-overlay" id="info-modal" role="dialog" aria-modal="true" aria-labelledby="info-modal-title" hidden>
-      <div class="info-modal-card">
-        <div class="info-modal-header">
-          <h3 class="info-modal-title" id="info-modal-title"></h3>
-          <button class="info-modal-close" id="info-modal-close" aria-label="Close">&#x2715;</button>
-        </div>
-        <div class="info-modal-body" id="info-modal-body"></div>
-      </div>
-    </div>
+    <div id="app"></div>
   </body>
 </html>

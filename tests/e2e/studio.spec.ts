@@ -4,13 +4,13 @@ test("loads studio prototype and shows core controls", async ({ page }) => {
   await page.goto("/");
   await expect(page.getByRole("heading", { name: "Color Studio Prototype" })).toBeVisible();
   await expect(page.getByRole("button", { name: "Auto Solve Journey" })).toBeVisible();
-  await expect(page.locator("#progress")).toContainText("Solved Puzzles");
+  await expect(page.locator("#progress")).toHaveText("");
 });
 
 test("auto solve unlocks final canvas", async ({ page }) => {
   await page.goto("/");
   await page.getByRole("button", { name: "Auto Solve Journey" }).click();
-  await expect(page.locator("#progress")).toContainText("Final Canvas   : Unlocked");
+  await expect(page.locator(".puzzle-item", { hasText: "Grand Canvas Unlocked" })).toBeVisible();
 });
 
 test("entering Paint Workbench shows art station mini game", async ({ page }) => {
@@ -211,13 +211,13 @@ test("reward feedback toast appears after solving a puzzle via Check button", as
     has: page.getByText("Create White Light"),
   }).getByRole("button", { name: "Check" }).click();
 
-  // Toast should appear with "+100" in it
-  await expect(page.locator(".toast")).toContainText("+100");
+  // A score toast should appear with "+100" in it
+  await expect(page.locator(".toast", { hasText: "+100" })).toBeVisible();
 });
 
-test("progress panel shows Score line", async ({ page }) => {
+test("progress panel is intentionally empty", async ({ page }) => {
   await page.goto("/");
-  await expect(page.locator("#progress")).toContainText("Score");
+  await expect(page.locator("#progress")).toHaveText("");
 });
 
 test("Chromatic Mastery puzzle shows stage indicator and palette cards on entry", async ({ page }) => {

@@ -1,5 +1,5 @@
 import { defineConfig } from 'vite';
 
-export default defineConfig({
-  base: '/colour-theory-game/',
-});
+export default defineConfig(({ command }) => ({
+  base: command === 'serve' ? '/' : '/colour-theory-game/',
+}));
