@@ -1,8 +1,12 @@
 import React from "react";
+import PaletteOutlined from "@mui/icons-material/PaletteOutlined";
+import ScienceOutlined from "@mui/icons-material/ScienceOutlined";
+import WorkspacePremiumOutlined from "@mui/icons-material/WorkspacePremiumOutlined";
 import { createRoot } from "react-dom/client";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Checkbox from "@mui/material/Checkbox";
+import Chip from "@mui/material/Chip";
 import FormControl from "@mui/material/FormControl";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import MenuItem from "@mui/material/MenuItem";
@@ -12,6 +16,13 @@ import Stack from "@mui/material/Stack";
 import { ThemeProvider } from "@mui/material/styles";
 import Typography from "@mui/material/Typography";
 import { appTheme } from "./muiTheme";
+
+const chipRoots = new WeakMap<HTMLElement, ReturnType<typeof createRoot>>();
+const milestoneIcons: Record<string, React.ElementType> = {
+  "Color Apprentice": PaletteOutlined,
+  "Palette Keeper": ScienceOutlined,
+  "Chromatic Master": WorkspacePremiumOutlined,
+};
 
 function parseButtonVariant(button: HTMLButtonElement): {
   variant: "contained" | "outlined" | "text";
@@ -67,6 +78,52 @@ export function upgradeMuiButtons(root: ParentNode): void {
       characterData: true,
     });
   });
+}
+
+export function renderMuiMilestoneChips(container: HTMLElement, badges: string[]): void {
+  let root = chipRoots.get(container);
+  if (!root) {
+    root = createRoot(container);
+    chipRoots.set(container, root);
+  }
+
+  root.render(
+    <ThemeProvider theme={appTheme}>
+      <Stack direction="row" spacing={1} useFlexGap flexWrap="wrap">
+        {badges.map((badge) => {
+          const Icon = milestoneIcons[badge] ?? WorkspacePremiumOutlined;
+
+          return (
+            <Chip
+              key={badge}
+              size="small"
+              variant="outlined"
+              label={badge}
+              icon={<Icon fontSize="small" />}
+              sx={{
+                bgcolor: "common.white",
+                color: "text.primary",
+                borderColor: "error.main",
+                borderWidth: 2,
+                fontWeight: 700,
+                letterSpacing: "0.01em",
+                "& .MuiChip-label": {
+                  px: 1.25,
+                  py: 0.125,
+                  lineHeight: 1.1,
+                },
+                "& .MuiChip-icon": {
+                  ml: 0.75,
+                  mr: -0.25,
+                  color: "error.main",
+                },
+              }}
+            />
+          );
+        })}
+      </Stack>
+    </ThemeProvider>,
+  );
 }
 
 export function mountMuiSlider(

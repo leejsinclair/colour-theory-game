@@ -1,7 +1,7 @@
 import { getDemoSolution } from "../content/demoSolutions";
 import { Game } from "../game/Game";
 import { SceneType } from "../types/gameTypes";
-import { mountMuiCheckbox, mountMuiSelect, mountMuiSlider, upgradeMuiButtons } from "./muiControls";
+import { mountMuiCheckbox, mountMuiSelect, mountMuiSlider, renderMuiMilestoneChips, upgradeMuiButtons } from "./muiControls";
 import "./styles.css";
 
 const progressEl = document.getElementById("progress") as HTMLPreElement;
@@ -101,12 +101,6 @@ const PET_NAMES: Record<string, string> = {
   "pet-16": "Paint Slime",
   "pet-17": "Mud Blob",
   "pet-18": "Dot Bee",
-};
-
-const MILESTONE_ICONS: Record<string, string> = {
-  "Color Apprentice": "🎨",
-  "Palette Keeper": "🧪",
-  "Chromatic Master": "👑",
 };
 
 /** Build a jellybean-shaped SVG element for one pet slot. */
@@ -216,24 +210,7 @@ function updateHud(): void {
   hudPetsValue.textContent = `${progress.petsCollected}/18`;
   hudStreakValue.textContent = String(progress.bestStreak);
 
-  // Rebuild milestone badges
-  milestoneBadgesEl.innerHTML = "";
-  for (const badge of progress.petMilestonesUnlocked) {
-    const chip = document.createElement("span");
-    chip.className = "milestone-badge";
-
-    const icon = document.createElement("span");
-    icon.className = "milestone-badge-icon";
-    icon.textContent = MILESTONE_ICONS[badge] ?? "🏅";
-
-    const label = document.createElement("span");
-    label.className = "milestone-badge-label";
-    label.textContent = badge;
-
-    chip.appendChild(icon);
-    chip.appendChild(label);
-    milestoneBadgesEl.appendChild(chip);
-  }
+  renderMuiMilestoneChips(milestoneBadgesEl, progress.petMilestonesUnlocked);
 
   // Rebuild jellybean pet collection grid
   renderPetCollection();

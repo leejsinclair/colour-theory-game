@@ -1,34 +1,37 @@
 import { createTheme } from "@mui/material/styles";
 
+// Palette: #3F9AAE (primary teal), #79C9C5 (secondary light-teal),
+//          #FFE2AF (background cream), #F96E5B (accent coral)
 export const appTheme = createTheme({
   palette: {
     mode: "light",
-    // 60 / 30 / 10 rule:
-    // 60% warm neutral base, 30% cool support tones, 10% accent actions.
     primary: {
-      main: "#355070",
-      light: "#4c6b8f",
-      dark: "#26384f",
-      contrastText: "#f8fafc",
+      main: "#3F9AAE",
+      light: "#79C9C5",
+      dark: "#2d7a8a",
+      contrastText: "#ffffff",
     },
     secondary: {
-      main: "#e07a2d",
-      light: "#ec9553",
-      dark: "#c76418",
-      contrastText: "#2f1e10",
+      main: "#79C9C5",
+      light: "#a8dedd",
+      dark: "#4fa8a5",
+      contrastText: "#1f2030",
     },
     background: {
-      default: "#f6f2e9",
-      paper: "#e8e1d2",
+      default: "#FFE2AF",
+      paper: "#ffffff",
     },
     text: {
-      primary: "#2a2e35",
-      secondary: "#4b5563",
+      primary: "#1f2030",
+      secondary: "#4f5a72",
     },
-    divider: "#c9beaa",
+    divider: "rgba(31, 32, 48, 0.12)",
+    error: {
+      main: "#F96E5B",
+    },
   },
   shape: {
-    borderRadius: 10,
+    borderRadius: 8,
   },
   typography: {
     fontFamily: '"Space Grotesk", sans-serif',
@@ -49,25 +52,25 @@ export const appTheme = createTheme({
           borderWidth: 2,
         },
         containedPrimary: {
-          backgroundColor: "#355070",
-          color: "#f8fafc",
+          backgroundColor: "#3F9AAE",
+          color: "#ffffff",
           "&:hover": {
-            backgroundColor: "#26384f",
+            backgroundColor: "#2d7a8a",
           },
         },
         containedSecondary: {
-          backgroundColor: "#e07a2d",
-          color: "#2f1e10",
+          backgroundColor: "#79C9C5",
+          color: "#1f2030",
           "&:hover": {
-            backgroundColor: "#c76418",
+            backgroundColor: "#4fa8a5",
           },
         },
         outlinedPrimary: {
-          borderColor: "#355070",
-          color: "#355070",
+          borderColor: "#3F9AAE",
+          color: "#3F9AAE",
           "&:hover": {
-            borderColor: "#26384f",
-            backgroundColor: "rgba(53, 80, 112, 0.06)",
+            borderColor: "#2d7a8a",
+            backgroundColor: "rgba(63, 154, 174, 0.06)",
           },
         },
       },
@@ -77,17 +80,43 @@ export const appTheme = createTheme({
         root: {
           backgroundImage: "none",
           boxShadow: "none",
-          border: "1px solid #c9beaa",
+          border: "1px solid rgba(31, 32, 48, 0.12)",
         },
       },
     },
     MuiChip: {
       styleOverrides: {
         root: {
-          backgroundColor: "#d8cfbe",
-          color: "#2a2e35",
+          backgroundColor: "#FFE2AF",
+          color: "#1f2030",
           fontWeight: 600,
         },
+      },
+    },
+    MuiSlider: {
+      styleOverrides: {
+        root: ({ theme }) => ({
+          color: theme.palette.primary.main,
+        }),
+      },
+    },
+    MuiCheckbox: {
+      styleOverrides: {
+        root: ({ theme }) => ({
+          color: theme.palette.primary.main,
+          "&.Mui-checked": {
+            color: theme.palette.primary.main,
+          },
+        }),
+      },
+    },
+    MuiSelect: {
+      styleOverrides: {
+        root: ({ theme }) => ({
+          "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+            borderColor: theme.palette.primary.main,
+          },
+        }),
       },
     },
   },
