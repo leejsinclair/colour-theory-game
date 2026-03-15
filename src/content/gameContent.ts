@@ -84,19 +84,9 @@ function isAscending(values: number[]): boolean {
   return true;
 }
 
-function normalizePrompt(prompt: string): string {
-  return prompt.toLowerCase().trim();
-}
-
 function normalizeTags(tags: string[]): string[] {
   return tags.map((tag) => tag.toLowerCase().trim());
 }
-
-const moodRequirements: Record<string, string[]> = {
-  "joyful carnival": ["warm", "high contrast", "saturated"],
-  "calm ocean": ["blue", "teal", "low contrast"],
-  "creepy dungeon": ["desaturated", "green", "dark"],
-};
 
 function triadIsValid(hueAngles: number[]): boolean {
   if (hueAngles.length !== 3) {
@@ -171,22 +161,21 @@ export function createStationsAndPuzzles(): Station[] {
       "pet-08",
       (input) => triadIsValid(input.hueAngles),
     ),
-    createPuzzle<{ prompt: string; paletteTags: string[] }>(
+    createPuzzle<{ selections: Record<string, string> }>(
       "puzzle-09",
       "station-03",
       "Mood Palette",
-      "Create a palette matching an emotional prompt.",
+      "Match each mood to its correct colour palette.",
       PuzzleType.MOOD_PALETTE,
       "pet-09",
       (input) => {
-        const prompt = normalizePrompt(input.prompt);
-        const required = moodRequirements[prompt];
-        if (!required) {
-          return false;
-        }
-
-        const tags = normalizeTags(input.paletteTags);
-        return required.every((tag) => tags.includes(tag));
+        const correct: Record<string, string> = {
+          "joyful carnival": "C",
+          "calm ocean": "A",
+          "creepy dungeon": "B",
+        };
+        const sel = input.selections;
+        return sel != null && Object.entries(correct).every(([mood, id]) => sel[mood] === id);
       },
     ),
   ];

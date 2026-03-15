@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { getDemoSolution, moodPaletteSolutions } from "../src/content/demoSolutions";
+import { getDemoSolution, moodPaletteSolution } from "../src/content/demoSolutions";
 import { Game } from "../src/game/Game";
 import { SceneType } from "../src/types/gameTypes";
 
@@ -253,50 +253,40 @@ describe("Mood Palette puzzle solutions", () => {
     }
   }
 
-  test("calm ocean solution is accepted by puzzle-09 validator", () => {
+  test("all correct palette selections are accepted", () => {
     const game = new Game();
     game.initialize();
     solveUpToPuzzle09(game);
-    const event = game.completePuzzle("puzzle-09", moodPaletteSolutions["calm ocean"]);
+    const event = game.completePuzzle("puzzle-09", moodPaletteSolution);
     expect(event).not.toBeNull();
   });
 
-  test("joyful carnival solution is accepted by puzzle-09 validator", () => {
+  test("wrong palette for one mood is rejected", () => {
     const game = new Game();
     game.initialize();
     solveUpToPuzzle09(game);
-    const event = game.completePuzzle("puzzle-09", moodPaletteSolutions["joyful carnival"]);
-    expect(event).not.toBeNull();
-  });
-
-  test("creepy dungeon solution is accepted by puzzle-09 validator", () => {
-    const game = new Game();
-    game.initialize();
-    solveUpToPuzzle09(game);
-    const event = game.completePuzzle("puzzle-09", moodPaletteSolutions["creepy dungeon"]);
-    expect(event).not.toBeNull();
-  });
-
-  test("wrong tags for a prompt are rejected", () => {
-    const game = new Game();
-    game.initialize();
-    solveUpToPuzzle09(game);
-    // calm ocean tags don't satisfy joyful carnival requirements
+    // joyful carnival mapped to ocean palette instead of the warm one
     const event = game.completePuzzle("puzzle-09", {
-      prompt: "joyful carnival",
-      paletteTags: ["blue", "teal", "low contrast"],
+      selections: { "joyful carnival": "A", "calm ocean": "A", "creepy dungeon": "B" },
     });
     expect(event).toBeNull();
   });
 
-  test("unknown prompt is rejected", () => {
+  test("incomplete selections are rejected", () => {
     const game = new Game();
     game.initialize();
     solveUpToPuzzle09(game);
     const event = game.completePuzzle("puzzle-09", {
-      prompt: "unknown mood",
-      paletteTags: ["warm", "saturated"],
+      selections: { "calm ocean": "A" },
     });
+    expect(event).toBeNull();
+  });
+
+  test("null selections are rejected", () => {
+    const game = new Game();
+    game.initialize();
+    solveUpToPuzzle09(game);
+    const event = game.completePuzzle("puzzle-09", { selections: null });
     expect(event).toBeNull();
   });
 });
