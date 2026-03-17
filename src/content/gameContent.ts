@@ -245,12 +245,29 @@ export function createStationsAndPuzzles(): Station[] {
       "puzzle-16",
       "station-06",
       "Vibrant Green",
-      "Mix phthalo blue and hansa yellow to produce clean greens.",
+      "Choose the cleanest yellow-blue pairing you can to make a truly vibrant green.",
       PuzzleType.PIGMENT_MIX,
       "pet-16",
       (input) => {
         const pigments = normalizeTags(input.pigments);
-        return pigments.includes("phthalo blue") && pigments.includes("hansa yellow") && input.mudLevel <= 0.3;
+        if (pigments.length !== 2) {
+          return false;
+        }
+
+        const yellowFamily = new Set([
+          "hansa yellow", "cadmium lemon", "nickel azo yellow", "bismuth vanadate yellow",
+          "indian yellow", "aureolin", "cadmium yellow medium", "naples yellow",
+          "raw sienna", "yellow ochre",
+        ]);
+        const blueFamily = new Set([
+          "phthalo blue", "cerulean blue", "cobalt teal", "manganese blue",
+          "cobalt blue", "ultramarine", "prussian blue", "indanthrone blue",
+          "phthalo blue red shade", "french ultramarine",
+        ]);
+        const hasYellow = pigments.some((pigment) => yellowFamily.has(pigment));
+        const hasBlue = pigments.some((pigment) => blueFamily.has(pigment));
+
+        return hasYellow && hasBlue && input.mudLevel <= 0.16;
       },
     ),
     createPuzzle<{ complementPairsAdded: number; muddyResult: boolean }>(

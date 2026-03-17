@@ -1,7 +1,7 @@
 import React from "react";
-import PaletteOutlined from "@mui/icons-material/PaletteOutlined";
-import ScienceOutlined from "@mui/icons-material/ScienceOutlined";
-import WorkspacePremiumOutlined from "@mui/icons-material/WorkspacePremiumOutlined";
+import PetsOutlined from "@mui/icons-material/PetsOutlined";
+import AutoAwesomeOutlined from "@mui/icons-material/AutoAwesomeOutlined";
+import EmojiEventsOutlined from "@mui/icons-material/EmojiEventsOutlined";
 import { createRoot } from "react-dom/client";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
@@ -18,10 +18,24 @@ import Typography from "@mui/material/Typography";
 import { appTheme } from "./muiTheme";
 
 const chipRoots = new WeakMap<HTMLElement, ReturnType<typeof createRoot>>();
-const milestoneIcons: Record<string, React.ElementType> = {
-  "Color Apprentice": PaletteOutlined,
-  "Palette Keeper": ScienceOutlined,
-  "Chromatic Master": WorkspacePremiumOutlined,
+type MilestoneBadgeConfig = {
+  icon: React.ElementType;
+  accent: string;
+};
+
+const milestoneBadges: Record<string, MilestoneBadgeConfig> = {
+  "Color Apprentice": {
+    icon: PetsOutlined,
+    accent: "#2f6d6f",
+  },
+  "Palette Keeper": {
+    icon: AutoAwesomeOutlined,
+    accent: "#8a5a13",
+  },
+  "Chromatic Master": {
+    icon: EmojiEventsOutlined,
+    accent: "#8c2f1f",
+  },
 };
 
 function parseButtonVariant(button: HTMLButtonElement): {
@@ -91,7 +105,11 @@ export function renderMuiMilestoneChips(container: HTMLElement, badges: string[]
     <ThemeProvider theme={appTheme}>
       <Stack direction="row" spacing={1} useFlexGap flexWrap="wrap">
         {badges.map((badge) => {
-          const Icon = milestoneIcons[badge] ?? WorkspacePremiumOutlined;
+          const badgeConfig = milestoneBadges[badge] ?? {
+            icon: EmojiEventsOutlined,
+            accent: "#8c2f1f",
+          };
+          const Icon = badgeConfig.icon;
 
           return (
             <Chip
@@ -103,19 +121,20 @@ export function renderMuiMilestoneChips(container: HTMLElement, badges: string[]
               sx={{
                 bgcolor: "common.white",
                 color: "text.primary",
-                borderColor: "error.main",
+                borderColor: badgeConfig.accent,
                 borderWidth: 2,
                 fontWeight: 700,
                 letterSpacing: "0.01em",
+                boxShadow: "0 2px 6px rgba(0, 0, 0, 0.08)",
                 "& .MuiChip-label": {
                   px: 1.25,
-                  py: 0.125,
+                  py: 0.2,
                   lineHeight: 1.1,
                 },
                 "& .MuiChip-icon": {
                   ml: 0.75,
                   mr: -0.25,
-                  color: "error.main",
+                  color: badgeConfig.accent,
                 },
               }}
             />
