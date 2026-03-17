@@ -78,10 +78,12 @@ const PET_COLOURS: Record<string, string> = {
   "pet-17": "#795548", // Mud Blob - brown
   "pet-18": "#FFD43B", // Dot Bee - golden yellow
   "pet-19": "#B0E0E6", // Harmony Dove - powder blue
+  "pet-20": "#C9A0DC", // Empathy Moth - soft violet
+  "pet-21": "#FF7F7F", // Vibration Hummingbird - coral red
 };
 
-/** All 19 pet IDs in order. */
-const ALL_PET_IDS = Array.from({ length: 19 }, (_, i) => `pet-${String(i + 1).padStart(2, "0")}`);
+/** All 21 pet IDs in order. */
+const ALL_PET_IDS = Array.from({ length: 21 }, (_, i) => `pet-${String(i + 1).padStart(2, "0")}`);
 
 /** Pet display names for tooltips. */
 const PET_NAMES: Record<string, string> = {
@@ -104,6 +106,8 @@ const PET_NAMES: Record<string, string> = {
   "pet-17": "Mud Blob",
   "pet-18": "Dot Bee",
   "pet-19": "Harmony Dove",
+  "pet-20": "Empathy Moth",
+  "pet-21": "Vibration Hummingbird",
 };
 
 /** Build a jellybean-shaped SVG element for one pet slot. */
@@ -239,6 +243,8 @@ const puzzleObjectives: Record<string, string> = {
   "puzzle-17": "Avoid overmixing complements to prevent muddy results.",
   "puzzle-18": "Paint pure color dots and reach enough coverage for optical blending.",
   "puzzle-19": "Allocate 60% to primary, 30% to secondary, and 10% to accent so the proportions sum to 100%.",
+  "puzzle-20": "Match each colour swatch to its primary psychological association: red→excitement, blue→trust, yellow→optimism, green→growth.",
+  "puzzle-21": "Tune two hues to be complementary and balance their lightness until optical vibration reaches 100%.",
 };
 
 const puzzleConcepts: Record<string, { title: string; body: string }> = {
@@ -317,6 +323,14 @@ const puzzleConcepts: Record<string, { title: string; body: string }> = {
   "puzzle-19": {
     title: "The 60/30/10 Color Balance Rule",
     body: "The 60/30/10 rule is a classic proportion guideline used by interior designers and artists to create balanced, harmonious compositions. The dominant color fills roughly 60% of the space, establishing the mood and tone. A secondary color takes up about 30%, adding depth and supporting the primary. An accent color occupies just 10%, providing a focal point and visual interest without overwhelming the eye. Together, these proportions ensure the composition feels cohesive yet dynamic.",
+  },
+  "puzzle-20": {
+    title: "Colour Psychology: Emotional Associations",
+    body: "Colours carry powerful psychological associations shaped by biology, culture, and experience. Red stimulates the nervous system, evoking excitement, urgency, and passion — which is why it is used in warning signs and sale banners. Blue is linked to trust, calm, and stability, making it a favourite in corporate and healthcare design. Yellow activates optimism, warmth, and attention — the most visible colour in daylight. Green connects us to nature, balance, and growth. Understanding these associations allows artists and designers to guide emotional responses before a viewer reads a single word.",
+  },
+  "puzzle-21": {
+    title: "Chromatic Vibration: Colour Boundaries That Shimmer",
+    body: "When two highly saturated complementary colours — colours directly opposite each other on the colour wheel — are placed side by side at the same lightness (value), the boundary between them appears to vibrate or shimmer. This optical effect, studied by Josef Albers and the Op Art movement, occurs because the eye oscillates between the two hues, unable to lock onto either as figure or ground. The vibration is strongest when: (1) the hues are true complements, (2) their lightness is equal, and (3) saturation is high. Reducing any of these factors quiets the effect. Artists use chromatic vibration to create dynamic, energetic compositions that seem to pulse with life.",
   },
 };
 

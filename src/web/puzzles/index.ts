@@ -17,6 +17,8 @@ import { renderPuzzle16 } from "./puzzle-16";
 import { renderPuzzle17 } from "./puzzle-17";
 import { renderPuzzle18 } from "./puzzle-18";
 import { renderPuzzle19 } from "./puzzle-19";
+import { renderPuzzle20 } from "./puzzle-20";
+import { renderPuzzle21 } from "./puzzle-21";
 import { PuzzleRenderDeps, PuzzleRenderResult, PuzzleRenderer } from "./types";
 
 const puzzleRenderers: Record<string, PuzzleRenderer> = {
@@ -39,6 +41,8 @@ const puzzleRenderers: Record<string, PuzzleRenderer> = {
   "puzzle-17": renderPuzzle17,
   "puzzle-18": renderPuzzle18,
   "puzzle-19": renderPuzzle19,
+  "puzzle-20": renderPuzzle20,
+  "puzzle-21": renderPuzzle21,
 };
 
 export function renderPuzzleById(puzzleId: string, deps: PuzzleRenderDeps): PuzzleRenderResult | null {
