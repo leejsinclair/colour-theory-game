@@ -31,6 +31,8 @@ export enum PuzzleType {
   MUD_PREVENTION = "MUD_PREVENTION",
   POINTILLISM = "POINTILLISM",
   COLOR_BALANCE = "COLOR_BALANCE",
+  COLOR_PSYCHOLOGY = "COLOR_PSYCHOLOGY",
+  COLOR_VIBRATION = "COLOR_VIBRATION",
 }
 
 export enum StationType {
@@ -63,6 +65,8 @@ export enum PetType {
   MudBlob = "MudBlob",
   DotBee = "DotBee",
   HarmonyDove = "HarmonyDove",
+  EmpathyMoth = "EmpathyMoth",
+  VibrationHummingbird = "VibrationHummingbird",
 }
 
 export type Vec2 = {

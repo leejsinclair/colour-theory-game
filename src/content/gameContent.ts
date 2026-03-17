@@ -42,6 +42,8 @@ const petDefinitions: Array<{ id: string; name: string; type: PetType }> = [
   { id: "pet-17", name: "Mud Blob", type: PetType.MudBlob },
   { id: "pet-18", name: "Dot Bee", type: PetType.DotBee },
   { id: "pet-19", name: "Harmony Dove", type: PetType.HarmonyDove },
+  { id: "pet-20", name: "Empathy Moth", type: PetType.EmpathyMoth },
+  { id: "pet-21", name: "Vibration Hummingbird", type: PetType.VibrationHummingbird },
 ];
 
 export function createPets(): Pet[] {
@@ -284,6 +286,36 @@ export function createStationsAndPuzzles(): Station[] {
         Math.abs(input.secondaryPct - 30) <= 5 &&
         Math.abs(input.accentPct - 10) <= 3 &&
         Math.abs(input.primaryPct + input.secondaryPct + input.accentPct - 100) <= 2,
+    ),
+    createPuzzle<{ mappings: Record<string, string> }>(
+      "puzzle-20",
+      "station-07",
+      "Emotional Colour Mapping",
+      "Match each colour to its primary psychological association.",
+      PuzzleType.COLOR_PSYCHOLOGY,
+      "pet-20",
+      (input) => {
+        const correct: Record<string, string> = {
+          red: "excitement",
+          blue: "trust",
+          yellow: "optimism",
+          green: "growth",
+        };
+        const m = input.mappings;
+        return m != null && Object.entries(correct).every(([color, emotion]) => m[color] === emotion);
+      },
+    ),
+    createPuzzle<{ hueA: number; hueB: number; valueBalanced: boolean }>(
+      "puzzle-21",
+      "station-07",
+      "Chromatic Vibration",
+      "Place complementary colours of equal value side by side to create optical vibration.",
+      PuzzleType.COLOR_VIBRATION,
+      "pet-21",
+      (input) => {
+        const diff = Math.abs(((input.hueB - input.hueA + 540) % 360) - 180);
+        return diff <= 20 && input.valueBalanced;
+      },
     ),
   ];
 

@@ -386,7 +386,7 @@ Dot Bee
 ---
 
 # 7. Design Studio
-Teaches compositional color balance.
+Teaches compositional color balance, colour psychology, and chromatic vibration.
 
 ## Puzzle 19: Color Balance 60/30/10
 
@@ -402,6 +402,53 @@ Primary ≈ 60%, Secondary ≈ 30%, Accent ≈ 10% (within tolerance).
 
 Reward Pet:
 Harmony Dove
+
+---
+
+## Puzzle 20: Emotional Colour Mapping
+
+Objective:
+Match each colour swatch to its primary psychological association.
+
+Mechanic:
+Player is shown four colour swatches (red, blue, yellow, green).
+For each colour, the player selects the correct emotional association from a list of four options.
+
+Correct mappings:
+
+Red → Excitement & Urgency  
+Blue → Trust & Calm  
+Yellow → Optimism & Warmth  
+Green → Growth & Balance
+
+Discovery:
+Colour carries emotional meaning before any conscious thought — designers exploit this to guide viewer response.
+
+Reward Pet:
+Empathy Moth
+
+---
+
+## Puzzle 21: Chromatic Vibration
+
+Objective:
+Create the strongest possible optical vibration between two adjacent colours.
+
+Mechanic:
+Player adjusts two hue sliders and toggles a value-balance switch.
+A side-by-side colour preview shows the result.
+A vibration-intensity bar rises as the conditions for vibration are met.
+
+Success Conditions:
+Hues are complementary (approximately 180° apart on the colour wheel).
+Values (lightness) of both colours are equal.
+
+Discovery:
+Maximum vibration occurs at the intersection of complementary hue contrast and zero value contrast.
+When value contrast is high, the eye reads contrast easily. When value contrast is zero but hues are complementary, the eye cannot decide which colour is figure and which is ground — causing optical shimmer.
+
+Reward Pet:
+Vibration Hummingbird
 
 ---
 
@@ -534,6 +581,8 @@ This section reflects what is currently implemented in the playable prototypes.
 ### Station 7 - Design Studio (Bonus)
 
 - [x] Puzzle 19: Color Balance 60/30/10
+- [x] Puzzle 20: Emotional Colour Mapping
+- [x] Puzzle 21: Chromatic Vibration
 
 ## Removed or Changed Elements
 
@@ -554,14 +603,14 @@ This section tracks implementation against this story plan and `game-architectur
 
 - Modular architecture scaffold: scene manager, station manager, puzzle manager, pet manager, save system
 - Domain models: player, station, puzzle, pet, puzzle states/types, station types, pet types
-- Story content mapping: 6 stations, 18 puzzles, 18 pets, caretaker intro lines, final canvas requirements
+- Story content mapping: 6 main stations + 1 bonus station, 18 core puzzles + 3 bonus puzzles (21 total), 18 core pets + 3 bonus pets (21 total), caretaker intro lines, final canvas requirements
 - Progression flow:
 	- first station unlocked at start
 	- puzzle chaining inside each station
 	- next station unlock on station completion
 	- final canvas unlock at 18 pets
 - Color engine utilities: RGB/CMY mix, complement, atmospheric perspective, optical mixing
-- Puzzle validation rules implemented for all 18 puzzles with story-specific checks
+- Puzzle validation rules implemented for all 21 puzzles with story-specific checks
 - Playable prototypes:
 	- CLI loop (`npm run play`) for command-based progression
 	- Browser/canvas prototype (`npm run play:web`) for visual station progression

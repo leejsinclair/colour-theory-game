@@ -27,6 +27,8 @@ export const demoSolutions: Record<string, unknown> = {
   "puzzle-17": { complementPairsAdded: 1, muddyResult: false },
   "puzzle-18": { usedPureDots: true, mixedOnPalette: false, opticalBlendVisible: true },
   "puzzle-19": { primaryPct: 60, secondaryPct: 30, accentPct: 10 },
+  "puzzle-20": { mappings: { red: "excitement", blue: "trust", yellow: "optimism", green: "growth" } },
+  "puzzle-21": { hueA: 0, hueB: 180, valueBalanced: true },
 };
 
 export const moodPaletteSolution = {
