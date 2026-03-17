@@ -30,6 +30,7 @@ export enum PuzzleType {
   PIGMENT_MIX = "PIGMENT_MIX",
   MUD_PREVENTION = "MUD_PREVENTION",
   POINTILLISM = "POINTILLISM",
+  COLOR_BALANCE = "COLOR_BALANCE",
 }
 
 export enum StationType {
@@ -39,6 +40,7 @@ export enum StationType {
   OpticalIllusionWall = "OpticalIllusionWall",
   WindowLandscape = "WindowLandscape",
   PaintWorkbench = "PaintWorkbench",
+  DesignStudio = "DesignStudio",
 }
 
 export enum PetType {
@@ -60,6 +62,7 @@ export enum PetType {
   PaintSlime = "PaintSlime",
   MudBlob = "MudBlob",
   DotBee = "DotBee",
+  HarmonyDove = "HarmonyDove",
 }
 
 export type Vec2 = {

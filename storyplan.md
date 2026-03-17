@@ -385,6 +385,26 @@ Dot Bee
 
 ---
 
+# 7. Design Studio
+Teaches compositional color balance.
+
+## Puzzle 19: Color Balance 60/30/10
+
+Objective:
+Allocate colors to a composition following the 60/30/10 rule.
+
+Mechanic:
+Player adjusts hue pickers for primary, secondary, and accent roles.  
+Player sets proportion sliders so values sum to 100%.
+
+Success Condition:
+Primary ≈ 60%, Secondary ≈ 30%, Accent ≈ 10% (within tolerance).
+
+Reward Pet:
+Harmony Dove
+
+---
+
 # Final Challenge
 
 When all pets are collected:
@@ -450,6 +470,78 @@ material
 perception  
 environment
 
+---
+
+# Prototype Status Update (March 2026)
+
+This section reflects what is currently implemented in the playable prototypes.
+
+## Completed Game Modes
+
+- CLI prototype is playable and supports status, puzzle listing, solving by ID, and full auto-solve.
+- Browser prototype is playable with a full puzzle-list flow and progression tracking.
+
+## Completed Core Features
+
+- 6 stations are implemented and progression-gated.
+- 18 puzzles are implemented with per-puzzle validation logic.
+- 18 Chromatic Pets are implemented and collectible.
+- Puzzle completion unlocks the next puzzle and next station as designed.
+- Final challenge unlock condition is implemented after all 18 pets are collected.
+- Save/load support is implemented.
+- Score, streak, and pet milestones are implemented.
+- Browser UI includes progress HUD, pet collection display, puzzle concept modal, and reward toasts.
+- Browser UI includes Auto Solve Journey and Reset Run actions.
+
+## Completed Puzzle Content
+
+### Station 1 - Light Laboratory
+
+- [x] Puzzle 1: Create White Light
+- [x] Puzzle 2: Printer Pigments
+- [x] Puzzle 3: Chromatic Black
+
+### Station 2 - Value Sketchboard
+
+- [x] Puzzle 4: Squint Test
+- [x] Puzzle 5: Value Ladder
+- [x] Puzzle 6: Chroma Tree
+
+### Station 3 - Color Wheel Table
+
+- [x] Puzzle 7: Complementary Colors
+- [x] Puzzle 8: Triadic Harmony
+- [x] Puzzle 9: Mood Palette
+
+### Station 4 - Optical Illusion Wall
+
+- [x] Puzzle 10: Same Square Illusion
+- [x] Puzzle 11: Make Grey Look Blue
+- [x] Puzzle 12: Neutral Hero
+
+### Station 5 - Window Landscape
+
+- [x] Puzzle 13: Depth Painting
+- [x] Puzzle 14: Rayleigh Scattering
+- [x] Puzzle 15: Golden Hour style challenge (implemented as a two-stage time-of-day mastery puzzle)
+
+### Station 6 - Paint Workbench
+
+- [x] Puzzle 16: Vibrant Green
+- [x] Puzzle 17: Mud Monster
+- [x] Puzzle 18: Optical Mixing
+
+### Station 7 - Design Studio (Bonus)
+
+- [x] Puzzle 19: Color Balance 60/30/10
+
+## Removed or Changed Elements
+
+- Map-based exploration has been removed from the active browser prototype flow.
+- Click-to-move avatar navigation and nearby-station interaction are not part of the current UI.
+- Current browser flow is a station-and-puzzle list interface instead of room-map traversal.
+- Puzzle 15 reward pet naming differs from the original draft (implemented pet name is Sun Finch).
+
 The player leaves the studio seeing color differently forever.
 
 ---
@@ -488,6 +580,7 @@ This section tracks implementation against this story plan and `game-architectur
 	- Puzzle-14 (Rayleigh Scattering): atmospheric board with scattering/haze controls and visible far-ridge blue shift
 	- Puzzle-15 (Golden Hour): dual warm/cool progress meters, live completion checklist, reset-day-cycle control, and more reliable/forgiving completion tracking; **improved usability**: phase indicator badge, per-phase step guide ("Step 1 of 2…"), "Shift To Blue Hour" promoted to accent button with tooltip, "Advance Time" labeled with step size, redundant controls hidden in blue-hour phase
 	- Puzzle-18 (Optical Mixing): added live tiled distance preview canvas to visualize optical blending while painting
+	- Puzzle-19 (Color Balance 60/30/10): interactive composition bar showing primary/secondary/accent proportions with live hue pickers and percentage sliders; bonus station unlocks after completing all 6 main stations
 	- All puzzles: shake animation + red border feedback on incorrect Check submission
 - Playwright e2e coverage expanded (12 tests):
 	- RGB beam button toggling and color preview rendering

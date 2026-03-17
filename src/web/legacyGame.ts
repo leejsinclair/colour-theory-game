@@ -77,10 +77,11 @@ const PET_COLOURS: Record<string, string> = {
   "pet-16": "#A9E34B", // Paint Slime - lime green
   "pet-17": "#795548", // Mud Blob - brown
   "pet-18": "#FFD43B", // Dot Bee - golden yellow
+  "pet-19": "#B0E0E6", // Harmony Dove - powder blue
 };
 
-/** All 18 pet IDs in order. */
-const ALL_PET_IDS = Array.from({ length: 18 }, (_, i) => `pet-${String(i + 1).padStart(2, "0")}`);
+/** All 19 pet IDs in order. */
+const ALL_PET_IDS = Array.from({ length: 19 }, (_, i) => `pet-${String(i + 1).padStart(2, "0")}`);
 
 /** Pet display names for tooltips. */
 const PET_NAMES: Record<string, string> = {
@@ -102,6 +103,7 @@ const PET_NAMES: Record<string, string> = {
   "pet-16": "Paint Slime",
   "pet-17": "Mud Blob",
   "pet-18": "Dot Bee",
+  "pet-19": "Harmony Dove",
 };
 
 /** Build a jellybean-shaped SVG element for one pet slot. */
@@ -236,6 +238,7 @@ const puzzleObjectives: Record<string, string> = {
   "puzzle-16": "Mix phthalo blue + hansa yellow and keep mud low for vibrant green.",
   "puzzle-17": "Avoid overmixing complements to prevent muddy results.",
   "puzzle-18": "Paint pure color dots and reach enough coverage for optical blending.",
+  "puzzle-19": "Allocate 60% to primary, 30% to secondary, and 10% to accent so the proportions sum to 100%.",
 };
 
 const puzzleConcepts: Record<string, { title: string; body: string }> = {
@@ -310,6 +313,10 @@ const puzzleConcepts: Record<string, { title: string; body: string }> = {
   "puzzle-18": {
     title: "Optical Color Mixing and Pointillism",
     body: "Pointillist painters like Seurat and Signac discovered that small dots of pure, unmixed color placed close together are blended by the eye and brain at a distance — a phenomenon called optical mixing. Unlike palette mixing, this keeps each pigment's full intensity. The result is a luminous, vibrating surface that feels more colorful than any single mixed pigment could achieve.",
+  },
+  "puzzle-19": {
+    title: "The 60/30/10 Color Balance Rule",
+    body: "The 60/30/10 rule is a classic proportion guideline used by interior designers and artists to create balanced, harmonious compositions. The dominant color fills roughly 60% of the space, establishing the mood and tone. A secondary color takes up about 30%, adding depth and supporting the primary. An accent color occupies just 10%, providing a focal point and visual interest without overwhelming the eye. Together, these proportions ensure the composition feels cohesive yet dynamic.",
   },
 };
 
@@ -530,6 +537,13 @@ function validatePuzzleInput(puzzleId: string, input: any): boolean {
       return Boolean(input.complementPairsAdded <= 1 && !input.muddyResult);
     case "puzzle-18":
       return Boolean(input.usedPureDots && !input.mixedOnPalette && input.opticalBlendVisible);
+    case "puzzle-19":
+      return (
+        Math.abs(input.primaryPct - 60) <= 5 &&
+        Math.abs(input.secondaryPct - 30) <= 5 &&
+        Math.abs(input.accentPct - 10) <= 3 &&
+        Math.abs(input.primaryPct + input.secondaryPct + input.accentPct - 100) <= 2
+      );
     default:
       return false;
   }
@@ -1008,7 +1022,7 @@ function updatePuzzlePanel(): void {
 
         const info = document.createElement("div");
         const solved = station.puzzles.filter((puzzle) => puzzle.solved).length;
-        info.innerHTML = `<strong>${station.name}</strong><div class=\"puzzle-meta\">${solved}/3 solved${station.unlocked ? "" : " • Locked"}</div>`;
+        info.innerHTML = `<strong>${station.name}</strong><div class=\"puzzle-meta\">${solved}/${station.puzzles.length} solved${station.unlocked ? "" : " • Locked"}</div>`;
 
         const enterButton = document.createElement("button");
         enterButton.className = station.unlocked ? "btn btn-primary" : "btn";
