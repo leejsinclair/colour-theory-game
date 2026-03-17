@@ -450,6 +450,74 @@ material
 perception  
 environment
 
+---
+
+# Prototype Status Update (March 2026)
+
+This section reflects what is currently implemented in the playable prototypes.
+
+## Completed Game Modes
+
+- CLI prototype is playable and supports status, puzzle listing, solving by ID, and full auto-solve.
+- Browser prototype is playable with a full puzzle-list flow and progression tracking.
+
+## Completed Core Features
+
+- 6 stations are implemented and progression-gated.
+- 18 puzzles are implemented with per-puzzle validation logic.
+- 18 Chromatic Pets are implemented and collectible.
+- Puzzle completion unlocks the next puzzle and next station as designed.
+- Final challenge unlock condition is implemented after all 18 pets are collected.
+- Save/load support is implemented.
+- Score, streak, and pet milestones are implemented.
+- Browser UI includes progress HUD, pet collection display, puzzle concept modal, and reward toasts.
+- Browser UI includes Auto Solve Journey and Reset Run actions.
+
+## Completed Puzzle Content
+
+### Station 1 - Light Laboratory
+
+- [x] Puzzle 1: Create White Light
+- [x] Puzzle 2: Printer Pigments
+- [x] Puzzle 3: Chromatic Black
+
+### Station 2 - Value Sketchboard
+
+- [x] Puzzle 4: Squint Test
+- [x] Puzzle 5: Value Ladder
+- [x] Puzzle 6: Chroma Tree
+
+### Station 3 - Color Wheel Table
+
+- [x] Puzzle 7: Complementary Colors
+- [x] Puzzle 8: Triadic Harmony
+- [x] Puzzle 9: Mood Palette
+
+### Station 4 - Optical Illusion Wall
+
+- [x] Puzzle 10: Same Square Illusion
+- [x] Puzzle 11: Make Grey Look Blue
+- [x] Puzzle 12: Neutral Hero
+
+### Station 5 - Window Landscape
+
+- [x] Puzzle 13: Depth Painting
+- [x] Puzzle 14: Rayleigh Scattering
+- [x] Puzzle 15: Golden Hour style challenge (implemented as a two-stage time-of-day mastery puzzle)
+
+### Station 6 - Paint Workbench
+
+- [x] Puzzle 16: Vibrant Green
+- [x] Puzzle 17: Mud Monster
+- [x] Puzzle 18: Optical Mixing
+
+## Removed or Changed Elements
+
+- Map-based exploration has been removed from the active browser prototype flow.
+- Click-to-move avatar navigation and nearby-station interaction are not part of the current UI.
+- Current browser flow is a station-and-puzzle list interface instead of room-map traversal.
+- Puzzle 15 reward pet naming differs from the original draft (implemented pet name is Sun Finch).
+
 The player leaves the studio seeing color differently forever.
 
 ---
