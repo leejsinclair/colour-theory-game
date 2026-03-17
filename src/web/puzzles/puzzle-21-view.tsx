@@ -52,7 +52,7 @@ function Puzzle21View({ persistedState }: Puzzle21ViewProps): React.ReactElement
   return (
     <>
       <div className="mini-label" style={{ marginBottom: "8px" }}>
-        Tune two hues until they are complementary and balance their lightness to maximise optical vibration.
+        Tune two hues until they are complementary and balance their lightness to maximize optical vibration.
       </div>
 
       {/* Side-by-side colour preview */}

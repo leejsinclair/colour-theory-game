@@ -386,7 +386,7 @@ Dot Bee
 ---
 
 # 7. Design Studio
-Teaches compositional color balance, colour psychology, and chromatic vibration.
+Teaches compositional color balance, color psychology, and chromatic vibration.
 
 ## Puzzle 19: Color Balance 60/30/10
 
@@ -408,11 +408,11 @@ Harmony Dove
 ## Puzzle 20: Emotional Colour Mapping
 
 Objective:
-Match each colour swatch to its primary psychological association.
+Match each color swatch to its primary psychological association.
 
 Mechanic:
-Player is shown four colour swatches (red, blue, yellow, green).
-For each colour, the player selects the correct emotional association from a list of four options.
+Player is shown four color swatches (red, blue, yellow, green).
+For each color, the player selects the correct emotional association from a list of four options.
 
 Correct mappings:
 
@@ -422,7 +422,7 @@ Yellow → Optimism & Warmth
 Green → Growth & Balance
 
 Discovery:
-Colour carries emotional meaning before any conscious thought — designers exploit this to guide viewer response.
+Color carries emotional meaning before any conscious thought — designers exploit this to guide viewer response.
 
 Reward Pet:
 Empathy Moth
@@ -432,20 +432,20 @@ Empathy Moth
 ## Puzzle 21: Chromatic Vibration
 
 Objective:
-Create the strongest possible optical vibration between two adjacent colours.
+Create the strongest possible optical vibration between two adjacent colors.
 
 Mechanic:
 Player adjusts two hue sliders and toggles a value-balance switch.
-A side-by-side colour preview shows the result.
+A side-by-side color preview shows the result.
 A vibration-intensity bar rises as the conditions for vibration are met.
 
 Success Conditions:
-Hues are complementary (approximately 180° apart on the colour wheel).
-Values (lightness) of both colours are equal.
+Hues are complementary (approximately 180° apart on the color wheel).
+Values (lightness) of both colors are equal.
 
 Discovery:
 Maximum vibration occurs at the intersection of complementary hue contrast and zero value contrast.
-When value contrast is high, the eye reads contrast easily. When value contrast is zero but hues are complementary, the eye cannot decide which colour is figure and which is ground — causing optical shimmer.
+When value contrast is high, the eye reads contrast easily. When value contrast is zero but hues are complementary, the eye cannot decide which color is figure and which is ground — causing optical shimmer.
 
 Reward Pet:
 Vibration Hummingbird
