@@ -26,6 +26,7 @@ export const demoSolutions: Record<string, unknown> = {
   "puzzle-16": { pigments: ["phthalo blue", "hansa yellow"], mudLevel: 0.2 },
   "puzzle-17": { complementPairsAdded: 1, muddyResult: false },
   "puzzle-18": { usedPureDots: true, mixedOnPalette: false, opticalBlendVisible: true },
+  "puzzle-19": { primaryPct: 60, secondaryPct: 30, accentPct: 10 },
 };
 
 export const moodPaletteSolution = {

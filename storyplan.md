@@ -385,6 +385,26 @@ Dot Bee
 
 ---
 
+# 7. Design Studio
+Teaches compositional color balance.
+
+## Puzzle 19: Color Balance 60/30/10
+
+Objective:
+Allocate colors to a composition following the 60/30/10 rule.
+
+Mechanic:
+Player adjusts hue pickers for primary, secondary, and accent roles.  
+Player sets proportion sliders so values sum to 100%.
+
+Success Condition:
+Primary ≈ 60%, Secondary ≈ 30%, Accent ≈ 10% (within tolerance).
+
+Reward Pet:
+Harmony Dove
+
+---
+
 # Final Challenge
 
 When all pets are collected:
@@ -511,6 +531,10 @@ This section reflects what is currently implemented in the playable prototypes.
 - [x] Puzzle 17: Mud Monster
 - [x] Puzzle 18: Optical Mixing
 
+### Station 7 - Design Studio (Bonus)
+
+- [x] Puzzle 19: Color Balance 60/30/10
+
 ## Removed or Changed Elements
 
 - Map-based exploration has been removed from the active browser prototype flow.
@@ -556,6 +580,7 @@ This section tracks implementation against this story plan and `game-architectur
 	- Puzzle-14 (Rayleigh Scattering): atmospheric board with scattering/haze controls and visible far-ridge blue shift
 	- Puzzle-15 (Golden Hour): dual warm/cool progress meters, live completion checklist, reset-day-cycle control, and more reliable/forgiving completion tracking; **improved usability**: phase indicator badge, per-phase step guide ("Step 1 of 2…"), "Shift To Blue Hour" promoted to accent button with tooltip, "Advance Time" labeled with step size, redundant controls hidden in blue-hour phase
 	- Puzzle-18 (Optical Mixing): added live tiled distance preview canvas to visualize optical blending while painting
+	- Puzzle-19 (Color Balance 60/30/10): interactive composition bar showing primary/secondary/accent proportions with live hue pickers and percentage sliders; bonus station unlocks after completing all 6 main stations
 	- All puzzles: shake animation + red border feedback on incorrect Check submission
 - Playwright e2e coverage expanded (12 tests):
 	- RGB beam button toggling and color preview rendering

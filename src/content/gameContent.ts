@@ -41,6 +41,7 @@ const petDefinitions: Array<{ id: string; name: string; type: PetType }> = [
   { id: "pet-16", name: "Paint Slime", type: PetType.PaintSlime },
   { id: "pet-17", name: "Mud Blob", type: PetType.MudBlob },
   { id: "pet-18", name: "Dot Bee", type: PetType.DotBee },
+  { id: "pet-19", name: "Harmony Dove", type: PetType.HarmonyDove },
 ];
 
 export function createPets(): Pet[] {
@@ -270,6 +271,22 @@ export function createStationsAndPuzzles(): Station[] {
     ),
   ];
 
+  const station7Puzzles: Puzzle<unknown>[] = [
+    createPuzzle<{ primaryPct: number; secondaryPct: number; accentPct: number }>(
+      "puzzle-19",
+      "station-07",
+      "Color Balance 60/30/10",
+      "Allocate 60% primary, 30% secondary, and 10% accent to achieve a balanced composition.",
+      PuzzleType.COLOR_BALANCE,
+      "pet-19",
+      (input) =>
+        Math.abs(input.primaryPct - 60) <= 5 &&
+        Math.abs(input.secondaryPct - 30) <= 5 &&
+        Math.abs(input.accentPct - 10) <= 3 &&
+        Math.abs(input.primaryPct + input.secondaryPct + input.accentPct - 100) <= 2,
+    ),
+  ];
+
   station1Puzzles.forEach((puzzle, index) => {
     if (index > 0) {
       puzzle.state = PuzzleState.Locked;
@@ -283,5 +300,6 @@ export function createStationsAndPuzzles(): Station[] {
     new Station("station-04", "Optical Illusion Wall", StationType.OpticalIllusionWall, { x: 9, y: 5 }, station4Puzzles),
     new Station("station-05", "Window Landscape", StationType.WindowLandscape, { x: 11, y: 2 }, station5Puzzles),
     new Station("station-06", "Paint Workbench", StationType.PaintWorkbench, { x: 7, y: 1 }, station6Puzzles),
+    new Station("station-07", "Design Studio", StationType.DesignStudio, { x: 3, y: 4 }, station7Puzzles),
   ];
 }
