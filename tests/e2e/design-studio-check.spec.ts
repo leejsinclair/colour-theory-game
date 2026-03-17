@@ -5,7 +5,8 @@ test("Design Studio puzzle-19 is accessible after auto-solve", async ({ page }) 
   await page.waitForTimeout(500);
 
   // Auto-solve all 18 puzzles – this unlocks station-07 and transitions to FinalCanvasScene
-  await page.locator("button", { hasText: "Auto Solve Journey" }).click();
+  await page.locator(".hud-options-summary").click();
+  await page.locator("#auto-solve").click();
   await page.waitForTimeout(1500);
 
   // After auto-solve the game is at FinalCanvasScene; click the MUI-upgraded "Return" button
