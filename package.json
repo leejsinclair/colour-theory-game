@@ -13,16 +13,18 @@
     "test": "vitest run tests/game.test.ts",
     "test:watch": "vitest tests/game.test.ts",
     "test:e2e": "playwright test",
-    "test:cloud": "npm run build && npm test && npm run test:e2e"
+    "test:cloud": "npm run build && npm test && npm run test:e2e",
+    "prepare": "husky"
   },
   "devDependencies": {
     "@playwright/test": "^1.52.0",
-    "@typescript-eslint/eslint-plugin": "^8.43.0",
-    "@typescript-eslint/parser": "^8.43.0",
     "@types/node": "^22.13.10",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
+    "@typescript-eslint/eslint-plugin": "^8.43.0",
+    "@typescript-eslint/parser": "^8.43.0",
     "eslint": "^9.35.0",
+    "husky": "^9.1.7",
     "tsx": "^4.19.3",
     "typescript": "^5.8.2",
     "vite": "^6.2.3",

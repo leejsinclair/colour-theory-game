@@ -1,0 +1,9 @@
+#!/bin/sh
+# pre-commit: lint + unit tests
+echo "▶ Running lint..."
+npm run lint || { echo "✖ Lint failed. Fix errors before committing."; exit 1; }
+
+echo "▶ Running unit tests..."
+npm test || { echo "✖ Unit tests failed. Fix tests before committing."; exit 1; }
+
+echo "✔ Pre-commit checks passed."
