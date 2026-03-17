@@ -313,7 +313,8 @@ export function createStationsAndPuzzles(): Station[] {
       PuzzleType.COLOR_VIBRATION,
       "pet-21",
       (input) => {
-        const diff = Math.abs(((input.hueB - input.hueA + 540) % 360) - 180);
+        const normalizedDelta = (((input.hueB - input.hueA) % 360) + 360) % 360;
+        const diff = Math.abs(normalizedDelta - 180);
         return diff <= 20 && input.valueBalanced;
       },
     ),

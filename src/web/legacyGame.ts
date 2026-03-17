@@ -214,7 +214,7 @@ function showToast(
 function updateHud(): void {
   const progress = game.getProgress();
   hudScoreValue.textContent = String(progress.score);
-  hudPetsValue.textContent = `${progress.petsCollected}/18`;
+  hudPetsValue.textContent = `${progress.petsCollected}/${progress.total}`;
   hudStreakValue.textContent = String(progress.bestStreak);
 
   renderMuiMilestoneChips(milestoneBadgesEl, progress.petMilestonesUnlocked);
@@ -558,6 +558,21 @@ function validatePuzzleInput(puzzleId: string, input: any): boolean {
         Math.abs(input.accentPct - 10) <= 3 &&
         Math.abs(input.primaryPct + input.secondaryPct + input.accentPct - 100) <= 2
       );
+    case "puzzle-20": {
+      const correct: Record<string, string> = {
+        red: "excitement",
+        blue: "trust",
+        yellow: "optimism",
+        green: "growth",
+      };
+      const mappings = input.mappings as Record<string, string> | undefined;
+      return mappings != null && Object.entries(correct).every(([color, emotion]) => mappings[color] === emotion);
+    }
+    case "puzzle-21": {
+      const normalizedDelta = (((input.hueB - input.hueA) % 360) + 360) % 360;
+      const diff = Math.abs(normalizedDelta - 180);
+      return diff <= 20 && Boolean(input.valueBalanced);
+    }
     default:
       return false;
   }
@@ -670,6 +685,7 @@ function addCheckButton(wrapper: HTMLDivElement, puzzleId: string, inputFactory:
     const input = inputFactory();
     const puzzleMeta = game.puzzleManager.getPuzzle(puzzleId);
     const puzzle = game.puzzleManager.getPuzzle(puzzleId);
+    const wasFinalCanvasUnlocked = game.getProgress().finalCanvasUnlocked;
     if (puzzle?.solved) {
       const valid = validatePuzzleInput(puzzleId, input as any);
       if (!valid) {
@@ -707,7 +723,8 @@ function addCheckButton(wrapper: HTMLDivElement, puzzleId: string, inputFactory:
       showToast(`Level complete: ${stationName}`, { kind: "success", icon: "✅" });
     }
 
-    if (game.getProgress().finalCanvasUnlocked) {
+    const isFinalCanvasUnlocked = game.getProgress().finalCanvasUnlocked;
+    if (!wasFinalCanvasUnlocked && isFinalCanvasUnlocked) {
       activeStationId = null;
     }
     render();
@@ -1114,7 +1131,8 @@ function render(): void {
 }
 
 autoSolveButton.addEventListener("click", () => {
-  for (let i = 1; i <= 18; i += 1) {
+  const totalPuzzles = game.getProgress().total;
+  for (let i = 1; i <= totalPuzzles; i += 1) {
     const puzzleId = `puzzle-${String(i).padStart(2, "0")}`;
     game.completePuzzle(puzzleId, getDemoSolution(puzzleId));
   }
