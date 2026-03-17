@@ -22,3 +22,9 @@ This repository contains a modular TypeScript implementation of the Chromatic Ma
 
 - Puzzle validation rules reflect the story plan requirements for all 18 puzzles.
 - Browser prototype reuses the same `Game` progression logic used by tests and CLI.
+
+## Feedback
+
+- Use GitHub Issues to report bugs, puzzle-balance notes, and feature requests.
+- Open the template chooser: https://github.com/leejsinclair/colour-theory-game/issues/new/choose
+- The in-game `Send Feedback` button also opens this page.

@@ -1,22 +1,28 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, Page } from "@playwright/test";
+
+async function clickHudOption(page: Page, option: "auto-solve" | "reset") {
+  await page.locator(".hud-options-summary").click();
+  await page.locator(`#${option}`).click();
+}
 
 test("loads studio prototype and shows core controls", async ({ page }) => {
   await page.goto("/");
   await expect(page.getByRole("heading", { name: "Color Studio Prototype" })).toBeVisible();
-  await expect(page.getByRole("button", { name: "Auto Solve Journey" })).toBeVisible();
+  await expect(page.locator(".hud-options-summary")).toBeVisible();
+  await expect(page.locator("#auto-solve")).toBeAttached();
   await expect(page.locator("#progress")).toHaveText("");
 });
 
 test("auto solve unlocks final canvas", async ({ page }) => {
   await page.goto("/");
-  await page.getByRole("button", { name: "Auto Solve Journey" }).click();
+  await clickHudOption(page, "auto-solve");
   await expect(page.locator(".puzzle-item", { hasText: "Grand Canvas Unlocked" })).toBeVisible();
 });
 
 test("entering Paint Workbench shows art station mini game", async ({ page }) => {
   await page.goto("/");
 
-  await page.getByRole("button", { name: "Auto Solve Journey" }).click();
+  await clickHudOption(page, "auto-solve");
   await page.getByRole("button", { name: "Return" }).click();
 
   const workbenchEnter = page.locator(".puzzle-item", {
@@ -32,7 +38,7 @@ test("entering Paint Workbench shows art station mini game", async ({ page }) =>
 test("Paint Workbench art mini-game: select color, draw, and clear", async ({ page }) => {
   await page.goto("/");
 
-  await page.getByRole("button", { name: "Auto Solve Journey" }).click();
+  await clickHudOption(page, "auto-solve");
   await page.getByRole("button", { name: "Return" }).click();
 
   const workbenchEnter = page.locator(".puzzle-item", {
@@ -125,7 +131,7 @@ test("Light Laboratory: RGB beam buttons are present and toggle on click", async
 test("Paint Workbench: coverage bar is visible and updates when drawing", async ({ page }) => {
   await page.goto("/");
 
-  await page.getByRole("button", { name: "Auto Solve Journey" }).click();
+  await clickHudOption(page, "auto-solve");
   await page.getByRole("button", { name: "Return" }).click();
 
   const workbenchEnter = page.locator(".puzzle-item", {
@@ -167,7 +173,7 @@ test("HUD shows Score, Pets, Best Streak tiles on load", async ({ page }) => {
 
 test("HUD score and pets update after auto solve", async ({ page }) => {
   await page.goto("/");
-  await page.getByRole("button", { name: "Auto Solve Journey" }).click();
+  await clickHudOption(page, "auto-solve");
 
   // Score should be well above 0 (at minimum 18 * 125 = 2250 with bonuses)
   const scoreText = await page.locator("#hud-score-value").textContent();
@@ -183,7 +189,7 @@ test("HUD score and pets update after auto solve", async ({ page }) => {
 
 test("pet milestones appear in HUD after auto solve", async ({ page }) => {
   await page.goto("/");
-  await page.getByRole("button", { name: "Auto Solve Journey" }).click();
+  await clickHudOption(page, "auto-solve");
 
   // All three milestones should be visible
   await expect(page.locator("#milestone-badges")).toContainText("Color Apprentice");
@@ -224,7 +230,7 @@ test("Chromatic Mastery puzzle shows stage indicator and palette cards on entry"
   await page.goto("/");
 
   // Auto-solve all puzzles so station-05 is available
-  await page.getByRole("button", { name: "Auto Solve Journey" }).click();
+  await clickHudOption(page, "auto-solve");
   await page.getByRole("button", { name: "Return" }).click();
 
   // Enter Window Landscape station (puzzle-15)
@@ -330,7 +336,7 @@ test("info modal shows Chroma Tree concept when info button clicked for puzzle-0
   await page.goto("/");
 
   // Solve first station so Value Sketchboard is unlocked
-  await page.getByRole("button", { name: "Auto Solve Journey" }).click();
+  await clickHudOption(page, "auto-solve");
   await page.getByRole("button", { name: "Return" }).click();
 
   // Enter Value Sketchboard
