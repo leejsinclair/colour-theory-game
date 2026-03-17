@@ -62,11 +62,12 @@ Color Wheel Table
 Optical Illusion Wall
 Window Landscape
 Paint Workbench
+Design Studio
 
 Each station contains 3 puzzles.
 
-Total puzzles: 18  
-Total pets: 18
+Total puzzles: 21  
+Total pets: 21
 
 ---
 
@@ -530,11 +531,11 @@ This section reflects what is currently implemented in the playable prototypes.
 
 ## Completed Core Features
 
-- 6 stations are implemented and progression-gated.
-- 18 puzzles are implemented with per-puzzle validation logic.
-- 18 Chromatic Pets are implemented and collectible.
+- 7 stations are implemented and progression-gated (6 main + 1 bonus Design Studio, unlocks after all main stations complete).
+- 21 puzzles are implemented with per-puzzle validation logic.
+- 21 Chromatic Pets are implemented and collectible.
 - Puzzle completion unlocks the next puzzle and next station as designed.
-- Final challenge unlock condition is implemented after all 18 pets are collected.
+- Final challenge unlock condition is implemented after all 21 pets are collected.
 - Save/load support is implemented.
 - Score, streak, and pet milestones are implemented.
 - Browser UI includes progress HUD, pet collection display, puzzle concept modal, and reward toasts.
@@ -599,6 +600,17 @@ The player leaves the studio seeing color differently forever.
 
 This section tracks implementation against this story plan and `game-architecture.md`.
 
+## Bug Fixes Applied (March 2026 — post-Design Studio merge)
+
+- **Puzzle-list hiding on solve (puzzle 19–21):** `addCheckButton` in `legacyGame.ts` was clearing `activeStationId` whenever `finalCanvasUnlocked` was already true, collapsing to studio view on every solve in Station 7. Fixed to only clear on the locked→unlocked transition.
+- **Pet count HUD overflow:** `updateHud()` hardcoded `/18`; replaced with dynamic `progress.total`.
+- **Chromatic Vibration (puzzle-21) never solved:** Complement-distance formula `Math.abs(((hueB - hueA + 540) % 360) - 180)` yielded 180 (not 0) for true complements (e.g. hueA=0, hueB=180). Replaced with `(((hueB - hueA) % 360) + 360) % 360` giving normalised delta, then `|delta - 180|`.
+- **Practice mode always failing for puzzle-20 and puzzle-21:** `validatePuzzleInput()` switch had no cases for these two puzzles; added correct validators matching their core logic.
+- All progression values (milestone thresholds, final-canvas unlock, auto-solve loop, HUD total) are now fully dynamic — no hardcoded 18s remain in the codebase.
+- 22/22 unit tests pass; TypeScript build clean after fixes.
+
+---
+
 ## Completed in code (`src/`)
 
 - Modular architecture scaffold: scene manager, station manager, puzzle manager, pet manager, save system
@@ -647,7 +659,7 @@ This section tracks implementation against this story plan and `game-architectur
 	- Final canvas unlock: +200 pts
 	- Practice completions: +10 pts per valid attempt, capped at 30 per puzzle per session
 	- Combo streak counter (currentStreak / bestStreak) increments on each successful Check
-	- Pet collection milestones: 6 pets → "Color Apprentice", 12 → "Palette Keeper", 18 → "Chromatic Master"
+  - Pet collection milestones: 6 pets → "Color Apprentice", 12 → "Palette Keeper", 21 → "Chromatic Master" (threshold is dynamic — always the full puzzle count)
 	- All fields persisted in save snapshot with backward-compatible defaults
 - **HUD + reward feedback UI** (`src/web/main.ts`, `index.html`, `src/web/styles.css`):
 	- Persistent Score / Pets / Best Streak tile row above progress panel

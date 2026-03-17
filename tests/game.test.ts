@@ -3,6 +3,16 @@ import { getDemoSolution, moodPaletteSolution } from "../src/content/demoSolutio
 import { Game } from "../src/game/Game";
 import { SceneType } from "../src/types/gameTypes";
 
+function solveAllPuzzles(game: Game): ReturnType<typeof game.completePuzzle> {
+  let finalEvent: ReturnType<typeof game.completePuzzle> = null;
+  const total = game.getProgress().total;
+  for (let i = 1; i <= total; i += 1) {
+    const puzzleId = `puzzle-${String(i).padStart(2, "0")}`;
+    finalEvent = game.completePuzzle(puzzleId, getDemoSolution(puzzleId));
+  }
+  return finalEvent;
+}
+
 describe("Game progression", () => {
   test("initially unlocks first station and first puzzle only", () => {
     const game = new Game();
@@ -45,14 +55,12 @@ describe("Game progression", () => {
     const game = new Game();
     game.initialize();
 
-    for (let i = 1; i <= 18; i += 1) {
-      const puzzleId = `puzzle-${String(i).padStart(2, "0")}`;
-      const event = game.completePuzzle(puzzleId, getDemoSolution(puzzleId));
-      expect(event).not.toBeNull();
-    }
+    const total = game.getProgress().total;
+    const finalEvent = solveAllPuzzles(game);
+    expect(finalEvent).not.toBeNull();
 
     const progress = game.getProgress();
-    expect(progress.petsCollected).toBe(18);
+    expect(progress.petsCollected).toBe(total);
     expect(progress.finalCanvasUnlocked).toBe(true);
     expect(game.sceneManager.getCurrentScene()).toBe(SceneType.FinalCanvasScene);
   });
@@ -114,11 +122,7 @@ describe("Gamification scoring", () => {
     const game = new Game();
     game.initialize();
 
-    let finalEvent: ReturnType<typeof game.completePuzzle> = null;
-    for (let i = 1; i <= 18; i += 1) {
-      const puzzleId = `puzzle-${String(i).padStart(2, "0")}`;
-      finalEvent = game.completePuzzle(puzzleId, getDemoSolution(puzzleId));
-    }
+    const finalEvent = solveAllPuzzles(game);
 
     expect(finalEvent!.reason).toContain("+200");
     expect(game.getProgress().score).toBeGreaterThan(0);
@@ -185,10 +189,10 @@ describe("Pet milestones", () => {
     expect(game.getProgress().petMilestonesUnlocked).toContain("Palette Keeper");
   });
 
-  test("Chromatic Master unlocked at 18 pets", () => {
+  test("Chromatic Master unlocked when all pets are collected", () => {
     const game = new Game();
     game.initialize();
-    solveN(game, 18);
+    solveN(game, game.getProgress().total);
     expect(game.getProgress().petMilestonesUnlocked).toContain("Chromatic Master");
   });
 
