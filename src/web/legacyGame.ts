@@ -239,7 +239,7 @@ const puzzleObjectives: Record<string, string> = {
   "puzzle-13": "Apply depth cues: softer edges, lower saturation, and cooler distance hues.",
   "puzzle-14": "Increase atmospheric scattering so far objects shift toward blue.",
   "puzzle-15": "Stage 1: drag each palette onto its time-of-day card. Stage 2: adjust sun, atmosphere, and temperature to recreate golden hour.",
-  "puzzle-16": "Mix phthalo blue + hansa yellow and keep mud low for vibrant green.",
+  "puzzle-16": "Choose one yellow-family and one blue-family pigment, then keep contamination low for vibrant green.",
   "puzzle-17": "Avoid overmixing complements to prevent muddy results.",
   "puzzle-18": "Paint pure color dots and reach enough coverage for optical blending.",
   "puzzle-19": "Allocate 60% to primary, 30% to secondary, and 10% to accent so the proportions sum to 100%.",
@@ -310,7 +310,7 @@ const puzzleConcepts: Record<string, { title: string; body: string }> = {
   },
   "puzzle-16": {
     title: "Clean Pigment Mixing: Vibrant Green",
-    body: "Not all yellows and blues make clean greens. Pigments that already lean toward the green part of the spectrum mix cleanly: Phthalo Blue (green shade) and Hansa Yellow (a cool, greenish yellow) produce vibrant, clear greens with very little mud. Using pigments that lean the wrong way introduces unwanted red or orange undertones, quickly dulling the mix.",
+    body: "Not all yellows and blues make equally clean greens. Pair one yellow-family pigment with one blue-family pigment and watch for hidden red or purple bias that can muddy the result. Cooler, green-leaning pigments usually produce clearer mixes, while contamination quickly lowers saturation.",
   },
   "puzzle-17": {
     title: "Mud Prevention: Avoiding Complement Overload",
@@ -544,8 +544,24 @@ function validatePuzzleInput(puzzleId: string, input: any): boolean {
         input.atmosphere <= 0.60,
       );
     case "puzzle-16": {
-      const pigments = (input.pigments as string[]).map((p) => p.toLowerCase());
-      return pigments.includes("phthalo blue") && pigments.includes("hansa yellow") && input.mudLevel <= 0.3;
+      const pigments = (input.pigments as string[]).map((p) => p.toLowerCase().trim());
+      if (pigments.length !== 2) {
+        return false;
+      }
+
+      const yellowFamily = new Set([
+        "hansa yellow", "cadmium lemon", "nickel azo yellow", "bismuth vanadate yellow",
+        "indian yellow", "aureolin", "cadmium yellow medium", "naples yellow",
+        "raw sienna", "yellow ochre",
+      ]);
+      const blueFamily = new Set([
+        "phthalo blue", "cerulean blue", "cobalt teal", "manganese blue",
+        "cobalt blue", "ultramarine", "prussian blue", "indanthrone blue",
+        "phthalo blue red shade", "french ultramarine",
+      ]);
+      const hasYellow = pigments.some((pigment) => yellowFamily.has(pigment));
+      const hasBlue = pigments.some((pigment) => blueFamily.has(pigment));
+      return hasYellow && hasBlue && input.mudLevel <= 0.16;
     }
     case "puzzle-17":
       return Boolean(input.complementPairsAdded <= 1 && !input.muddyResult);

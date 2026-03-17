@@ -162,6 +162,41 @@ test("Paint Workbench: coverage bar is visible and updates when drawing", async 
   expect(labelText).toMatch(/Coverage: [1-9]\d*%/);
 });
 
+test("Vibrant Green puzzle supports richer two-pigment mixing and clean green outcome", async ({ page }) => {
+  await page.goto("/");
+
+  await clickHudOption(page, "auto-solve");
+  await page.getByRole("button", { name: "Return" }).click();
+
+  const workbenchEnter = page.locator(".puzzle-item", {
+    has: page.getByText("Paint Workbench"),
+  }).getByRole("button", { name: "Enter" });
+  await workbenchEnter.click();
+
+  const vibrantCard = page.locator(".puzzle-item", {
+    has: page.getByText("Vibrant Green"),
+  });
+
+  await vibrantCard.getByRole("button", { name: "Practice" }).click();
+
+  await expect(vibrantCard.getByText(/Pick 2 pigments.*0\/2/)).toBeVisible();
+
+  // Swapping yellows should replace the existing yellow instead of requiring a deselect first.
+  await vibrantCard.getByRole("button", { name: "hansa yellow" }).click();
+  await vibrantCard.getByRole("button", { name: "yellow ochre" }).click();
+  await expect(vibrantCard.getByText("Selected: yellow ochre")).toBeVisible();
+
+  // Swap to a clean yellow + clean blue pair.
+  await vibrantCard.getByRole("button", { name: "hansa yellow",  exact: true }).click();
+  await vibrantCard.getByRole("button", { name: "phthalo blue",  exact: true }).click();
+
+  await expect(vibrantCard.getByText("Vibrant green achieved! ✓")).toBeVisible();
+
+  const checkButton = vibrantCard.getByRole("button", { name: "Check" });
+  await checkButton.click();
+  await expect(vibrantCard.getByRole("button", { name: "Practiced ✓" })).toBeVisible();
+});
+
 test("HUD shows Score, Pets, Best Streak tiles on load", async ({ page }) => {
   await page.goto("/");
   await expect(page.locator("#hud-score-value")).toBeVisible();
