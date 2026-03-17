@@ -13,16 +13,22 @@ type Puzzle21ViewProps = {
   persistedState: Puzzle21State;
 };
 
+/** Returns angular distance from perfect complement (180deg). */
+function complementDistance(hueA: number, hueB: number): number {
+  const normalizedDelta = (((hueB - hueA) % 360) + 360) % 360;
+  return Math.abs(normalizedDelta - 180);
+}
+
 /** Returns a 0–1 vibration intensity score based on hue complement and value balance. */
 function vibrationIntensity(hueA: number, hueB: number, valueBalanced: boolean): number {
-  const hueDiff = Math.abs(((hueB - hueA + 540) % 360) - 180);
+  const hueDiff = complementDistance(hueA, hueB);
   const complementScore = Math.max(0, 1 - hueDiff / 90);
   return complementScore * (valueBalanced ? 1 : 0.35);
 }
 
 /** Returns true when the two hues are within 20° of being complementary. */
 function isComplement(hueA: number, hueB: number): boolean {
-  return Math.abs(((hueB - hueA + 540) % 360) - 180) <= 20;
+  return complementDistance(hueA, hueB) <= 20;
 }
 
 function Puzzle21View({ persistedState }: Puzzle21ViewProps): React.ReactElement {

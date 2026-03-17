@@ -74,7 +74,8 @@ async function runCli(): Promise<void> {
     }
 
     if (command === "auto") {
-      for (let i = 1; i <= 18; i += 1) {
+      const totalPuzzles = game.getProgress().total;
+      for (let i = 1; i <= totalPuzzles; i += 1) {
         const puzzleId = `puzzle-${String(i).padStart(2, "0")}`;
         game.completePuzzle(puzzleId, getDemoSolution(puzzleId));
       }

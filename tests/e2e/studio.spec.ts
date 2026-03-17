@@ -1,14 +1,15 @@
 import { expect, test, Page } from "@playwright/test";
 
 async function clickHudOption(page: Page, option: "auto-solve" | "reset") {
-  await page.locator(".hud-options-summary").click();
-  await page.locator(`#${option}`).click();
+  const label = option === "auto-solve" ? "Auto Solve Journey" : "Reset Run";
+  await page.getByRole("button", { name: "Options" }).click();
+  await page.getByRole("menuitem", { name: label }).click();
 }
 
 test("loads studio prototype and shows core controls", async ({ page }) => {
   await page.goto("/");
   await expect(page.getByRole("heading", { name: "Color Studio Prototype" })).toBeVisible();
-  await expect(page.locator(".hud-options-summary")).toBeVisible();
+  await expect(page.getByRole("button", { name: "Options" })).toBeVisible();
   await expect(page.locator("#auto-solve")).toBeAttached();
   await expect(page.locator("#progress")).toHaveText("");
 });
@@ -168,7 +169,7 @@ test("HUD shows Score, Pets, Best Streak tiles on load", async ({ page }) => {
   await expect(page.locator("#hud-streak-value")).toBeVisible();
   // Initial values
   await expect(page.locator("#hud-score-value")).toHaveText("0");
-  await expect(page.locator("#hud-pets-value")).toHaveText("0/18");
+  await expect(page.locator("#hud-pets-value")).toHaveText("0/21");
 });
 
 test("HUD score and pets update after auto solve", async ({ page }) => {
@@ -179,8 +180,8 @@ test("HUD score and pets update after auto solve", async ({ page }) => {
   const scoreText = await page.locator("#hud-score-value").textContent();
   expect(Number(scoreText)).toBeGreaterThan(0);
 
-  // Pets should show 18/18
-  await expect(page.locator("#hud-pets-value")).toHaveText("18/18");
+  // Pets should show 21/21
+  await expect(page.locator("#hud-pets-value")).toHaveText("21/21");
 
   // Best streak should be > 0
   const streakText = await page.locator("#hud-streak-value").textContent();

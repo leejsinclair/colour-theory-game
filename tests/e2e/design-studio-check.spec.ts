@@ -5,8 +5,8 @@ test("Design Studio puzzle-19 is accessible after auto-solve", async ({ page }) 
   await page.waitForTimeout(500);
 
   // Auto-solve all 18 puzzles – this unlocks station-07 and transitions to FinalCanvasScene
-  await page.locator(".hud-options-summary").click();
-  await page.locator("#auto-solve").click();
+  await page.getByRole("button", { name: "Options" }).click();
+  await page.getByRole("menuitem", { name: "Auto Solve Journey" }).click();
   await page.waitForTimeout(1500);
 
   // After auto-solve the game is at FinalCanvasScene; click the MUI-upgraded "Return" button
@@ -23,12 +23,17 @@ test("Design Studio puzzle-19 is accessible after auto-solve", async ({ page }) 
   await enterButtons.nth(count - 1).click();
   await page.waitForTimeout(500);
 
-  // The Color Balance puzzle card should be visible
+  // The Color Balance puzzle card should be visible (already solved after auto-solve)
   await expect(page.locator("text=Color Balance 60/30/10")).toBeVisible();
 
-  // The interactive composition bar should be present
+  // Click Practice to enter interactive mode for the solved puzzle
+  await page.locator(".puzzle-item", {
+    has: page.getByText("Color Balance 60/30/10"),
+  }).getByRole("button", { name: "Practice" }).click();
+
+  // The interactive composition bar should now be present
   await expect(page.locator(".balance-composition")).toBeVisible();
 
-  // The Check button should be available for submission
+  // The Check button should be available for submission in practice mode
   await expect(page.getByRole("button", { name: "Check" })).toBeVisible();
 });

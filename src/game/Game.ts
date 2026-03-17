@@ -8,10 +8,9 @@ import { PuzzleManager } from "../systems/PuzzleManager";
 import { SaveData, SaveSystem } from "../systems/SaveSystem";
 import { StationManager } from "../systems/StationManager";
 
-const PET_MILESTONES: Array<{ threshold: number; badge: string }> = [
+const BASE_PET_MILESTONES: Array<{ threshold: number; badge: string }> = [
   { threshold: 6, badge: "Color Apprentice" },
   { threshold: 12, badge: "Palette Keeper" },
-  { threshold: 18, badge: "Chromatic Master" },
 ];
 
 /** Maximum practice points that can accumulate per puzzle per session. */
@@ -218,7 +217,12 @@ export class Game {
 
   private checkPetMilestones(): void {
     const count = this.petManager.getUnlockedPets().length;
-    for (const { threshold, badge } of PET_MILESTONES) {
+    const milestones = [
+      ...BASE_PET_MILESTONES,
+      { threshold: this.puzzleManager.getTotalCount(), badge: "Chromatic Master" },
+    ];
+
+    for (const { threshold, badge } of milestones) {
       if (count >= threshold && !this.petMilestonesUnlocked.includes(badge)) {
         this.petMilestonesUnlocked.push(badge);
       }
@@ -241,7 +245,7 @@ export class Game {
       return;
     }
 
-    if (this.petManager.getUnlockedPets().length >= 18) {
+    if (this.petManager.getUnlockedPets().length >= this.puzzleManager.getTotalCount()) {
       this.finalCanvasUnlocked = true;
       this.sceneManager.transitionScene(SceneType.FinalCanvasScene);
     }

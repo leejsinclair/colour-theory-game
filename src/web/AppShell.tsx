@@ -114,7 +114,7 @@ export function AppShell() {
                       <Box className="hud-stat-label">Score</Box>
                     </Box>
                     <Box className="hud-stat" id="hud-pets">
-                      <Box className="hud-stat-value" id="hud-pets-value">0/18</Box>
+                      <Box className="hud-stat-value" id="hud-pets-value">0/0</Box>
                       <Box className="hud-stat-label">Pets</Box>
                     </Box>
                     <Box className="hud-stat" id="hud-streak">
