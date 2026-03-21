@@ -1,4 +1,5 @@
 import { getDemoSolution } from "../content/demoSolutions";
+import { puzzleLearningContent, type LearningQuizQuestion } from "../content/puzzleLearningContent";
 import { Game } from "../game/Game";
 import { SceneType } from "../types/gameTypes";
 import { renderPuzzleById } from "./puzzles";
@@ -21,6 +22,27 @@ const infoModalBodyEl = document.getElementById("info-modal-body") as HTMLElemen
 const infoModalCloseEl = document.getElementById("info-modal-close") as HTMLButtonElement;
 
 function openInfoModal(puzzleId: string): void {
+  const learning = puzzleLearningContent[puzzleId];
+  if (learning) {
+    infoModalTitleEl.textContent = learning.title;
+    infoModalBodyEl.innerHTML = "";
+
+    const illustrationWrap = document.createElement("div");
+    illustrationWrap.className = "learning-modal-illustration";
+    illustrationWrap.innerHTML = learning.illustrationSvg;
+    infoModalBodyEl.appendChild(illustrationWrap);
+
+    learning.intro.forEach((paragraph) => {
+      const p = document.createElement("p");
+      p.textContent = paragraph;
+      infoModalBodyEl.appendChild(p);
+    });
+
+    infoModalEl.removeAttribute("hidden");
+    infoModalCloseEl.focus();
+    return;
+  }
+
   const concept = puzzleConcepts[puzzleId];
   if (!concept) {
     return;
@@ -343,6 +365,7 @@ const artPad = {
 };
 
 const puzzleUiState = new Map<string, unknown>();
+const learningUiState = new Map<string, LearningUiState>();
 
 const LOCAL_SAVE_KEY = "ctg:web-progress:v1";
 
@@ -350,9 +373,21 @@ type LocalProgressSnapshot = {
   completedPuzzleIds: string[];
   activeStationId: string | null;
   practicePuzzleId: string | null;
+  learningProgressByPuzzle?: Record<string, { quizPassed: boolean }>;
+};
+
+type LearningProgress = Record<string, { quizPassed: boolean }>;
+
+type LearningStage = "intro" | "quiz" | "puzzle";
+
+type LearningUiState = {
+  stage: LearningStage;
+  selections: number[];
+  feedback: string;
 };
 
 let skipNextPersist = false;
+let learningProgressByPuzzle: LearningProgress = {};
 
 function getSolvedPuzzleIds(): string[] {
   return game.stationManager
@@ -372,6 +407,7 @@ function persistLocalProgress(): void {
     completedPuzzleIds: getSolvedPuzzleIds(),
     activeStationId,
     practicePuzzleId,
+    learningProgressByPuzzle,
   };
 
   try {
@@ -405,6 +441,13 @@ function readLocalProgress(): LocalProgressSnapshot | null {
       completedPuzzleIds,
       activeStationId: typeof parsed.activeStationId === "string" ? parsed.activeStationId : null,
       practicePuzzleId: typeof parsed.practicePuzzleId === "string" ? parsed.practicePuzzleId : null,
+      learningProgressByPuzzle: typeof parsed.learningProgressByPuzzle === "object" && parsed.learningProgressByPuzzle != null
+        ? Object.fromEntries(
+          Object.entries(parsed.learningProgressByPuzzle)
+            .filter(([id, value]) => typeof id === "string" && typeof value === "object" && value != null)
+            .map(([id, value]) => [id, { quizPassed: Boolean((value as { quizPassed?: boolean }).quizPassed) }]),
+        )
+        : undefined,
     };
   } catch {
     return null;
@@ -416,6 +459,8 @@ function restoreLocalProgress(): void {
   if (!snapshot) {
     return;
   }
+
+  learningProgressByPuzzle = snapshot.learningProgressByPuzzle ?? {};
 
   const orderedPuzzleIds = [...new Set(snapshot.completedPuzzleIds)].sort((a, b) => {
     const ai = Number(a.split("-")[1] ?? 0);
@@ -457,6 +502,8 @@ function initializeGame(options: { restoreFromLocal?: boolean } = {}): void {
   practicePuzzleId = null;
   artPad.pixels = new Array(artPad.cols * artPad.rows).fill("#ffffff");
   puzzleUiState.clear();
+  learningUiState.clear();
+  learningProgressByPuzzle = {};
   selectedArtColor = artPalette[0];
   _lastCollectedSnapshot = "";
 
@@ -631,10 +678,10 @@ function makePuzzleCard(puzzleId: string, title: string, state: string): HTMLDiv
 
   wrapper.appendChild(meta);
 
-  if (puzzleConcepts[puzzleId]) {
+  if (puzzleConcepts[puzzleId] || puzzleLearningContent[puzzleId]) {
     const infoBtn = document.createElement("button");
     infoBtn.className = "info-btn";
-    infoBtn.textContent = "i";
+    infoBtn.textContent = "?";
     infoBtn.setAttribute("aria-label", `Learn about ${title}`);
     infoBtn.addEventListener("click", () => openInfoModal(puzzleId));
     wrapper.appendChild(infoBtn);
@@ -664,6 +711,7 @@ function renderLockedOrSolvedControls(wrapper: HTMLDivElement, puzzleId: string,
     replayButton.addEventListener("click", () => {
       practicePuzzleId = puzzleId;
       puzzleUiState.delete(puzzleId);
+      learningUiState.delete(puzzleId);
       if (puzzleId === "puzzle-18") {
         artPad.pixels.fill("#ffffff");
       }
@@ -774,6 +822,181 @@ function createInteractionZone(wrapper: HTMLDivElement): HTMLDivElement {
   return zone;
 }
 
+function getLearningUiState(puzzleId: string, initialStage: LearningStage, questionCount: number): LearningUiState {
+  const existing = learningUiState.get(puzzleId);
+  if (existing) {
+    return existing;
+  }
+
+  const next: LearningUiState = {
+    stage: initialStage,
+    selections: new Array(questionCount).fill(-1),
+    feedback: "",
+  };
+
+  learningUiState.set(puzzleId, next);
+  return next;
+}
+
+function addReviewIntroButton(container: HTMLElement, puzzleId: string): void {
+  const reviewButton = document.createElement("button");
+  reviewButton.className = "btn btn-secondary learning-review-btn";
+  reviewButton.textContent = "Review Introduction";
+  reviewButton.addEventListener("click", () => openInfoModal(puzzleId));
+  container.appendChild(reviewButton);
+}
+
+function renderLearningIntro(zone: HTMLDivElement, puzzleId: string, onStartQuiz: () => void): void {
+  const learning = puzzleLearningContent[puzzleId];
+  if (!learning) {
+    return;
+  }
+
+  const card = document.createElement("div");
+  card.className = "learning-card learning-card--intro";
+
+  const title = document.createElement("h4");
+  title.className = "learning-title";
+  title.textContent = learning.title;
+  card.appendChild(title);
+
+  const illustration = document.createElement("div");
+  illustration.className = "learning-illustration";
+  illustration.innerHTML = learning.illustrationSvg;
+  card.appendChild(illustration);
+
+  learning.intro.forEach((paragraph) => {
+    const p = document.createElement("p");
+    p.className = "learning-paragraph";
+    p.textContent = paragraph;
+    card.appendChild(p);
+  });
+
+  const startButton = document.createElement("button");
+  startButton.className = "btn btn-primary";
+  startButton.textContent = "Start Quiz";
+  startButton.addEventListener("click", onStartQuiz);
+  card.appendChild(startButton);
+
+  zone.appendChild(card);
+}
+
+function evaluateLearningQuiz(questions: LearningQuizQuestion[], selections: number[]): { passed: boolean; score: number; outOf: number; feedback: string } {
+  let correct = 0;
+
+  for (let i = 0; i < questions.length; i += 1) {
+    if (selections[i] === questions[i].correctIndex) {
+      correct += 1;
+    }
+  }
+
+  const passed = correct === questions.length;
+  const feedback = passed
+    ? `Perfect score: ${correct}/${questions.length}. Puzzle unlocked.`
+    : `Score ${correct}/${questions.length}. You need 100% to unlock this puzzle.`;
+
+  return { passed, score: correct, outOf: questions.length, feedback };
+}
+
+function renderLearningQuiz(zone: HTMLDivElement, puzzleId: string, uiState: LearningUiState): void {
+  const learning = puzzleLearningContent[puzzleId];
+  if (!learning) {
+    return;
+  }
+
+  const card = document.createElement("div");
+  card.className = "learning-card learning-card--quiz";
+
+  const title = document.createElement("h4");
+  title.className = "learning-title";
+  title.textContent = `Quiz: ${learning.title}`;
+  card.appendChild(title);
+
+  learning.quiz.forEach((question, questionIndex) => {
+    const block = document.createElement("fieldset");
+    block.className = "learning-question";
+
+    const legend = document.createElement("legend");
+    legend.textContent = `${questionIndex + 1}. ${question.prompt}`;
+    block.appendChild(legend);
+
+    question.options.forEach((option, optionIndex) => {
+      const label = document.createElement("label");
+      label.className = "learning-option";
+
+      const input = document.createElement("input");
+      input.type = "radio";
+      input.name = `${puzzleId}-q-${questionIndex}`;
+      input.checked = uiState.selections[questionIndex] === optionIndex;
+      input.addEventListener("change", () => {
+        uiState.selections[questionIndex] = optionIndex;
+      });
+
+      const text = document.createElement("span");
+      text.textContent = option;
+
+      label.appendChild(input);
+      label.appendChild(text);
+      block.appendChild(label);
+    });
+
+    if (uiState.feedback) {
+      const explanation = document.createElement("div");
+      explanation.className = "learning-explanation";
+      explanation.textContent = `Tip: ${question.explanation}`;
+      block.appendChild(explanation);
+    }
+
+    card.appendChild(block);
+  });
+
+  const controls = document.createElement("div");
+  controls.className = "action-row";
+
+  const submitButton = document.createElement("button");
+  submitButton.className = "btn btn-primary";
+  submitButton.textContent = "Submit Quiz";
+  submitButton.addEventListener("click", () => {
+    const unanswered = uiState.selections.some((value) => value < 0);
+    if (unanswered) {
+      uiState.feedback = "Answer every question before submitting.";
+      render();
+      return;
+    }
+
+    const result = evaluateLearningQuiz(learning.quiz, uiState.selections);
+    uiState.feedback = result.feedback;
+
+    if (result.passed) {
+      learningProgressByPuzzle[puzzleId] = { quizPassed: true };
+      uiState.stage = "puzzle";
+      showToast("Quiz passed. Puzzle unlocked.", { kind: "success", icon: "📘" });
+    }
+
+    render();
+  });
+  controls.appendChild(submitButton);
+
+  const backButton = document.createElement("button");
+  backButton.className = "btn btn-secondary";
+  backButton.textContent = "Back to Intro";
+  backButton.addEventListener("click", () => {
+    uiState.stage = "intro";
+    uiState.feedback = "";
+    render();
+  });
+  controls.appendChild(backButton);
+
+  card.appendChild(controls);
+
+  const feedback = document.createElement("div");
+  feedback.className = "mini-label learning-feedback";
+  feedback.textContent = uiState.feedback || "Get every answer correct to unlock puzzle play.";
+  card.appendChild(feedback);
+
+  zone.appendChild(card);
+}
+
 function renderPuzzleMiniGame(puzzleId: string, title: string, state: string): void {
   const wrapper = makePuzzleCard(puzzleId, title, state);
   const isArtPuzzle = puzzleId === "puzzle-18";
@@ -784,13 +1007,28 @@ function renderPuzzleMiniGame(puzzleId: string, title: string, state: string): v
   }
 
   const zone = createInteractionZone(wrapper);
+  const learning = puzzleLearningContent[puzzleId];
+  const puzzle = game.puzzleManager.getPuzzle(puzzleId);
+  const isSolved = Boolean(puzzle?.solved);
+  const hasQuizPass = Boolean(learningProgressByPuzzle[puzzleId]?.quizPassed);
+  const shouldGate = Boolean(learning) && state === "available" && !isSolved && !isPractice && !hasQuizPass;
 
-  if (isPractice) {
-    const practiceBanner = document.createElement("div");
-    practiceBanner.className = "mini-label";
-    practiceBanner.textContent = "Practice mode: this puzzle is already solved, but you can replay interactions.";
-    zone.appendChild(practiceBanner);
+  if (shouldGate && learning) {
+    const learningState = getLearningUiState(puzzleId, "intro", learning.quiz.length);
+
+    if (learningState.stage === "intro") {
+      renderLearningIntro(zone, puzzleId, () => {
+        learningState.stage = "quiz";
+        render();
+      });
+    } else {
+      renderLearningQuiz(zone, puzzleId, learningState);
+    }
+
+    puzzleListEl.appendChild(wrapper);
+    return;
   }
+
   const renderResult = renderPuzzleById(puzzleId, {
     zone,
     wrapper,
@@ -813,6 +1051,17 @@ function renderPuzzleMiniGame(puzzleId: string, title: string, state: string): v
 
   if (!renderResult) {
     addCheckButton(wrapper, puzzleId, () => getDemoSolution(puzzleId));
+  }
+
+  if (isPractice) {
+    const practiceBanner = document.createElement("div");
+    practiceBanner.className = "mini-label";
+    practiceBanner.textContent = "Practice mode: this puzzle is already solved, but you can replay interactions.";
+    wrapper.appendChild(practiceBanner);
+  }
+
+  if (learning) {
+    addReviewIntroButton(wrapper, puzzleId);
   }
 
   if (renderResult?.appended) {

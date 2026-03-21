@@ -6,6 +6,20 @@ async function clickHudOption(page: Page, option: "auto-solve" | "reset") {
   await page.getByRole("menuitem", { name: label }).click();
 }
 
+async function unlockPuzzle01FromLearningGate(page: Page): Promise<void> {
+  const puzzleCard = page.locator(".puzzle-item", {
+    has: page.getByText("Create White Light"),
+  });
+
+  const startQuizButton = puzzleCard.getByRole("button", { name: "Start Quiz" });
+  if (await startQuizButton.count()) {
+    await startQuizButton.click();
+    await puzzleCard.locator('label.learning-option:has-text("They produce white") input').check();
+    await puzzleCard.locator('label.learning-option:has-text("Digital displays") input').check();
+    await puzzleCard.getByRole("button", { name: "Submit Quiz" }).click();
+  }
+}
+
 test("loads studio prototype and shows core controls", async ({ page }) => {
   await page.goto("/");
   await expect(page.getByRole("heading", { name: "Color Studio Prototype" })).toBeVisible();
@@ -107,6 +121,7 @@ test("Light Laboratory: RGB beam buttons are present and toggle on click", async
   }).getByRole("button", { name: "Enter" });
 
   await labEnter.click();
+  await unlockPuzzle01FromLearningGate(page);
 
   // All four beam buttons must be visible for puzzle-01
   await expect(page.locator('.beam-btn[data-beam="red"]')).toBeVisible();
@@ -241,6 +256,7 @@ test("reward feedback toast appears after solving a puzzle via Check button", as
     has: page.getByText("Light Laboratory"),
   }).getByRole("button", { name: "Enter" });
   await labEnter.click();
+  await unlockPuzzle01FromLearningGate(page);
 
   // Turn on all beams so validation passes
   await page.locator('.beam-btn[data-beam="red"]').click();
@@ -387,7 +403,61 @@ test("info modal shows Chroma Tree concept when info button clicked for puzzle-0
   });
   await chromaCard.locator(".info-btn").click();
 
-  // Modal title should mention Chroma Tree
-  await expect(page.locator("#info-modal-title")).toContainText("Chroma Tree");
+  // Modal title should use the new learning-intro title
+  await expect(page.locator("#info-modal-title")).toContainText("Chroma Peaks by Hue");
   await expect(page.locator("#info-modal-body")).toContainText("chroma");
+});
+
+test("first-time puzzle flow gates interaction behind introduction and quiz", async ({ page }) => {
+  await page.goto("/");
+
+  const labEnter = page.locator(".puzzle-item", {
+    has: page.getByText("Light Laboratory"),
+  }).getByRole("button", { name: "Enter" });
+  await labEnter.click();
+
+  const puzzleCard = page.locator(".puzzle-item", {
+    has: page.getByText("Create White Light"),
+  });
+
+  await expect(puzzleCard.getByRole("button", { name: "Start Quiz" })).toBeVisible();
+  await expect(puzzleCard.locator('.beam-btn[data-beam="red"]')).toHaveCount(0);
+
+  await puzzleCard.getByRole("button", { name: "Start Quiz" }).click();
+  await expect(puzzleCard.getByRole("button", { name: "Submit Quiz" })).toBeVisible();
+
+  await puzzleCard.locator('label.learning-option:has-text("They produce white") input').check();
+  await puzzleCard.locator('label.learning-option:has-text("Digital displays") input').check();
+  await puzzleCard.getByRole("button", { name: "Submit Quiz" }).click();
+
+  await expect(puzzleCard.locator('.beam-btn[data-beam="red"]')).toBeVisible();
+  await expect(puzzleCard.getByRole("button", { name: "Review Introduction" })).toBeVisible();
+});
+
+test("solved puzzle practice skips quiz and keeps review intro access", async ({ page }) => {
+  await page.goto("/");
+
+  await clickHudOption(page, "auto-solve");
+  await page.getByRole("button", { name: "Return" }).click();
+
+  const labEnter = page.locator(".puzzle-item", {
+    has: page.getByText("Light Laboratory"),
+  }).getByRole("button", { name: "Enter" });
+  await labEnter.click();
+
+  const puzzleCard = page.locator(".puzzle-item", {
+    has: page.getByText("Create White Light"),
+  });
+
+  await puzzleCard.getByRole("button", { name: "Practice" }).click();
+
+  await expect(puzzleCard.getByText("Practice mode: this puzzle is already solved, but you can replay interactions.")).toBeVisible();
+  await expect(puzzleCard.getByRole("button", { name: "Start Quiz" })).toHaveCount(0);
+  await expect(puzzleCard.getByRole("button", { name: "Review Introduction" })).toBeVisible();
+
+  await puzzleCard.getByRole("button", { name: "Review Introduction" }).click();
+  await expect(page.locator("#info-modal")).toBeVisible();
+  await expect(page.locator(".learning-modal-illustration")).toBeVisible();
+  await page.locator("#info-modal-close").click();
+  await expect(page.locator("#info-modal")).toBeHidden();
 });

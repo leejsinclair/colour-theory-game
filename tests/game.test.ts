@@ -1,5 +1,6 @@
 import { describe, expect, test } from "vitest";
 import { getDemoSolution, moodPaletteSolution } from "../src/content/demoSolutions";
+import { puzzleLearningContent } from "../src/content/puzzleLearningContent";
 import { Game } from "../src/game/Game";
 import { SceneType } from "../src/types/gameTypes";
 
@@ -292,5 +293,39 @@ describe("Mood Palette puzzle solutions", () => {
     solveUpToPuzzle09(game);
     const event = game.completePuzzle("puzzle-09", { selections: null });
     expect(event).toBeNull();
+  });
+});
+
+describe("Learning content metadata", () => {
+  test("includes learning entries for all 21 puzzles", () => {
+    const puzzleIds = Array.from({ length: 21 }, (_, i) => `puzzle-${String(i + 1).padStart(2, "0")}`);
+    for (const puzzleId of puzzleIds) {
+      expect(puzzleLearningContent[puzzleId]).toBeDefined();
+    }
+    expect(Object.keys(puzzleLearningContent)).toHaveLength(21);
+  });
+
+  test("every puzzle has two intro paragraphs and quiz questions with valid answers", () => {
+    for (const [puzzleId, content] of Object.entries(puzzleLearningContent)) {
+      expect(content.title.length).toBeGreaterThan(0);
+      expect(content.intro).toHaveLength(2);
+      content.intro.forEach((paragraph) => {
+        expect(paragraph.trim().length).toBeGreaterThan(20);
+      });
+
+      expect(content.illustrationSvg).toContain("<svg");
+      expect(content.quiz.length).toBeGreaterThanOrEqual(2);
+
+      content.quiz.forEach((question, index) => {
+        expect(question.prompt.trim().length).toBeGreaterThan(8);
+        expect(question.options.length).toBeGreaterThanOrEqual(2);
+        expect(question.correctIndex).toBeGreaterThanOrEqual(0);
+        expect(question.correctIndex).toBeLessThan(question.options.length);
+        expect(question.explanation.trim().length).toBeGreaterThan(8);
+
+        const correctText = question.options[question.correctIndex]?.trim() ?? "";
+        expect(correctText.length, `${puzzleId} question ${index + 1} has empty correct option`).toBeGreaterThan(0);
+      });
+    }
   });
 });
