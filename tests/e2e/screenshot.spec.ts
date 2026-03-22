@@ -36,6 +36,36 @@ test("Result Analysis panel appears after wrong check on puzzle-16", async ({ pa
   await page.screenshot({ path: "/tmp/result-analysis.png", fullPage: false });
 });
 
+test("Result Analysis panel appears after wrong check on puzzle-02 (Printer Pigments)", async ({ page }) => {
+  await page.goto("/");
+  await page.setViewportSize({ width: 1100, height: 900 });
+
+  await clickHudOption(page, "auto-solve");
+  await page.getByRole("button", { name: "Return" }).click();
+
+  await page.locator(".puzzle-item", {
+    has: page.getByText("Light Laboratory"),
+  }).getByRole("button", { name: "Enter" }).click();
+
+  const printerCard = page.locator(".puzzle-item", {
+    has: page.getByText("Printer Pigments"),
+  });
+  await printerCard.getByRole("button", { name: "Practice" }).click();
+
+  // Sliders start at wrong values (default 0.1, 0.1, 0.1 vs target 0.4, 0.5, 0.2)
+  await printerCard.getByRole("button", { name: "Check" }).click();
+
+  await expect(printerCard.locator(".result-analysis")).toBeVisible();
+  await expect(printerCard.locator(".result-analysis__title")).toHaveText("Result Analysis");
+  const explanation = printerCard.locator(".result-analysis__item").first();
+  await expect(explanation).toBeVisible();
+  // Should be the unbalanced_mix explanation
+  await expect(explanation).toContainText("ratio");
+
+  await printerCard.locator(".result-analysis").scrollIntoViewIfNeeded();
+  await page.screenshot({ path: "/tmp/puzzle-02-result-analysis.png", fullPage: false });
+});
+
 test("Result Analysis panel clears on next attempt", async ({ page }) => {
   await page.goto("/");
 
@@ -62,39 +92,4 @@ test("Result Analysis panel clears on next attempt", async ({ page }) => {
   await vibrantCard.getByRole("button", { name: "Check" }).click();
 
   await expect(vibrantCard.locator(".result-analysis")).toHaveCount(0);
-});
-
-test("check how many Check buttons exist on puzzle-02", async ({ page }) => {
-  await page.goto("/");
-
-  // Enter Light Laboratory directly (puzzle-02 should be available after solving puzzle-01)
-  await clickHudOption(page, "auto-solve");
-  await page.getByRole("button", { name: "Return" }).click();
-
-  // Enter Light Laboratory
-  await page.locator(".puzzle-item", {
-    has: page.getByText("Light Laboratory"),
-  }).getByRole("button", { name: "Enter" }).click();
-
-  const printerCard = page.locator(".puzzle-item", {
-    has: page.getByText("Printer Pigments"),
-  });
-  await printerCard.getByRole("button", { name: "Practice" }).click();
-
-  // Count check buttons
-  const checkButtons = printerCard.getByRole("button", { name: "Check" });
-  const count = await checkButtons.count();
-  console.log("Number of Check buttons on puzzle-02:", count);
-  
-  // Screenshot of the current state
-  await page.screenshot({ path: "/tmp/puzzle-02-state.png", fullPage: false });
-  
-  // Also click Check with wrong values to see what feedback appears
-  // First, we need the sliders to be in wrong state
-  await checkButtons.first().click();
-  await page.waitForTimeout(500);
-  await page.screenshot({ path: "/tmp/puzzle-02-after-fail.png", fullPage: false });
-  
-  const panelCount = await printerCard.locator(".result-analysis").count();
-  console.log("Number of result-analysis panels:", panelCount);
 });
