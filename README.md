@@ -8,6 +8,9 @@ Explore a magical artist's studio where the fundamental forces of colour have be
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.8-blue.svg)](https://www.typescriptlang.org/)
 [![React](https://img.shields.io/badge/React-19-61dafb.svg)](https://react.dev/)
 [![Vite](https://img.shields.io/badge/Vite-6-646cff.svg)](https://vitejs.dev/)
+[![Play on GitHub Pages](https://img.shields.io/badge/Play%20Now-GitHub%20Pages-brightgreen?logo=github)](https://leejsinclair.github.io/colour-theory-game/)
+
+> 🎮 **[Play Chromatic Mastery now →](https://leejsinclair.github.io/colour-theory-game/)**
 
 ---
 
