@@ -63,13 +63,19 @@ const HIGH_BIAS_PIGMENTS = new Set([
 // ---------------------------------------------------------------------------
 
 // puzzle-01: Create White Light (additive RGB beams)
-function diagnosePuzzle01(_input: {
+function diagnosePuzzle01(input: {
   redBeam?: boolean;
   greenBeam?: boolean;
   blueBeam?: boolean;
   overlap?: boolean;
 }): FailureReasonCode[] {
-  // All three beams must be active AND overlapping
+  // All three beams must be active AND overlapping.
+  // If the beams are all on but the overlap hasn't been aligned, the player
+  // has the right components but hasn't combined them yet.
+  if (input.redBeam && input.greenBeam && input.blueBeam && !input.overlap) {
+    return ["unbalanced_mix"];
+  }
+  // One or more primary beams are missing.
   return ["incorrect_hue_selection"];
 }
 
@@ -97,8 +103,9 @@ function diagnosePuzzle03(input: {
   if (!validPairs.includes(pair)) {
     return ["incorrect_hue_selection"];
   }
-  // Correct complementary pair but shadow isn't luminous yet
-  return ["chroma_collapsed"];
+  // Correct complementary pair but the Shadow Gloss slider is too low —
+  // the shadow is flat rather than luminous.
+  return ["insufficient_luminosity"];
 }
 
 // puzzle-04: Squint Test (value structure in greyscale)
@@ -118,15 +125,11 @@ function diagnosePuzzle05(_input: unknown): FailureReasonCode[] {
 }
 
 // puzzle-06: Chroma Peaks (exploring hue variety)
-function diagnosePuzzle06(input: {
-  exploredHues?: unknown[];
-  discoveredDifferentChromaPeaks?: boolean;
-}): FailureReasonCode[] {
-  const count = Array.isArray(input.exploredHues) ? input.exploredHues.length : 0;
-  if (count < 3) {
-    return ["insufficient_chroma"];
-  }
-  return ["incorrect_hue_selection"];
+function diagnosePuzzle06(_input: unknown): FailureReasonCode[] {
+  // Both failure modes (not enough hues explored, or peak nodes not clicked)
+  // are about insufficient chroma discovery — the player hasn't found where
+  // each hue reaches its most vivid point.
+  return ["insufficient_chroma"];
 }
 
 // puzzle-07: Complementary Pairs (pick the opposite hue)

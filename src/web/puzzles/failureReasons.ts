@@ -13,6 +13,7 @@ export type FailureReasonCode =
   | "chroma_collapsed"
   | "insufficient_chroma"
   | "excessive_chroma"
+  | "insufficient_luminosity"
   // HUE RELATIONSHIPS
   | "complement_conflict"
   | "incorrect_hue_selection"
@@ -40,6 +41,8 @@ export const FAILURE_EXPLANATIONS: Record<FailureReasonCode, string> = {
     "The result lacks vibrancy — increase saturation, reduce neutralising elements, and avoid mixing too many pigments at once.",
   excessive_chroma:
     "Too many saturated colours are competing — reduce saturation on supporting elements and let the intended colour dominate.",
+  insufficient_luminosity:
+    "The shadow colour is flat — raise the Shadow Gloss slider to add chromatic lift and make it look luminous rather than a dead grey.",
   complement_conflict:
     "Opposing hues are neutralising each other — limit complement clashes so at most one complementary pair is present.",
   incorrect_hue_selection:

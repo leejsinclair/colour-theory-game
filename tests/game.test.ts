@@ -435,11 +435,16 @@ describe("diagnoseFailure – unknown puzzle", () => {
 });
 
 describe("diagnoseFailure – new puzzles (01, 02, 03, 04, 05, 06, 12, 14, 18, 21)", () => {
-  test("puzzle-01: always returns incorrect_hue_selection", () => {
+  test("puzzle-01: missing beams → incorrect_hue_selection", () => {
     expect(diagnoseFailure("puzzle-01", { redBeam: false, greenBeam: false, blueBeam: false }))
       .toContain("incorrect_hue_selection");
     expect(diagnoseFailure("puzzle-01", { redBeam: true, greenBeam: true, blueBeam: false }))
       .toContain("incorrect_hue_selection");
+  });
+
+  test("puzzle-01: all beams on but overlap missing → unbalanced_mix", () => {
+    expect(diagnoseFailure("puzzle-01", { redBeam: true, greenBeam: true, blueBeam: true, overlap: false }))
+      .toContain("unbalanced_mix");
   });
 
   test("puzzle-02: always returns unbalanced_mix", () => {
@@ -455,9 +460,16 @@ describe("diagnoseFailure – new puzzles (01, 02, 03, 04, 05, 06, 12, 14, 18, 2
     expect(reasons).toContain("incorrect_hue_selection");
   });
 
-  test("puzzle-03: correct pair but not luminous → chroma_collapsed", () => {
+  test("puzzle-03: correct pair (green+red) but not luminous → insufficient_luminosity, not chroma_collapsed", () => {
+    const reasons = diagnoseFailure("puzzle-03", { pigments: ["green", "red"], luminousShadow: false });
+    expect(reasons).toContain("insufficient_luminosity");
+    expect(reasons).not.toContain("chroma_collapsed");
+  });
+
+  test("puzzle-03: correct pair but not luminous → insufficient_luminosity", () => {
     const reasons = diagnoseFailure("puzzle-03", { pigments: ["blue", "orange"], luminousShadow: false });
-    expect(reasons).toContain("chroma_collapsed");
+    expect(reasons).toContain("insufficient_luminosity");
+    expect(reasons).not.toContain("chroma_collapsed");
   });
 
   test("puzzle-04: not black and white → incorrect_hue_selection", () => {
@@ -480,9 +492,10 @@ describe("diagnoseFailure – new puzzles (01, 02, 03, 04, 05, 06, 12, 14, 18, 2
       .toContain("insufficient_chroma");
   });
 
-  test("puzzle-06: enough hues but missed peaks → incorrect_hue_selection", () => {
-    expect(diagnoseFailure("puzzle-06", { exploredHues: ["red", "blue", "green"], discoveredDifferentChromaPeaks: false }))
-      .toContain("incorrect_hue_selection");
+  test("puzzle-06: enough hues but missed peaks → insufficient_chroma (not incorrect_hue_selection)", () => {
+    const reasons = diagnoseFailure("puzzle-06", { exploredHues: ["red", "blue", "green"], discoveredDifferentChromaPeaks: false });
+    expect(reasons).toContain("insufficient_chroma");
+    expect(reasons).not.toContain("incorrect_hue_selection");
   });
 
   test("puzzle-12: too few neutrals → competing_focal_points", () => {
@@ -529,7 +542,7 @@ describe("diagnoseFailure – new puzzles (01, 02, 03, 04, 05, 06, 12, 14, 18, 2
 describe("FAILURE_EXPLANATIONS completeness", () => {
   const allCodes: FailureReasonCode[] = [
     "low_value_contrast", "incorrect_value_structure",
-    "chroma_collapsed", "insufficient_chroma", "excessive_chroma",
+    "chroma_collapsed", "insufficient_chroma", "excessive_chroma", "insufficient_luminosity",
     "complement_conflict", "incorrect_hue_selection", "incorrect_hue_bias",
     "overmixing", "unbalanced_mix",
     "insufficient_atmosphere", "excessive_atmosphere", "incorrect_color_temperature",
