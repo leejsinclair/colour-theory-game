@@ -6,6 +6,7 @@ import { renderPuzzleById } from "./puzzles";
 import { mountMuiCheckbox, mountMuiSelect, mountMuiSlider, renderMuiMilestoneChips, upgradeMuiButtons } from "./muiControls";
 import { diagnoseFailure } from "./puzzles/diagnose";
 import { FAILURE_EXPLANATIONS, type FailureReasonCode } from "./puzzles/failureReasons";
+import { marked } from "marked";
 import "./styles.css";
 
 const progressEl = document.getElementById("progress") as HTMLPreElement;
@@ -23,7 +24,34 @@ const infoModalTitleEl = document.getElementById("info-modal-title") as HTMLElem
 const infoModalBodyEl = document.getElementById("info-modal-body") as HTMLElement;
 const infoModalCloseEl = document.getElementById("info-modal-close") as HTMLButtonElement;
 
-function openInfoModal(puzzleId: string): void {
+async function openInfoModal(puzzleId: string): Promise<void> {
+  const url = new URL(`puzzle-info/${puzzleId}.md`, location.href).href;
+
+  try {
+    const resp = await fetch(url);
+    if (resp.ok) {
+      const mdText = await resp.text();
+      const lines = mdText.split("\n");
+      const titleLine = lines[0].replace(/^#{1,6}\s*/, "").trim();
+      const bodyMd = lines.slice(1).join("\n");
+      const bodyHtml = await marked.parse(bodyMd);
+
+      infoModalTitleEl.textContent = titleLine;
+      infoModalBodyEl.innerHTML = bodyHtml;
+
+      infoModalBodyEl.querySelectorAll("a").forEach((a) => {
+        a.setAttribute("target", "_blank");
+        a.setAttribute("rel", "noopener noreferrer");
+      });
+
+      infoModalEl.removeAttribute("hidden");
+      infoModalCloseEl.focus();
+      return;
+    }
+  } catch {
+    // fall through to legacy content
+  }
+
   const learning = puzzleLearningContent[puzzleId];
   if (learning) {
     infoModalTitleEl.textContent = learning.title;
@@ -727,14 +755,12 @@ function makePuzzleCard(puzzleId: string, title: string, state: string): HTMLDiv
 
   wrapper.appendChild(meta);
 
-  if (puzzleConcepts[puzzleId] || puzzleLearningContent[puzzleId]) {
-    const infoBtn = document.createElement("button");
-    infoBtn.className = "info-btn";
-    infoBtn.textContent = "?";
-    infoBtn.setAttribute("aria-label", `Learn about ${title}`);
-    infoBtn.addEventListener("click", () => openInfoModal(puzzleId));
-    wrapper.appendChild(infoBtn);
-  }
+  const infoBtn = document.createElement("button");
+  infoBtn.className = "info-btn";
+  infoBtn.textContent = "i";
+  infoBtn.setAttribute("aria-label", `Learn about ${title}`);
+  infoBtn.addEventListener("click", () => openInfoModal(puzzleId));
+  wrapper.appendChild(infoBtn);
 
   return wrapper;
 }
