@@ -130,8 +130,9 @@ document.addEventListener("keydown", (e) => {
   }
 });
 
-const PET_SPRITE_HREF = "assets/pets/pets-sprite.svg";
-const PET_SPRITE_FALLBACK_HREF = "assets/pets/pets.svg";
+const PET_SPRITE_HREF = "assets/pets/pets.png";
+const PET_SPRITE_NATURAL_WIDTH = 680;
+const PET_SPRITE_NATURAL_HEIGHT = 386;
 
 /** Sprite centres in the 680x386 pets sprite viewBox. */
 const PET_SPRITE_CENTRES: Record<string, { cx: number; cy: number }> = {
@@ -189,60 +190,41 @@ const PET_NAMES: Record<string, string> = {
   "pet-21": "Vibration Hummingbird",
 };
 
-/** Build a cropped sprite SVG element for one pet slot. */
-function createPetSpriteSvg(petId: string, collected: boolean, size = 64): SVGSVGElement {
-  const ns = "http://www.w3.org/2000/svg";
-  const svg = document.createElementNS(ns, "svg") as SVGSVGElement;
+/** Build a CSS-sprite div for one pet slot. */
+function createPetSpriteDiv(
+  petId: string,
+  collected: boolean,
+  options: { includeLabel?: boolean } = {},
+): HTMLDivElement {
+  const sprite = document.createElement("div");
   const centre = PET_SPRITE_CENTRES[petId] ?? { cx: 48, cy: 62 };
+  const includeLabel = options.includeLabel ?? true;
   const cropHalf = PET_SPRITE_LARGE_CROP.has(petId) ? 44 : 40;
-  const cropSize = cropHalf * 2;
+  const cropWidth = cropHalf * 2;
+  const cropHeight = cropWidth + (includeLabel ? 24 : 0);
+  const cropX = centre.cx - cropHalf;
+  const cropY = centre.cy - cropHalf;
+  const scaleX = PET_SPRITE_NATURAL_WIDTH / cropWidth;
+  const scaleY = PET_SPRITE_NATURAL_HEIGHT / cropHeight;
 
-  svg.setAttribute("viewBox", `${centre.cx - cropHalf} ${centre.cy - cropHalf} ${cropSize} ${cropSize}`);
-  svg.setAttribute("width", String(size));
-  svg.setAttribute("height", String(size));
-  svg.setAttribute("preserveAspectRatio", "xMidYMid meet");
-  svg.setAttribute("role", "img");
-  svg.setAttribute("aria-label", `${PET_NAMES[petId] ?? petId}${collected ? " (collected)" : ""}`);
-  svg.classList.add("pet-sprite-svg");
+  // Position based on crop rectangle origin so labels remain in frame.
+  const posX = ((-cropX / cropWidth) / (1 - scaleX)) * 100;
+  const posY = ((-cropY / cropHeight) / (1 - scaleY)) * 100;
+
+  sprite.className = "pet-sprite";
   if (!collected) {
-    svg.classList.add("pet-sprite-svg--locked");
+    sprite.classList.add("pet-sprite--locked");
   }
 
-  // Keep a subtle fallback silhouette so UI still shows a token when sprite is missing.
-  const fallback = document.createElementNS(ns, "rect");
-  fallback.setAttribute("x", String(centre.cx - cropHalf));
-  fallback.setAttribute("y", String(centre.cy - cropHalf));
-  fallback.setAttribute("width", String(cropSize));
-  fallback.setAttribute("height", String(cropSize));
-  fallback.setAttribute("rx", "16");
-  fallback.setAttribute("fill", collected ? "#e9edf4" : "#d8dbe3");
-  svg.appendChild(fallback);
+  sprite.setAttribute("role", "img");
+  sprite.setAttribute("aria-label", `${PET_NAMES[petId] ?? petId}${collected ? " (collected)" : ""}`);
+  sprite.style.backgroundImage = `url(${PET_SPRITE_HREF})`;
+  sprite.style.backgroundRepeat = "no-repeat";
+  sprite.style.backgroundSize = `${scaleX * 100}% ${scaleY * 100}%`;
+  sprite.style.backgroundPosition = `${posX}% ${posY}%`;
+  sprite.style.backgroundColor = collected ? "#ffffff" : "#d8dbe3";
 
-  const image = document.createElementNS(ns, "image");
-  image.setAttributeNS("http://www.w3.org/1999/xlink", "href", PET_SPRITE_HREF);
-  image.setAttribute("href", PET_SPRITE_HREF);
-  image.setAttribute("x", "0");
-  image.setAttribute("y", "0");
-  image.setAttribute("width", "680");
-  image.setAttribute("height", "386");
-  image.addEventListener("error", () => {
-    image.setAttributeNS("http://www.w3.org/1999/xlink", "href", PET_SPRITE_FALLBACK_HREF);
-    image.setAttribute("href", PET_SPRITE_FALLBACK_HREF);
-  });
-  svg.appendChild(image);
-
-  if (!collected) {
-    const veil = document.createElementNS(ns, "rect");
-    veil.setAttribute("x", String(centre.cx - cropHalf));
-    veil.setAttribute("y", String(centre.cy - cropHalf));
-    veil.setAttribute("width", String(cropSize));
-    veil.setAttribute("height", String(cropSize));
-    veil.setAttribute("rx", "16");
-    veil.setAttribute("fill", "rgba(255,255,255,0.45)");
-    svg.appendChild(veil);
-  }
-
-  return svg;
+  return sprite;
 }
 
 /** Rebuild the 2-row pet sprite grid below the scoreboard. */
@@ -265,7 +247,9 @@ function renderPetCollection(): void {
     const wrapper = document.createElement("div");
     wrapper.className = `pet-slot${collected ? " pet-slot--collected" : ""}`;
     wrapper.title = `${PET_NAMES[petId] ?? petId}${collected ? "" : " (not yet collected)"}`;
-    wrapper.appendChild(createPetSpriteSvg(petId, collected, 56));
+    const sprite = createPetSpriteDiv(petId, collected, { includeLabel: true });
+    sprite.classList.add("pet-sprite--grid");
+    wrapper.appendChild(sprite);
     petCollectionEl.appendChild(wrapper);
   }
 }
@@ -286,7 +270,9 @@ function showToast(
   if (options.petId) {
     const iconWrap = document.createElement("span");
     iconWrap.className = "toast-icon toast-icon--pet";
-    iconWrap.appendChild(createPetSpriteSvg(options.petId, true, 34));
+    const sprite = createPetSpriteDiv(options.petId, true, { includeLabel: false });
+    sprite.classList.add("pet-sprite--toast");
+    iconWrap.appendChild(sprite);
     el.appendChild(iconWrap);
   } else if (options.icon) {
     const iconEl = document.createElement("span");
