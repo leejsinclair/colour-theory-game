@@ -341,6 +341,22 @@ test("station progression: station-01 completion notice shows 3/3 solved in lobb
   ).toContainText("3/3 solved");
 });
 
+test("station progression: completed station shows a prominent next-station CTA", async ({ page }) => {
+  await page.goto("/");
+  await injectProgress(page, ["puzzle-01", "puzzle-02", "puzzle-03"]);
+
+  await page.locator(".puzzle-item", { hasText: "Light Laboratory" })
+    .getByRole("button", { name: "Enter" }).click();
+
+  const completionCta = page.locator(".station-complete-cta");
+  await expect(completionCta).toBeVisible();
+  await expect(completionCta).toContainText("You’ve completed all puzzles in this station.");
+  await expect(
+    completionCta.getByRole("button", { name: "Station Complete! Go to Next Station →" }),
+  ).toBeVisible();
+  await expect(completionCta).toContainText("Next station: Value Sketchboard");
+});
+
 // ─── Phase 5: Navigation ─────────────────────────────────────────────────────
 
 test("navigation: Back button exits station and returns to studio lobby", async ({ page }) => {
@@ -374,6 +390,25 @@ test("second station: entering Value Sketchboard shows puzzle-04 learning intro"
   const puzzle04 = page.locator(".puzzle-item", { has: page.getByText("Squint Test") });
   await expect(puzzle04.locator(".learning-card")).toBeVisible();
   await expect(puzzle04.locator(".learning-title")).toContainText("Value and Squint Readability");
+  await expect(puzzle04.getByRole("button", { name: "Start Quiz" })).toBeVisible();
+});
+
+test("navigation: station-complete CTA button enters the next station without using Back", async ({ page }) => {
+  await page.goto("/");
+  await injectProgress(page, ["puzzle-01", "puzzle-02", "puzzle-03"]);
+
+  await page.locator(".puzzle-item", { hasText: "Light Laboratory" })
+    .getByRole("button", { name: "Enter" }).click();
+
+  await page.getByRole("button", { name: "Station Complete! Go to Next Station →" }).click();
+
+  await expect(page.getByText("Studio Exploration")).not.toBeVisible();
+
+  const stationHeader = page.locator(".puzzle-item").first();
+  await expect(stationHeader).toContainText("Value Sketchboard");
+
+  const puzzle04 = page.locator(".puzzle-item", { has: page.getByText("Squint Test") });
+  await expect(puzzle04.locator(".learning-card")).toBeVisible();
   await expect(puzzle04.getByRole("button", { name: "Start Quiz" })).toBeVisible();
 });
 

@@ -686,6 +686,32 @@ function leaveStation(): void {
   render();
 }
 
+function getNextStationFor(currentStationId: string) {
+  const stations = game.stationManager.getAllStations();
+  const currentIndex = stations.findIndex((station) => station.id === currentStationId);
+
+  if (currentIndex < 0) {
+    return null;
+  }
+
+  const sequentialNext = stations.slice(currentIndex + 1).find((station) => station.unlocked);
+  if (sequentialNext) {
+    return sequentialNext;
+  }
+
+  return stations.find((station) => station.id !== currentStationId && station.unlocked && !station.completed) ?? null;
+}
+
+function goToNextStation(currentStationId: string): void {
+  const nextStation = getNextStationFor(currentStationId);
+  if (!nextStation) {
+    return;
+  }
+
+  practicePuzzleId = null;
+  enterStation(nextStation.id);
+}
+
 function updateProgressPanel(): void {
   progressEl.textContent = "";
   updateHud();
@@ -1474,6 +1500,8 @@ function updatePuzzlePanel(): void {
     return;
   }
 
+  const nextStation = getNextStationFor(station.id);
+
   const backWrapper = document.createElement("div");
   backWrapper.className = "puzzle-item";
   const label = document.createElement("div");
@@ -1489,6 +1517,34 @@ function updatePuzzlePanel(): void {
   station.puzzles.forEach((puzzle) => {
     renderPuzzleMiniGame(puzzle.id, puzzle.title, puzzle.state);
   });
+
+  if (station.completed && nextStation) {
+    const completionWrapper = document.createElement("div");
+    completionWrapper.className = "station-complete-cta";
+
+    const copyBlock = document.createElement("div");
+    copyBlock.className = "station-complete-cta__copy";
+
+    const completionMessage = document.createElement("p");
+    completionMessage.className = "station-complete-cta__message";
+    completionMessage.textContent = "You’ve completed all puzzles in this station.";
+
+    const nextHint = document.createElement("div");
+    nextHint.className = "station-complete-cta__hint";
+    nextHint.textContent = `Next station: ${nextStation.name}`;
+
+    const nextButton = document.createElement("button");
+    nextButton.className = "btn btn-accent station-complete-cta__button";
+    nextButton.textContent = "Station Complete! Go to Next Station →";
+    nextButton.setAttribute("aria-label", `Station complete. Go to next station: ${nextStation.name}`);
+    nextButton.addEventListener("click", () => goToNextStation(station.id));
+
+    copyBlock.appendChild(completionMessage);
+    copyBlock.appendChild(nextHint);
+    completionWrapper.appendChild(copyBlock);
+    completionWrapper.appendChild(nextButton);
+    puzzleListEl.appendChild(completionWrapper);
+  }
 
   upgradeMuiButtons(puzzleListEl);
 }
