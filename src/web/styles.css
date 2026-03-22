@@ -765,6 +765,38 @@ body {
   80%       { transform: translateX(3px); }
 }
 
+/* Result Analysis panel — shown after a failed puzzle attempt */
+.result-analysis {
+  grid-column: 1 / -1;
+  border: 1px solid rgba(224, 49, 49, 0.3);
+  border-radius: 8px;
+  background: rgba(255, 245, 245, 0.92);
+  padding: 0.55rem 0.65rem;
+  display: grid;
+  gap: 0.28rem;
+  animation: fade-in 280ms ease;
+}
+
+.result-analysis__title {
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: #c22;
+  letter-spacing: 0.02em;
+}
+
+.result-analysis__list {
+  margin: 0;
+  padding-left: 1.1rem;
+  display: grid;
+  gap: 0.18rem;
+}
+
+.result-analysis__item {
+  font-size: 0.76rem;
+  color: #5a2020;
+  line-height: 1.4;
+}
+
 /* Beam toggle buttons (puzzle-01) */
 .beam-btns {
   display: flex;

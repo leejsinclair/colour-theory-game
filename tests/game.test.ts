@@ -329,3 +329,231 @@ describe("Learning content metadata", () => {
     }
   });
 });
+
+// ---------------------------------------------------------------------------
+// Diagnostic Feedback System
+// ---------------------------------------------------------------------------
+
+import { diagnoseFailure } from "../src/web/puzzles/diagnose";
+import { FAILURE_EXPLANATIONS, type FailureReasonCode } from "../src/web/puzzles/failureReasons";
+
+describe("diagnoseFailure – Puzzle 16 (Vibrant Green)", () => {
+  test("returns incorrect_hue_selection when fewer than 2 pigments are selected", () => {
+    const reasons = diagnoseFailure("puzzle-16", { pigments: ["hansa yellow"], mudLevel: 0 });
+    expect(reasons).toContain("incorrect_hue_selection");
+  });
+
+  test("returns incorrect_hue_selection when both pigments are from same family", () => {
+    const reasons = diagnoseFailure("puzzle-16", {
+      pigments: ["hansa yellow", "cadmium lemon"],
+      mudLevel: 0.5,
+    });
+    expect(reasons).toContain("incorrect_hue_selection");
+  });
+
+  test("returns incorrect_hue_selection when no blue pigment is selected", () => {
+    const reasons = diagnoseFailure("puzzle-16", {
+      pigments: ["hansa yellow", "raw sienna"],
+      mudLevel: 0.5,
+    });
+    expect(reasons).toContain("incorrect_hue_selection");
+  });
+
+  test("returns hue bias and chroma reasons when yellow+blue but mud too high due to biased pigment", () => {
+    const reasons = diagnoseFailure("puzzle-16", {
+      pigments: ["raw sienna", "french ultramarine"],
+      mudLevel: 0.5,
+    });
+    expect(reasons[0]).toBe("incorrect_hue_bias");
+    expect(reasons).toContain("complement_conflict");
+    expect(reasons).toContain("insufficient_chroma");
+  });
+
+  test("returns complement_conflict and insufficient_chroma when yellow+blue but clean pigments still muddy", () => {
+    // hansa yellow + phthalo blue are low-bias; mudLevel > 0.16 still triggers failure
+    const reasons = diagnoseFailure("puzzle-16", {
+      pigments: ["hansa yellow", "phthalo blue"],
+      mudLevel: 0.2,
+    });
+    expect(reasons).toContain("complement_conflict");
+    expect(reasons).toContain("insufficient_chroma");
+  });
+});
+
+describe("diagnoseFailure – Puzzle 17 (Mud Monster)", () => {
+  test("returns complement_conflict when too many complement pairs are added", () => {
+    const reasons = diagnoseFailure("puzzle-17", { complementPairsAdded: 2, muddyResult: true });
+    expect(reasons[0]).toBe("complement_conflict");
+  });
+
+  test("returns chroma_collapsed when result is muddy", () => {
+    const reasons = diagnoseFailure("puzzle-17", { complementPairsAdded: 1, muddyResult: true });
+    expect(reasons).toContain("chroma_collapsed");
+  });
+
+  test("returns chroma_collapsed as fallback", () => {
+    const reasons = diagnoseFailure("puzzle-17", { complementPairsAdded: 0, muddyResult: false });
+    expect(reasons).toContain("chroma_collapsed");
+  });
+});
+
+describe("diagnoseFailure – Puzzle 13 (Depth Painting)", () => {
+  test("returns insufficient_atmosphere when edge softening and saturation are too low", () => {
+    const reasons = diagnoseFailure("puzzle-13", {
+      edgeSharpnessDropsWithDistance: false,
+      saturationDropsWithDistance: false,
+      hueShiftsCoolerWithDistance: true,
+    });
+    expect(reasons).toContain("insufficient_atmosphere");
+  });
+
+  test("returns incorrect_color_temperature when hue shift is missing", () => {
+    const reasons = diagnoseFailure("puzzle-13", {
+      edgeSharpnessDropsWithDistance: true,
+      saturationDropsWithDistance: true,
+      hueShiftsCoolerWithDistance: false,
+    });
+    expect(reasons).toContain("incorrect_color_temperature");
+  });
+
+  test("returns both atmosphere and temperature reasons when all cues are missing", () => {
+    const reasons = diagnoseFailure("puzzle-13", {
+      edgeSharpnessDropsWithDistance: false,
+      saturationDropsWithDistance: false,
+      hueShiftsCoolerWithDistance: false,
+    });
+    expect(reasons).toContain("insufficient_atmosphere");
+    expect(reasons).toContain("incorrect_color_temperature");
+  });
+});
+
+describe("diagnoseFailure – unknown puzzle", () => {
+  test("returns empty array for puzzles without specific diagnosis", () => {
+    const reasons = diagnoseFailure("nonexistent", {});
+    expect(reasons).toHaveLength(0);
+  });
+});
+
+describe("diagnoseFailure – new puzzles (01, 02, 03, 04, 05, 06, 12, 14, 18, 21)", () => {
+  test("puzzle-01: missing beams → incorrect_hue_selection", () => {
+    expect(diagnoseFailure("puzzle-01", { redBeam: false, greenBeam: false, blueBeam: false }))
+      .toContain("incorrect_hue_selection");
+    expect(diagnoseFailure("puzzle-01", { redBeam: true, greenBeam: true, blueBeam: false }))
+      .toContain("incorrect_hue_selection");
+  });
+
+  test("puzzle-01: all beams on but overlap missing → unbalanced_mix", () => {
+    expect(diagnoseFailure("puzzle-01", { redBeam: true, greenBeam: true, blueBeam: true, overlap: false }))
+      .toContain("unbalanced_mix");
+  });
+
+  test("puzzle-02: always returns unbalanced_mix", () => {
+    const reasons = diagnoseFailure("puzzle-02", {
+      cyan: 0.1, magenta: 0.1, yellow: 0.1,
+      target: { cyan: 0.4, magenta: 0.5, yellow: 0.2 },
+    });
+    expect(reasons).toContain("unbalanced_mix");
+  });
+
+  test("puzzle-03: wrong complementary pair → incorrect_hue_selection", () => {
+    const reasons = diagnoseFailure("puzzle-03", { pigments: ["red", "yellow"], luminousShadow: false });
+    expect(reasons).toContain("incorrect_hue_selection");
+  });
+
+  test("puzzle-03: correct pair (green+red) but not luminous → insufficient_luminosity, not chroma_collapsed", () => {
+    const reasons = diagnoseFailure("puzzle-03", { pigments: ["green", "red"], luminousShadow: false });
+    expect(reasons).toContain("insufficient_luminosity");
+    expect(reasons).not.toContain("chroma_collapsed");
+  });
+
+  test("puzzle-03: correct pair but not luminous → insufficient_luminosity", () => {
+    const reasons = diagnoseFailure("puzzle-03", { pigments: ["blue", "orange"], luminousShadow: false });
+    expect(reasons).toContain("insufficient_luminosity");
+    expect(reasons).not.toContain("chroma_collapsed");
+  });
+
+  test("puzzle-04: not black and white → incorrect_hue_selection", () => {
+    const reasons = diagnoseFailure("puzzle-04", { usesOnlyBlackAndWhite: false, blurReadability: 0.8 });
+    expect(reasons).toContain("incorrect_hue_selection");
+  });
+
+  test("puzzle-04: black and white but unreadable → low_value_contrast", () => {
+    const reasons = diagnoseFailure("puzzle-04", { usesOnlyBlackAndWhite: true, blurReadability: 0.4 });
+    expect(reasons).toContain("low_value_contrast");
+  });
+
+  test("puzzle-05: always returns incorrect_value_structure", () => {
+    expect(diagnoseFailure("puzzle-05", { orderedValues: [5, 3, 8] }))
+      .toContain("incorrect_value_structure");
+  });
+
+  test("puzzle-06: too few hues → insufficient_chroma", () => {
+    expect(diagnoseFailure("puzzle-06", { exploredHues: ["red", "blue"], discoveredDifferentChromaPeaks: false }))
+      .toContain("insufficient_chroma");
+  });
+
+  test("puzzle-06: enough hues but missed peaks → insufficient_chroma (not incorrect_hue_selection)", () => {
+    const reasons = diagnoseFailure("puzzle-06", { exploredHues: ["red", "blue", "green"], discoveredDifferentChromaPeaks: false });
+    expect(reasons).toContain("insufficient_chroma");
+    expect(reasons).not.toContain("incorrect_hue_selection");
+  });
+
+  test("puzzle-12: too few neutrals → competing_focal_points", () => {
+    const reasons = diagnoseFailure("puzzle-12", { neutralCount: 1, accentContrast: 0.8 });
+    expect(reasons).toContain("competing_focal_points");
+  });
+
+  test("puzzle-12: low contrast → weak_accent_isolation", () => {
+    const reasons = diagnoseFailure("puzzle-12", { neutralCount: 3, accentContrast: 0.3 });
+    expect(reasons).toContain("weak_accent_isolation");
+  });
+
+  test("puzzle-14: far objects not blue → incorrect_color_temperature", () => {
+    const reasons = diagnoseFailure("puzzle-14", { farObjectsShiftBlue: false, scatteringStrength: 0.8 });
+    expect(reasons).toContain("incorrect_color_temperature");
+  });
+
+  test("puzzle-14: blue shift ok but scatter too low → insufficient_atmosphere", () => {
+    const reasons = diagnoseFailure("puzzle-14", { farObjectsShiftBlue: true, scatteringStrength: 0.4 });
+    expect(reasons).toContain("insufficient_atmosphere");
+  });
+
+  test("puzzle-18: mixed on palette → overmixing", () => {
+    const reasons = diagnoseFailure("puzzle-18", { usedPureDots: true, mixedOnPalette: true, opticalBlendVisible: true });
+    expect(reasons).toContain("overmixing");
+  });
+
+  test("puzzle-18: not enough dots → insufficient_chroma", () => {
+    const reasons = diagnoseFailure("puzzle-18", { usedPureDots: false, mixedOnPalette: false, opticalBlendVisible: false });
+    expect(reasons).toContain("insufficient_chroma");
+  });
+
+  test("puzzle-21: non-complementary hues → incorrect_hue_selection", () => {
+    const reasons = diagnoseFailure("puzzle-21", { hueA: 0, hueB: 90, valueBalanced: true });
+    expect(reasons).toContain("incorrect_hue_selection");
+  });
+
+  test("puzzle-21: complementary but unbalanced → low_value_contrast", () => {
+    const reasons = diagnoseFailure("puzzle-21", { hueA: 0, hueB: 180, valueBalanced: false });
+    expect(reasons).toContain("low_value_contrast");
+  });
+});
+
+describe("FAILURE_EXPLANATIONS completeness", () => {
+  const allCodes: FailureReasonCode[] = [
+    "low_value_contrast", "incorrect_value_structure",
+    "chroma_collapsed", "insufficient_chroma", "excessive_chroma", "insufficient_luminosity",
+    "complement_conflict", "incorrect_hue_selection", "incorrect_hue_bias",
+    "overmixing", "unbalanced_mix",
+    "insufficient_atmosphere", "excessive_atmosphere", "incorrect_color_temperature",
+    "weak_simultaneous_contrast", "competing_focal_points", "weak_accent_isolation",
+  ];
+
+  test("every canonical reason code has a non-empty explanation", () => {
+    for (const code of allCodes) {
+      const explanation = FAILURE_EXPLANATIONS[code];
+      expect(explanation, `Missing explanation for ${code}`).toBeTruthy();
+      expect(explanation.length, `Explanation too short for ${code}`).toBeGreaterThan(20);
+    }
+  });
+});
