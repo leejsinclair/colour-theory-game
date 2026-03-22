@@ -64,7 +64,9 @@ function Puzzle06View({ persistedState }: Puzzle06ViewProps): React.ReactElement
                     key={key}
                     className={`chroma-node${visited ? " visited" : ""}${localState.foundPeak[hue] && isPeak ? " peak" : ""}`}
                     style={{ background: `hsl(${hueDegrees(hue)}, ${sat}%, 50%)` }}
-                    title={`${hue} value ${value}`}
+                    title={`${hue} chroma level ${value + 1} — saturation ${sat}%`}
+                    aria-label={`${hue} chroma level ${value + 1}${isPeak ? " (peak)" : ""}${visited ? " (visited)" : ""}`}
+                    aria-pressed={visited}
                     onClick={() => {
                       updateState((prev) => {
                         const nextVisited = { ...prev.visited, [key]: true };
@@ -87,7 +89,10 @@ function Puzzle06View({ persistedState }: Puzzle06ViewProps): React.ReactElement
         ))}
       </div>
 
-      <div className="mini-label">Peaks found: {foundCount}/3</div>
+      <div className="mini-label" aria-live="polite" aria-atomic="true">
+        Peaks found: {foundCount}/3
+        {foundCount < 3 && " — each hue reaches its most vivid colour at a different level"}
+      </div>
     </>
   );
 }

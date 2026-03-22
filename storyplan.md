@@ -614,7 +614,7 @@ This section reflects what is currently implemented in the playable prototypes.
 
 # Puzzle Learning Content — Introductions and Quizzes
 
-Each puzzle shows the player an introduction card (two paragraphs + illustration) before their first attempt. They must pass a two-question quiz before the puzzle unlocks. Below is the complete text for all 21 puzzles, ready for analysis and improvement suggestions.
+Each puzzle shows the player an introduction card (two paragraphs + illustration) before their first attempt. They must pass a two-question quiz before the puzzle unlocks. Below is the complete text for all 21 puzzles, including **How to win**, **Why this fails**, and **Key terms** for each.
 
 ---
 
@@ -624,27 +624,37 @@ Each puzzle shows the player an introduction card (two paragraphs + illustration
 
 **Introduction**
 
-Screens and stage lights use additive color. Red, green, and blue beams stack brightness, so combining them creates lighter and lighter results.
+Demonstrates additive color mixing used by light sources such as screens and projectors.
 
-When all three beams overlap at full strength, they produce white light. Learning this helps you predict why digital color behaves differently from paint.
+Learn how red, green and blue combine to make white light.
+
+**How to win**
+
+Make the center patch appear white by adjusting the three sliders to match emitted light proportions.
+
+**Why this fails**
+
+Overlapping emitted wavelengths add, so mismatched intensities produce tinted whites.
+
+**Key terms**
+- additive: mixing by adding light wavelengths together
+- subtractive: mixing by absorbing wavelengths
 
 **Quiz**
 
-Q1: In additive color mixing, what happens when red, green, and blue light overlap?
-- A) They produce white ✓
-- B) They produce black
-- C) They produce brown
-- D) They cancel out
+Q1: Why do screens use red, green and blue to make many colors?
+- A) Because emitted light wavelengths add to form other colors ✓
+- B) Because pigments reflect those three colors
+- C) Because human eyes only see red, green and blue
 
-*Explanation: Additive primaries add brightness. Full RGB overlap appears white.*
+*Explanation: Additive mixing combines light intensities to create new perceived colors.*
 
-Q2: Which system is additive rather than subtractive?
-- A) Ink printing
-- B) Digital displays ✓
-- C) Watercolor pigments
-- D) Oil paint
+Q2: If you increase the green slider while red and blue stay the same, what happens?
+- A) It shifts toward green and may become lighter ✓
+- B) It becomes darker because colors cancel out
+- C) It turns into a neutral grey
 
-*Explanation: Digital displays emit light, so they use additive color mixing.*
+*Explanation: Adding more green increases that wavelength's contribution and overall luminance.*
 
 ---
 
@@ -655,6 +665,19 @@ Q2: Which system is additive rather than subtractive?
 Pigments and inks work by subtraction: they absorb parts of white light and reflect what remains to your eye.
 
 Cyan, magenta, and yellow are subtractive primaries. Tuning each channel teaches how print color shifts hue and value.
+
+**How to win**
+
+Adjust the cyan, magenta, and yellow sliders until the mixed swatch matches the target color.
+
+**Why this fails**
+
+Each ink absorbs a different part of white light, so unbalanced channels shift the result away from the target hue.
+
+**Key terms**
+- subtractive: mixing by absorbing wavelengths from reflected light
+- value: lightness or darkness of a color
+- chroma: the intensity or purity of a color
 
 **Quiz**
 
@@ -680,27 +703,38 @@ Q2: Which set is the subtractive primary trio?
 
 **Introduction**
 
-Painters often avoid tube black for key shadows because it can flatten form. Instead they mix complements for richer darks.
+Shows how dark areas can retain subtle hue rather than becoming neutral black; useful for painting and shadow work.
 
-Complementary pigments neutralize toward dark neutrals while preserving subtle color life. This makes shadows feel luminous instead of dead.
+Complementary pigments neutralize toward dark neutrals while preserving subtle color life.
+
+**How to win**
+
+Make the shadowed patch match the reference by adjusting local chroma and hue.
+
+**Why this fails**
+
+Low luminance reduces perceived saturation but hue bias remains, so shadows keep a tint.
+
+**Key terms**
+- chroma: the intensity or purity of a color
+- complement: the color directly opposite on the color wheel
+- value: lightness or darkness of a color
 
 **Quiz**
 
-Q1: Why mix complements for black in painting?
-- A) To dry paint faster
-- B) To create richer, livelier darks ✓
-- C) To avoid value contrast
-- D) To increase opacity only
+Q1: Why can a shadowed area still look slightly colored?
+- A) Because low light reduces brightness but not all hue information disappears ✓
+- B) Because shadows create new pigments
+- C) Because the eye cannot see color in dark areas at all
 
-*Explanation: Complementary mixes can produce dark neutrals with hidden chroma.*
+*Explanation: Perception preserves hue cues even at low luminance.*
 
-Q2: Which pair is complementary?
-- A) Blue and orange ✓
-- B) Blue and green
-- C) Yellow and orange
-- D) Red and orange
+Q2: When matching a painted shadow, which slider is most important to adjust first?
+- A) Chroma (saturation) to keep the hue visible without raising brightness ✓
+- B) Hue only; brightness never matters
+- C) Increase brightness to remove the tint
 
-*Explanation: Blue and orange are opposite on the wheel, so they are complements.*
+*Explanation: Lowering chroma keeps the tint while preserving darkness.*
 
 ---
 
@@ -713,6 +747,18 @@ Q2: Which pair is complementary?
 Value means lightness and darkness, independent of hue. Good value structure keeps subjects readable even when detail is blurred.
 
 Artists squint to simplify scenes into big value masses. If the image reads while blurred, the structure is usually strong.
+
+**How to win**
+
+Paint each block so the statue remains clearly readable when the screen blurs — use strong light-dark contrast.
+
+**Why this fails**
+
+When values are too similar, the blur makes the subject disappear into the background.
+
+**Key terms**
+- value: lightness or darkness of a color
+- contrast: the difference in value between adjacent areas
 
 **Quiz**
 
@@ -742,6 +788,18 @@ A value ladder arranges tones from darkest to lightest. Practicing this trains p
 
 When values are in the right order, hidden structure appears clearly. Out-of-order values break readability and hierarchy.
 
+**How to win**
+
+Drag the tiles into order from darkest to lightest — the hidden image appears when the sequence is correct.
+
+**Why this fails**
+
+Out-of-order values break the tonal gradient and the hidden structure stays invisible.
+
+**Key terms**
+- value: lightness or darkness of a color
+- value ladder: a sequence of tones arranged from dark to light
+
 **Quiz**
 
 Q1: A value ladder should run from …
@@ -766,27 +824,39 @@ Q2: Why is value ordering useful?
 
 **Introduction**
 
-Not every hue reaches peak saturation at the same value. Yellow peaks higher, while blue-violet often peaks lower.
+Explains that maximum saturation (chroma) varies by hue; some colors reach higher vividness than others.
 
 Understanding hue-specific chroma limits helps you avoid muddy mixes and place saturation where it naturally works best.
 
+**How to win**
+
+Match the vividness of the target by adjusting chroma while keeping hue constant.
+
+**Why this fails**
+
+Different hues have different maximum chroma, so equal slider values don't always match perceived vividness.
+
+**Key terms**
+- chroma: the intensity or purity of a color
+- saturation: similar to chroma; degree of colorfulness
+- peak chroma: highest saturation a hue can reach
+- value: lightness or darkness of a color
+
 **Quiz**
 
-Q1: Do all hues peak in chroma at the same value level?
-- A) Yes, always
-- B) No, peaks differ by hue ✓
-- C) Only in oil paint
-- D) Only in digital painting
+Q1: What does 'peak chroma' mean?
+- A) The highest saturation a hue can reach before it changes appearance ✓
+- B) The brightest possible color regardless of hue
+- C) When a color becomes black
 
-*Explanation: Each hue has different chroma behavior across value.*
+*Explanation: Each hue has a different maximum saturation in a given color space.*
 
-Q2: Knowing chroma peaks mainly helps you …
-- A) Paint faster
-- B) Mix cleaner color ✓
-- C) Avoid perspective
-- D) Remove shadows
+Q2: If two hues use the same chroma slider value but one looks more vivid, why?
+- A) Because that hue's peak chroma is higher, so the same value maps to stronger appearance ✓
+- B) Because the screen is broken
+- C) Because vividness is unrelated to chroma
 
-*Explanation: Hue-aware chroma choices reduce accidental muddiness.*
+*Explanation: Perceptual mapping between numeric chroma and visible vividness differs by hue.*
 
 ---
 
@@ -799,6 +869,18 @@ Q2: Knowing chroma peaks mainly helps you …
 Complementary colors sit opposite each other on the color wheel. Side by side they intensify contrast.
 
 Mixed together, complements neutralize toward grays and browns. That dual behavior makes them powerful for both pop and control.
+
+**How to win**
+
+Identify and select the color that sits directly opposite each given swatch on the color wheel.
+
+**Why this fails**
+
+Choosing an adjacent or nearby hue instead of the true opposite leaves contrast too low and the pair loses energy.
+
+**Key terms**
+- complement: the color directly opposite on the color wheel
+- hue: the named quality of a color such as red, blue, or yellow
 
 **Quiz**
 
@@ -828,6 +910,19 @@ A triad uses three hues spaced evenly around the wheel, roughly 120 degrees apar
 
 Triads work best when one hue leads and the others support. Equal dominance can feel noisy, so hierarchy matters.
 
+**How to win**
+
+Choose three hues roughly 120° apart and assign one as the dominant color with the others as accents.
+
+**Why this fails**
+
+Giving all three hues equal area creates visual noise — one hue must lead for the palette to feel balanced.
+
+**Key terms**
+- hue: the named quality of a color such as red, blue, or yellow
+- saturation: degree of colorfulness
+- triadic: three hues spaced evenly around the color wheel
+
 **Quiz**
 
 Q1: How far apart are triadic hues on the wheel?
@@ -855,6 +950,19 @@ Q2: A good triad usually has …
 Color combinations carry emotional tone before any words are read. Warm, high-energy palettes feel different from cool, quiet ones.
 
 Palette design combines hue, value contrast, and saturation control. Matching mood requires the full relationship, not a single swatch.
+
+**How to win**
+
+Build a palette that matches the emotional prompt by combining hue temperature, value contrast, and saturation level.
+
+**Why this fails**
+
+Changing only one dimension (e.g., hue alone) rarely shifts the emotional read — all three dimensions work together.
+
+**Key terms**
+- hue: the named quality of a color such as red, blue, or yellow
+- value: lightness or darkness of a color
+- saturation: degree of colorfulness
 
 **Quiz**
 
@@ -886,6 +994,18 @@ Perceived color depends on surrounding context. Two identical squares can look d
 
 This effect, called simultaneous contrast, proves color is relational. Designers use context shifts to guide attention and perception.
 
+**How to win**
+
+Adjust the background colors until both center squares look identical — that is when context is neutralized.
+
+**Why this fails**
+
+A lighter background makes the center appear darker, and vice versa, so mismatched backgrounds hide the equality.
+
+**Key terms**
+- simultaneous contrast: a color's appearance shifts depending on neighboring colors
+- value: lightness or darkness of a color
+
 **Quiz**
 
 Q1: In simultaneous contrast, identical center colors can look …
@@ -910,25 +1030,38 @@ Q2: This illusion demonstrates that color perception is …
 
 **Introduction**
 
-A neutral can appear cooler without changing its pixel value, simply by warming surrounding colors.
+Demonstrates simultaneous contrast: surrounding colors change how a neutral patch is perceived.
 
-Orange context pushes neighboring gray toward a blue impression. This is a practical way to suggest cool light indirectly.
+Orange context pushes neighboring gray toward a blue impression — a practical way to suggest cool light indirectly.
+
+**How to win**
+
+Adjust the surround color so the central grey appears bluish to match the target.
+
+**Why this fails**
+
+Warm surrounds bias neutrals toward cool complements, and vice versa.
+
+**Key terms**
+- complement: the color directly opposite on the color wheel
+- saturation: degree of colorfulness
+- simultaneous contrast: a color's appearance shifts depending on neighboring colors
 
 **Quiz**
 
-Q1: To make a gray appear bluer, which surrounding color family helps most?
+Q1: Which surrounding color will make a neutral grey appear bluer?
 - A) Orange ✓
-- B) Blue
-- C) Gray
-- D) Green only
+- B) Green
+- C) Black
 
-*Explanation: Warm orange context can make a neutral appear relatively cooler.*
+*Explanation: Orange is the warm complement that shifts perceived neutral toward blue.*
 
-Q2: In this puzzle, does the gray square itself change?
-- A) Yes
-- B) No ✓
+Q2: If the grey still looks neutral after adding orange surround, what should you try?
+- A) Increase the surround's saturation or brightness to strengthen the contrast effect ✓
+- B) Make the grey darker; contrast doesn't depend on surround intensity
+- C) Change the grey's hue to red
 
-*Explanation: Only the surroundings change; the gray remains fixed.*
+*Explanation: Stronger surrounding chroma/brightness increases contrast-driven perceptual shifts.*
 
 ---
 
@@ -939,6 +1072,19 @@ Q2: In this puzzle, does the gray square itself change?
 A bright accent has the strongest impact when most of the composition is neutral. Neutrals create breathing room.
 
 If everything is loud, nothing leads. Strategic restraint with saturation builds hierarchy and focus.
+
+**How to win**
+
+Mix neutral grays and browns for most of the composition so the single bright accent color stands out clearly.
+
+**Why this fails**
+
+Adding too many saturated areas competes with the accent and flattens the visual hierarchy.
+
+**Key terms**
+- saturation: degree of colorfulness
+- chroma: the intensity or purity of a color
+- complement: the color directly opposite on the color wheel
 
 **Quiz**
 
@@ -970,6 +1116,20 @@ Distant objects usually look cooler, lighter, and less saturated. Edge contrast 
 
 These cues create depth on flat surfaces. Painting near and far planes with the same chroma and sharpness collapses space.
 
+**How to win**
+
+Paint each depth plane with progressively cooler, lighter, and less saturated tones as objects move into the distance.
+
+**Why this fails**
+
+Using the same chroma and edge sharpness at every distance removes the depth cues that make space readable.
+
+**Key terms**
+- saturation: degree of colorfulness
+- chroma: the intensity or purity of a color
+- value: lightness or darkness of a color
+- atmospheric perspective: the effect of air on distant color
+
 **Quiz**
 
 Q1: As objects move farther away, they usually become …
@@ -998,6 +1158,19 @@ Air molecules scatter short wavelengths more strongly than long wavelengths. Thi
 
 The same principle contributes to distant blue haze. Increasing scattering in a scene should shift far objects toward cooler tones.
 
+**How to win**
+
+Increase the atmospheric scattering slider to shift distant objects toward a cooler, hazier blue tone.
+
+**Why this fails**
+
+Too little scattering keeps distant objects the same warm color as near ones, collapsing perceived depth.
+
+**Key terms**
+- Rayleigh scattering: air molecules deflect short wavelengths more than long ones
+- wavelength: the physical property that determines a light color
+- value: lightness or darkness of a color
+
 **Quiz**
 
 Q1: Rayleigh scattering affects which wavelengths more strongly?
@@ -1025,6 +1198,19 @@ Q2: A practical visual result is that distant objects often look …
 Light color temperature changes through the day. Midday tends cooler and higher contrast, while golden hour is warmer with longer shadows.
 
 Strong landscape color decisions depend on matching palette and light behavior together, not one isolated slider.
+
+**How to win**
+
+Match the sliders to the target time of day by coordinating light color temperature, shadow length, and contrast level.
+
+**Why this fails**
+
+Adjusting only the hue without changing contrast or shadow angle produces an unconvincing lighting impression.
+
+**Key terms**
+- color temperature: a scale from warm (orange) to cool (blue) light
+- value: lightness or darkness of a color
+- saturation: degree of colorfulness
 
 **Quiz**
 
@@ -1056,6 +1242,19 @@ Vivid green usually comes from a clean yellow-blue pair with compatible bias. No
 
 If hidden complement contamination enters the mix, chroma drops fast and greens become muddy. Selection and cleanliness both matter.
 
+**How to win**
+
+Select a clean cool yellow and a clean warm blue to mix — the swatch should reach a vivid, unsullied green.
+
+**Why this fails**
+
+Pigments with hidden red or orange bias introduce complement contamination that neutralizes the green chroma.
+
+**Key terms**
+- chroma: the intensity or purity of a color
+- complement: the color directly opposite on the color wheel
+- pigment bias: the hidden secondary hue leaning of a paint
+
 **Quiz**
 
 Q1: What is the key to a vibrant mixed green?
@@ -1084,6 +1283,19 @@ Complementary pairs are powerful neutralizers. A little can be useful, but too m
 
 Intentional mixing means limiting opposing pairs and preserving separation until you know exactly what neutral you want.
 
+**How to win**
+
+Add pigments one at a time and stop before the mix becomes a dull neutral — the goal is a rich dark, not mud.
+
+**Why this fails**
+
+Each additional complement pair neutralizes chroma further; too many makes an irreversibly dull brown.
+
+**Key terms**
+- complement: the color directly opposite on the color wheel
+- chroma: the intensity or purity of a color
+- saturation: degree of colorfulness
+
 **Quiz**
 
 Q1: What happens when too many complements are mixed together?
@@ -1111,6 +1323,19 @@ Q2: A practical anti-mud strategy is to …
 Optical mixing happens in the viewer's eye when tiny pure dots sit side by side. The eye blends them at distance.
 
 Because pigments stay unmixed on the surface, color can feel brighter than physical mixing on a palette.
+
+**How to win**
+
+Place pure colored dots side by side without mixing them — step back and the eye blends them into a new color.
+
+**Why this fails**
+
+Physically mixing the dots on the canvas loses the brightness advantage because pigments combine subtractively.
+
+**Key terms**
+- optical mixing: color blending that happens in the viewer's eye rather than on the canvas
+- additive: mixing by adding light wavelengths together
+- subtractive: mixing by absorbing wavelengths from reflected light
 
 **Quiz**
 
@@ -1142,6 +1367,19 @@ The 60/30/10 rule gives compositions stable proportion: dominant, supporting, an
 
 Balanced proportion prevents visual noise and helps viewers understand hierarchy instantly.
 
+**How to win**
+
+Set proportion sliders so the dominant color covers ~60%, the secondary ~30%, and the accent ~10%.
+
+**Why this fails**
+
+Equal proportions remove hierarchy — the viewer has no clear entry point and the composition feels noisy.
+
+**Key terms**
+- hue: the named quality of a color such as red, blue, or yellow
+- saturation: degree of colorfulness
+- value: lightness or darkness of a color
+
 **Quiz**
 
 Q1: In the 60/30/10 rule, the dominant color should be about …
@@ -1166,27 +1404,37 @@ Q2: What is the main benefit of this proportion rule?
 
 **Introduction**
 
-People often attach emotional meaning to colors before reading any text. These associations influence design communication.
+Explores common color–emotion associations and how context changes meaning.
 
-Red often signals urgency, blue trust, yellow optimism, and green growth. Context still matters, but baseline tendencies are useful.
+Red often signals urgency, blue trust, yellow optimism, and green growth — though cultural context can shift these baselines.
+
+**How to win**
+
+Arrange colors to match the target emotional palette while noting contextual cues.
+
+**Why this fails**
+
+Emotional associations are broadly consistent but vary by culture and context.
+
+**Key terms**
+- saturation: degree of colorfulness
+- value: lightness or darkness of a color
 
 **Quiz**
 
-Q1: Which mapping is commonly used in visual communication?
-- A) Blue → trust ✓
-- B) Blue → danger
-- C) Green → urgency
-- D) Red → calm
-
-*Explanation: Blue is frequently associated with trust and stability.*
-
-Q2: Which color is often linked to growth and balance?
-- A) Yellow
+Q1: Which color is most commonly associated with calm in Western contexts?
+- A) Blue ✓
 - B) Red
-- C) Green ✓
-- D) Purple
+- C) Yellow
 
-*Explanation: Green commonly signals growth and natural balance.*
+*Explanation: Blue is frequently linked to calm and stability in many Western studies.*
+
+Q2: If a user in a different cultural region finds your 'calm' palette unsettling, what should you do?
+- A) Offer a regional variant or let users choose alternative palettes ✓
+- B) Insist blue is universally calming
+- C) Remove color from the interface entirely
+
+*Explanation: Associations differ across cultures; allow customization where possible.*
 
 ---
 
@@ -1197,6 +1445,20 @@ Q2: Which color is often linked to growth and balance?
 Strong vibration appears when complementary hues meet at similar value and high saturation. The edge can seem to shimmer.
 
 If value contrast becomes too high, the boundary stabilizes. Equal value with complementary hue is the unstable sweet spot.
+
+**How to win**
+
+Set two complementary hues to the same brightness level — the edge between them should shimmer or appear to vibrate.
+
+**Why this fails**
+
+If value contrast is too high, the eye reads a clear light/dark boundary and the vibration effect disappears.
+
+**Key terms**
+- complement: the color directly opposite on the color wheel
+- value: lightness or darkness of a color
+- chroma: the intensity or purity of a color
+- chromatic vibration: optical shimmer at the border of complementary equal-value colors
 
 **Quiz**
 
@@ -1215,10 +1477,6 @@ Q2: What value relationship increases vibration?
 - D) Any random value
 
 *Explanation: Near-equal value reduces clear edge priority and boosts shimmer.*
-- Current browser flow is a station-and-puzzle list interface instead of room-map traversal.
-- Puzzle 15 reward pet naming differs from the original draft (implemented pet name is Sun Finch).
-
-The player leaves the studio seeing color differently forever.
 
 ---
 

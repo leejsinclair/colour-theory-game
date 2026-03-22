@@ -66,6 +66,8 @@ function Puzzle03View({ persistedState }: Puzzle03ViewProps): React.ReactElement
       <div className="mix-bowl">
         <div
           className="mix-bowl-swatch"
+          role="img"
+          aria-label={`Shadow swatch: ${localState.a} and ${localState.b} mix — ${feedback}`}
           style={{
             background: `radial-gradient(circle at 35% 30%, rgba(255,255,255,${0.16 + localState.gloss * 0.4}), transparent 42%), hsl(${hue}, ${sat}%, ${light}%)`,
           }}
@@ -74,12 +76,14 @@ function Puzzle03View({ persistedState }: Puzzle03ViewProps): React.ReactElement
 
       <div className="chip-grid">
         <div className="mini-label">Pigment A: {localState.a}</div>
-        <div className="chip-row">
+        <div className="chip-row" role="group" aria-label="Choose Pigment A">
           {colors.map((name) => (
             <button
               key={`a-${name}`}
               className="chip-btn"
               style={{ background: `hsl(${chipHue[name]}, 80%, 52%)` }}
+              aria-pressed={localState.a === name}
+              aria-label={`Pigment A: ${name}${localState.a === name ? " (selected)" : ""}`}
               onClick={() => updateState((prev) => ({ ...prev, a: name }))}
             >
               A: {name}
@@ -88,12 +92,14 @@ function Puzzle03View({ persistedState }: Puzzle03ViewProps): React.ReactElement
         </div>
 
         <div className="mini-label">Pigment B: {localState.b}</div>
-        <div className="chip-row">
+        <div className="chip-row" role="group" aria-label="Choose Pigment B">
           {colors.map((name) => (
             <button
               key={`b-${name}`}
               className="chip-btn"
               style={{ background: `hsl(${chipHue[name]}, 80%, 52%)` }}
+              aria-pressed={localState.b === name}
+              aria-label={`Pigment B: ${name}${localState.b === name ? " (selected)" : ""}`}
               onClick={() => updateState((prev) => ({ ...prev, b: name }))}
             >
               B: {name}
@@ -117,7 +123,7 @@ function Puzzle03View({ persistedState }: Puzzle03ViewProps): React.ReactElement
         }}
       />
 
-      <div className="mini-label">{feedback}</div>
+      <div className="mini-label" aria-live="polite" aria-atomic="true">{feedback}</div>
     </>
   );
 }

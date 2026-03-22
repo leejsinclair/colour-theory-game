@@ -10,6 +10,10 @@ export type PuzzleLearningContent = {
   intro: [string, string];
   illustrationSvg: string;
   quiz: LearningQuizQuestion[];
+  howToWin?: string;
+  whyFailed?: string;
+  tooltips?: string[];
+  accessibilityNote?: string;
 };
 
 function makePuzzleIllustration(label: string, c1: string, c2: string, c3: string): string {
@@ -38,22 +42,26 @@ export const puzzleLearningContent: Record<string, PuzzleLearningContent> = {
   "puzzle-01": {
     title: "RGB White Light",
     intro: [
-      "Screens and stage lights use additive color. Red, green, and blue beams stack brightness, so combining them creates lighter and lighter results.",
-      "When all three beams overlap at full strength, they produce white light. Learning this helps you predict why digital color behaves differently from paint.",
+      "Demonstrates additive color mixing used by light sources such as screens and projectors.",
+      "Learn how red, green and blue combine to make white light.",
     ],
     illustrationSvg: makePuzzleIllustration("Additive light overlap", "#ef4444", "#22c55e", "#3b82f6"),
+    howToWin: "Make the center patch appear white by adjusting the three sliders to match emitted light proportions.",
+    whyFailed: "Overlapping emitted wavelengths add, so mismatched intensities produce tinted whites.",
+    tooltips: ["additive: mixing by adding light wavelengths together", "subtractive: mixing by absorbing wavelengths"],
+    accessibilityNote: "Ensure textual labels for slider values and a non-color success message.",
     quiz: [
       {
-        prompt: "In additive color mixing, what happens when red, green, and blue light overlap?",
-        options: ["They produce white", "They produce black", "They produce brown", "They cancel out"],
+        prompt: "Why do screens use red, green and blue to make many colors?",
+        options: ["Because emitted light wavelengths add to form other colors", "Because pigments reflect those three colors", "Because human eyes only see red, green and blue"],
         correctIndex: 0,
-        explanation: "Additive primaries add brightness. Full RGB overlap appears white.",
+        explanation: "Additive mixing combines light intensities to create new perceived colors.",
       },
       {
-        prompt: "Which system is additive rather than subtractive?",
-        options: ["Ink printing", "Digital displays", "Watercolor pigments", "Oil paint"],
-        correctIndex: 1,
-        explanation: "Digital displays emit light, so they use additive color mixing.",
+        prompt: "If you increase the green slider while red and blue stay the same, what happens?",
+        options: ["It shifts toward green and may become lighter", "It becomes darker because colors cancel out", "It turns into a neutral grey"],
+        correctIndex: 0,
+        explanation: "Adding more green increases that wavelength's contribution and overall luminance.",
       },
     ],
   },
@@ -64,6 +72,9 @@ export const puzzleLearningContent: Record<string, PuzzleLearningContent> = {
       "Cyan, magenta, and yellow are subtractive primaries. Tuning each channel teaches how print color shifts hue and value.",
     ],
     illustrationSvg: makePuzzleIllustration("Subtractive CMY channels", "#06b6d4", "#d946ef", "#eab308"),
+    howToWin: "Adjust the cyan, magenta, and yellow sliders until the mixed swatch matches the target color.",
+    whyFailed: "Each ink absorbs a different part of white light, so unbalanced channels shift the result away from the target hue.",
+    tooltips: ["subtractive: mixing by absorbing wavelengths from reflected light", "value: lightness or darkness of a color", "chroma: the intensity or purity of a color"],
     quiz: [
       {
         prompt: "Why is CMY called subtractive?",
@@ -82,22 +93,26 @@ export const puzzleLearningContent: Record<string, PuzzleLearningContent> = {
   "puzzle-03": {
     title: "Chromatic Black",
     intro: [
-      "Painters often avoid tube black for key shadows because it can flatten form. Instead they mix complements for richer darks.",
-      "Complementary pigments neutralize toward dark neutrals while preserving subtle color life. This makes shadows feel luminous instead of dead.",
+      "Shows how dark areas can retain subtle hue rather than becoming neutral black; useful for painting and shadow work.",
+      "Complementary pigments neutralize toward dark neutrals while preserving subtle color life.",
     ],
     illustrationSvg: makePuzzleIllustration("Complement mixes for rich darks", "#2563eb", "#f97316", "#111827"),
+    howToWin: "Make the shadowed patch match the reference by adjusting local chroma and hue.",
+    whyFailed: "Low luminance reduces perceived saturation but hue bias remains, so shadows keep a tint.",
+    tooltips: ["chroma: the intensity or purity of a color", "complement: the color directly opposite on the color wheel", "value: lightness or darkness of a color"],
+    accessibilityNote: "Provide a text description of the shadow difference and keyboard controls for adjustments.",
     quiz: [
       {
-        prompt: "Why mix complements for black in painting?",
-        options: ["To dry paint faster", "To create richer, livelier darks", "To avoid value contrast", "To increase opacity only"],
-        correctIndex: 1,
-        explanation: "Complementary mixes can produce dark neutrals with hidden chroma.",
+        prompt: "Why can a shadowed area still look slightly colored?",
+        options: ["Because low light reduces brightness but not all hue information disappears", "Because shadows create new pigments", "Because the eye cannot see color in dark areas at all"],
+        correctIndex: 0,
+        explanation: "Perception preserves hue cues even at low luminance.",
       },
       {
-        prompt: "Which pair is complementary?",
-        options: ["Blue and orange", "Blue and green", "Yellow and orange", "Red and orange"],
+        prompt: "When matching a painted shadow, which slider is most important to adjust first?",
+        options: ["Chroma (saturation) to keep the hue visible without raising brightness", "Hue only; brightness never matters", "Increase brightness to remove the tint"],
         correctIndex: 0,
-        explanation: "Blue and orange are opposite on the wheel, so they are complements.",
+        explanation: "Lowering chroma keeps the tint while preserving darkness.",
       },
     ],
   },
@@ -108,6 +123,9 @@ export const puzzleLearningContent: Record<string, PuzzleLearningContent> = {
       "Artists squint to simplify scenes into big value masses. If the image reads while blurred, the structure is usually strong.",
     ],
     illustrationSvg: makePuzzleIllustration("Blur reveals value structure", "#111827", "#6b7280", "#f9fafb"),
+    howToWin: "Paint each block so the statue remains clearly readable when the screen blurs — use strong light-dark contrast.",
+    whyFailed: "When values are too similar, the blur makes the subject disappear into the background.",
+    tooltips: ["value: lightness or darkness of a color", "contrast: the difference in value between adjacent areas"],
     quiz: [
       {
         prompt: "What does squinting help you evaluate?",
@@ -130,6 +148,9 @@ export const puzzleLearningContent: Record<string, PuzzleLearningContent> = {
       "When values are in the right order, hidden structure appears clearly. Out-of-order values break readability and hierarchy.",
     ],
     illustrationSvg: makePuzzleIllustration("Dark to light sequencing", "#111827", "#6b7280", "#e5e7eb"),
+    howToWin: "Drag the tiles into order from darkest to lightest — the hidden image appears when the sequence is correct.",
+    whyFailed: "Out-of-order values break the tonal gradient and the hidden structure stays invisible.",
+    tooltips: ["value: lightness or darkness of a color", "value ladder: a sequence of tones arranged from dark to light"],
     quiz: [
       {
         prompt: "A value ladder should run from...",
@@ -148,22 +169,26 @@ export const puzzleLearningContent: Record<string, PuzzleLearningContent> = {
   "puzzle-06": {
     title: "Chroma Peaks by Hue",
     intro: [
-      "Not every hue reaches peak saturation at the same value. Yellow peaks higher, while blue-violet often peaks lower.",
+      "Explains that maximum saturation (chroma) varies by hue; some colors reach higher vividness than others.",
       "Understanding hue-specific chroma limits helps you avoid muddy mixes and place saturation where it naturally works best.",
     ],
     illustrationSvg: makePuzzleIllustration("Hue-specific chroma peaks", "#eab308", "#22c55e", "#4338ca"),
+    howToWin: "Match the vividness of the target by adjusting chroma while keeping hue constant.",
+    whyFailed: "Different hues have different maximum chroma, so equal slider values don't always match perceived vividness.",
+    tooltips: ["chroma: the intensity or purity of a color", "saturation: similar to chroma; degree of colorfulness", "peak chroma: highest saturation a hue can reach", "value: lightness or darkness of a color"],
+    accessibilityNote: "Add textual guidance explaining vividness differences.",
     quiz: [
       {
-        prompt: "Do all hues peak in chroma at the same value level?",
-        options: ["Yes, always", "No, peaks differ by hue", "Only in oil paint", "Only in digital painting"],
-        correctIndex: 1,
-        explanation: "Each hue has different chroma behavior across value.",
+        prompt: "What does 'peak chroma' mean?",
+        options: ["The highest saturation a hue can reach before it changes appearance", "The brightest possible color regardless of hue", "When a color becomes black"],
+        correctIndex: 0,
+        explanation: "Each hue has a different maximum saturation in a given color space.",
       },
       {
-        prompt: "Knowing chroma peaks mainly helps you...",
-        options: ["Paint faster", "Mix cleaner color", "Avoid perspective", "Remove shadows"],
-        correctIndex: 1,
-        explanation: "Hue-aware chroma choices reduce accidental muddiness.",
+        prompt: "If two hues use the same chroma slider value but one looks more vivid, why?",
+        options: ["Because that hue's peak chroma is higher, so the same value maps to stronger appearance", "Because the screen is broken", "Because vividness is unrelated to chroma"],
+        correctIndex: 0,
+        explanation: "Perceptual mapping between numeric chroma and visible vividness differs by hue.",
       },
     ],
   },
@@ -174,6 +199,9 @@ export const puzzleLearningContent: Record<string, PuzzleLearningContent> = {
       "Mixed together, complements neutralize toward grays and browns. That dual behavior makes them powerful for both pop and control.",
     ],
     illustrationSvg: makePuzzleIllustration("Opposites on the wheel", "#ef4444", "#16a34a", "#f97316"),
+    howToWin: "Identify and select the color that sits directly opposite each given swatch on the color wheel.",
+    whyFailed: "Choosing an adjacent or nearby hue instead of the true opposite leaves contrast too low and the pair loses energy.",
+    tooltips: ["complement: the color directly opposite on the color wheel", "hue: the named quality of a color such as red, blue, or yellow"],
     quiz: [
       {
         prompt: "What is true about complements when placed side by side?",
@@ -196,6 +224,9 @@ export const puzzleLearningContent: Record<string, PuzzleLearningContent> = {
       "Triads work best when one hue leads and the others support. Equal dominance can feel noisy, so hierarchy matters.",
     ],
     illustrationSvg: makePuzzleIllustration("120 deg hue spacing", "#ef4444", "#eab308", "#2563eb"),
+    howToWin: "Choose three hues roughly 120° apart and assign one as the dominant color with the others as accents.",
+    whyFailed: "Giving all three hues equal area creates visual noise — one hue must lead for the palette to feel balanced.",
+    tooltips: ["hue: the named quality of a color such as red, blue, or yellow", "saturation: degree of colorfulness", "triadic: three hues spaced evenly around the color wheel"],
     quiz: [
       {
         prompt: "How far apart are triadic hues on the wheel?",
@@ -218,6 +249,9 @@ export const puzzleLearningContent: Record<string, PuzzleLearningContent> = {
       "Palette design combines hue, value contrast, and saturation control. Matching mood requires the full relationship, not a single swatch.",
     ],
     illustrationSvg: makePuzzleIllustration("Emotion through palette", "#f97316", "#0ea5e9", "#64748b"),
+    howToWin: "Build a palette that matches the emotional prompt by combining hue temperature, value contrast, and saturation level.",
+    whyFailed: "Changing only one dimension (e.g., hue alone) rarely shifts the emotional read — all three dimensions work together.",
+    tooltips: ["hue: the named quality of a color such as red, blue, or yellow", "value: lightness or darkness of a color", "saturation: degree of colorfulness"],
     quiz: [
       {
         prompt: "Which palette direction is usually calmer?",
@@ -240,6 +274,9 @@ export const puzzleLearningContent: Record<string, PuzzleLearningContent> = {
       "This effect, called simultaneous contrast, proves color is relational. Designers use context shifts to guide attention and perception.",
     ],
     illustrationSvg: makePuzzleIllustration("Context changes perception", "#9ca3af", "#1f2937", "#f3f4f6"),
+    howToWin: "Adjust the background colors until both center squares look identical — that is when context is neutralized.",
+    whyFailed: "A lighter background makes the center appear darker, and vice versa, so mismatched backgrounds hide the equality.",
+    tooltips: ["simultaneous contrast: a color's appearance shifts depending on neighboring colors", "value: lightness or darkness of a color"],
     quiz: [
       {
         prompt: "In simultaneous contrast, identical center colors can look...",
@@ -258,22 +295,26 @@ export const puzzleLearningContent: Record<string, PuzzleLearningContent> = {
   "puzzle-11": {
     title: "Make Gray Read Blue",
     intro: [
-      "A neutral can appear cooler without changing its pixel value, simply by warming surrounding colors.",
-      "Orange context pushes neighboring gray toward a blue impression. This is a practical way to suggest cool light indirectly.",
+      "Demonstrates simultaneous contrast: surrounding colors change how a neutral patch is perceived.",
+      "Orange context pushes neighboring gray toward a blue impression — a practical way to suggest cool light indirectly.",
     ],
     illustrationSvg: makePuzzleIllustration("Warm surround, cool gray", "#fb923c", "#9ca3af", "#60a5fa"),
+    howToWin: "Adjust the surround color so the central grey appears bluish to match the target.",
+    whyFailed: "Warm surrounds bias neutrals toward cool complements, and vice versa.",
+    tooltips: ["complement: the color directly opposite on the color wheel", "saturation: degree of colorfulness", "simultaneous contrast: a color's appearance shifts depending on neighboring colors"],
+    accessibilityNote: "Provide a text description of the contrast effect and an option to toggle high-contrast mode.",
     quiz: [
       {
-        prompt: "To make a gray appear bluer, which surrounding color family helps most?",
-        options: ["Orange", "Blue", "Gray", "Green only"],
+        prompt: "Which surrounding color will make a neutral grey appear bluer?",
+        options: ["Orange", "Green", "Black"],
         correctIndex: 0,
-        explanation: "Warm orange context can make a neutral appear relatively cooler.",
+        explanation: "Orange is the warm complement that shifts perceived neutral toward blue.",
       },
       {
-        prompt: "In this puzzle, does the gray square itself change?",
-        options: ["Yes", "No"],
-        correctIndex: 1,
-        explanation: "Only the surroundings change; the gray remains fixed.",
+        prompt: "If the grey still looks neutral after adding orange surround, what should you try?",
+        options: ["Increase the surround's saturation or brightness to strengthen the contrast effect", "Make the grey darker; contrast doesn't depend on surround intensity", "Change the grey's hue to red"],
+        correctIndex: 0,
+        explanation: "Stronger surrounding chroma/brightness increases contrast-driven perceptual shifts.",
       },
     ],
   },
@@ -284,6 +325,9 @@ export const puzzleLearningContent: Record<string, PuzzleLearningContent> = {
       "If everything is loud, nothing leads. Strategic restraint with saturation builds hierarchy and focus.",
     ],
     illustrationSvg: makePuzzleIllustration("Accent over neutrals", "#78716c", "#a8a29e", "#ef4444"),
+    howToWin: "Mix neutral grays and browns for most of the composition so the single bright accent color stands out clearly.",
+    whyFailed: "Adding too many saturated areas competes with the accent and flattens the visual hierarchy.",
+    tooltips: ["saturation: degree of colorfulness", "chroma: the intensity or purity of a color", "complement: the color directly opposite on the color wheel"],
     quiz: [
       {
         prompt: "What helps an accent color pop most?",
@@ -306,6 +350,9 @@ export const puzzleLearningContent: Record<string, PuzzleLearningContent> = {
       "These cues create depth on flat surfaces. Painting near and far planes with the same chroma and sharpness collapses space.",
     ],
     illustrationSvg: makePuzzleIllustration("Depth via atmosphere", "#475569", "#64748b", "#bfdbfe"),
+    howToWin: "Paint each depth plane with progressively cooler, lighter, and less saturated tones as objects move into the distance.",
+    whyFailed: "Using the same chroma and edge sharpness at every distance removes the depth cues that make space readable.",
+    tooltips: ["saturation: degree of colorfulness", "chroma: the intensity or purity of a color", "value: lightness or darkness of a color", "atmospheric perspective: the effect of air on distant color"],
     quiz: [
       {
         prompt: "As objects move farther away, they usually become...",
@@ -328,6 +375,9 @@ export const puzzleLearningContent: Record<string, PuzzleLearningContent> = {
       "The same principle contributes to distant blue haze. Increasing scattering in a scene should shift far objects toward cooler tones.",
     ],
     illustrationSvg: makePuzzleIllustration("Short wavelengths scatter more", "#1d4ed8", "#38bdf8", "#94a3b8"),
+    howToWin: "Increase the atmospheric scattering slider to shift distant objects toward a cooler, hazier blue tone.",
+    whyFailed: "Too little scattering keeps distant objects the same warm color as near ones, collapsing perceived depth.",
+    tooltips: ["Rayleigh scattering: air molecules deflect short wavelengths more than long ones", "wavelength: the physical property that determines a light color", "value: lightness or darkness of a color"],
     quiz: [
       {
         prompt: "Rayleigh scattering affects which wavelengths more strongly?",
@@ -350,6 +400,9 @@ export const puzzleLearningContent: Record<string, PuzzleLearningContent> = {
       "Strong landscape color decisions depend on matching palette and light behavior together, not one isolated slider.",
     ],
     illustrationSvg: makePuzzleIllustration("Noon to golden hour", "#60a5fa", "#fbbf24", "#f97316"),
+    howToWin: "Match the sliders to the target time of day by coordinating light color temperature, shadow length, and contrast level.",
+    whyFailed: "Adjusting only the hue without changing contrast or shadow angle produces an unconvincing lighting impression.",
+    tooltips: ["color temperature: a scale from warm (orange) to cool (blue) light", "value: lightness or darkness of a color", "saturation: degree of colorfulness"],
     quiz: [
       {
         prompt: "Golden hour light is generally...",
@@ -372,6 +425,9 @@ export const puzzleLearningContent: Record<string, PuzzleLearningContent> = {
       "If hidden complement contamination enters the mix, chroma drops fast and greens become muddy. Selection and cleanliness both matter.",
     ],
     illustrationSvg: makePuzzleIllustration("Clean yellow + blue pairing", "#fde047", "#3b82f6", "#22c55e"),
+    howToWin: "Select a clean cool yellow and a clean warm blue to mix — the swatch should reach a vivid, unsullied green.",
+    whyFailed: "Pigments with hidden red or orange bias introduce complement contamination that neutralizes the green chroma.",
+    tooltips: ["chroma: the intensity or purity of a color", "complement: the color directly opposite on the color wheel", "pigment bias: the hidden secondary hue leaning of a paint"],
     quiz: [
       {
         prompt: "What is the key to a vibrant mixed green?",
@@ -394,6 +450,9 @@ export const puzzleLearningContent: Record<string, PuzzleLearningContent> = {
       "Intentional mixing means limiting opposing pairs and preserving separation until you know exactly what neutral you want.",
     ],
     illustrationSvg: makePuzzleIllustration("Limit complement overload", "#8b5cf6", "#22c55e", "#6b7280"),
+    howToWin: "Add pigments one at a time and stop before the mix becomes a dull neutral — the goal is a rich dark, not mud.",
+    whyFailed: "Each additional complement pair neutralizes chroma further; too many makes an irreversibly dull brown.",
+    tooltips: ["complement: the color directly opposite on the color wheel", "chroma: the intensity or purity of a color", "saturation: degree of colorfulness"],
     quiz: [
       {
         prompt: "What happens when too many complements are mixed together?",
@@ -416,6 +475,9 @@ export const puzzleLearningContent: Record<string, PuzzleLearningContent> = {
       "Because pigments stay unmixed on the surface, color can feel brighter than physical mixing on a palette.",
     ],
     illustrationSvg: makePuzzleIllustration("Pointillist optical blend", "#ef4444", "#3b82f6", "#facc15"),
+    howToWin: "Place pure colored dots side by side without mixing them — step back and the eye blends them into a new color.",
+    whyFailed: "Physically mixing the dots on the canvas loses the brightness advantage because pigments combine subtractively.",
+    tooltips: ["optical mixing: color blending that happens in the viewer's eye rather than on the canvas", "additive: mixing by adding light wavelengths together", "subtractive: mixing by absorbing wavelengths from reflected light"],
     quiz: [
       {
         prompt: "Optical mixing occurs mainly...",
@@ -438,6 +500,9 @@ export const puzzleLearningContent: Record<string, PuzzleLearningContent> = {
       "Balanced proportion prevents visual noise and helps viewers understand hierarchy instantly.",
     ],
     illustrationSvg: makePuzzleIllustration("Dominant, secondary, accent", "#0ea5e9", "#334155", "#f97316"),
+    howToWin: "Set proportion sliders so the dominant color covers ~60%, the secondary ~30%, and the accent ~10%.",
+    whyFailed: "Equal proportions remove hierarchy — the viewer has no clear entry point and the composition feels noisy.",
+    tooltips: ["hue: the named quality of a color such as red, blue, or yellow", "saturation: degree of colorfulness", "value: lightness or darkness of a color"],
     quiz: [
       {
         prompt: "In the 60/30/10 rule, the dominant color should be about...",
@@ -456,22 +521,26 @@ export const puzzleLearningContent: Record<string, PuzzleLearningContent> = {
   "puzzle-20": {
     title: "Color and Emotion",
     intro: [
-      "People often attach emotional meaning to colors before reading any text. These associations influence design communication.",
-      "Red often signals urgency, blue trust, yellow optimism, and green growth. Context still matters, but baseline tendencies are useful.",
+      "Explores common color–emotion associations and how context changes meaning.",
+      "Red often signals urgency, blue trust, yellow optimism, and green growth — though cultural context can shift these baselines.",
     ],
     illustrationSvg: makePuzzleIllustration("Psychology of color cues", "#ef4444", "#3b82f6", "#22c55e"),
+    howToWin: "Arrange colors to match the target emotional palette while noting contextual cues.",
+    whyFailed: "Emotional associations are broadly consistent but vary by culture and context.",
+    tooltips: ["saturation: degree of colorfulness", "value: lightness or darkness of a color"],
+    accessibilityNote: "Emotional cues must not be the only signal for important UI states.",
     quiz: [
       {
-        prompt: "Which mapping is commonly used in visual communication?",
-        options: ["Blue -> trust", "Blue -> danger", "Green -> urgency", "Red -> calm"],
+        prompt: "Which color is most commonly associated with calm in Western contexts?",
+        options: ["Blue", "Red", "Yellow"],
         correctIndex: 0,
-        explanation: "Blue is frequently associated with trust and stability.",
+        explanation: "Blue is frequently linked to calm and stability in many Western studies.",
       },
       {
-        prompt: "Which color is often linked to growth and balance?",
-        options: ["Yellow", "Red", "Green", "Purple"],
-        correctIndex: 2,
-        explanation: "Green commonly signals growth and natural balance.",
+        prompt: "If a user in a different cultural region finds your 'calm' palette unsettling, what should you do?",
+        options: ["Offer a regional variant or let users choose alternative palettes", "Insist blue is universally calming", "Remove color from the interface entirely"],
+        correctIndex: 0,
+        explanation: "Associations differ across cultures; allow customization where possible.",
       },
     ],
   },
@@ -482,6 +551,9 @@ export const puzzleLearningContent: Record<string, PuzzleLearningContent> = {
       "If value contrast becomes too high, the boundary stabilizes. Equal value with complementary hue is the unstable sweet spot.",
     ],
     illustrationSvg: makePuzzleIllustration("Complement + equal value shimmer", "#ef4444", "#22c55e", "#111827"),
+    howToWin: "Set two complementary hues to the same brightness level — the edge between them should shimmer or appear to vibrate.",
+    whyFailed: "If value contrast is too high, the eye reads a clear light/dark boundary and the vibration effect disappears.",
+    tooltips: ["complement: the color directly opposite on the color wheel", "value: lightness or darkness of a color", "chroma: the intensity or purity of a color", "chromatic vibration: optical shimmer at the border of complementary equal-value colors"],
     quiz: [
       {
         prompt: "Chromatic vibration is strongest when hues are...",

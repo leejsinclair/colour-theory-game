@@ -60,6 +60,8 @@ function Puzzle20View({ persistedState }: Puzzle20ViewProps): React.ReactElement
         >
           <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "6px" }}>
             <div
+              role="img"
+              aria-label={`${colour.label} colour swatch`}
               style={{
                 width: "32px",
                 height: "32px",
@@ -71,14 +73,15 @@ function Puzzle20View({ persistedState }: Puzzle20ViewProps): React.ReactElement
             />
             <div className="mood-match-title" style={{ margin: 0 }}>
               {colour.label}
-              {mappings[colour.name] === CORRECT[colour.name] ? " ✓" : ""}
+              {mappings[colour.name] === CORRECT[colour.name] ? " ✓ matched" : ""}
             </div>
           </div>
-          <div className="mood-match-options" style={{ flexWrap: "wrap", gap: "6px" }}>
+          <div className="mood-match-options" role="group" aria-label={`Emotion options for ${colour.label}`} style={{ flexWrap: "wrap", gap: "6px" }}>
             {EMOTIONS.map((emotion) => (
               <button
                 key={`${colour.name}-${emotion.id}`}
                 className={`tod-palette-btn${mappings[colour.name] === emotion.id ? " --selected" : ""}`}
+                aria-pressed={mappings[colour.name] === emotion.id}
                 onClick={() => setMapping(colour.name, emotion.id)}
                 style={{ textAlign: "left", padding: "6px 10px", minWidth: "140px" }}
               >
@@ -90,7 +93,7 @@ function Puzzle20View({ persistedState }: Puzzle20ViewProps): React.ReactElement
         </div>
       ))}
 
-      <div className="mini-label">
+      <div className="mini-label" aria-live="polite" aria-atomic="true">
         {matched === COLOURS.length
           ? "All colours matched! ✓"
           : `${matched} of ${COLOURS.length} matched.`}
