@@ -115,7 +115,7 @@ Use this section as the execution contract for adding progression rewards beyond
   - Puzzle-13/14: atmospheric depth/scattering scene interactions
   - Puzzle-15: golden-hour reliability updates (dual meters, checklist, reset cycle) **+ usability improvements (phase badge, step guide, accent CTA, context-sensitive button visibility)**
   - Puzzle-16: contaminant-based mud model replacing confusing direct mud control
-  - Puzzle-17: Mud Monster board with actionable mix choices and mud meter
+  - Puzzle-17: Mud Monster board with color swatches, effective mud meter, and complement-touch penalty readout
   - Puzzle-18: paint-pad coverage meter plus tiled optical blend distance preview
 - **Gamification reward loop implemented** (completed):
   - Scoring: +100 first solve, +25 pet rescue, +50 station complete, +200 final canvas, +10 practice (cap 30/puzzle)

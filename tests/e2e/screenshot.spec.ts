@@ -93,3 +93,57 @@ test("Result Analysis panel clears on next attempt", async ({ page }) => {
 
   await expect(vibrantCard.locator(".result-analysis")).toHaveCount(0);
 });
+
+test("Mud Monster passes when effective mud stays below threshold even with two red touches", async ({ page }) => {
+  await page.goto("/");
+
+  await clickHudOption(page, "auto-solve");
+  await page.getByRole("button", { name: "Return" }).click();
+
+  await page.locator(".puzzle-item", {
+    has: page.getByText("Paint Workbench"),
+  }).getByRole("button", { name: "Enter" }).click();
+
+  const mudCard = page.locator(".puzzle-item", {
+    has: page.getByText("Mud Monster"),
+  });
+  await mudCard.getByRole("button", { name: "Practice" }).click();
+
+  await mudCard.getByRole("button", { name: "Reset Bowl" }).click();
+  await mudCard.getByRole("button", { name: "Add warm yellow tint" }).click();
+  await mudCard.getByRole("button", { name: "Add cool blue tint" }).click();
+  await mudCard.getByRole("button", { name: "Add tiny complement neutralizer" }).click();
+  await mudCard.getByRole("button", { name: "Add clean green stroke" }).click();
+  await mudCard.getByRole("button", { name: "Add clean green stroke" }).click();
+  await mudCard.getByRole("button", { name: "Add tiny complement neutralizer" }).click();
+
+  await expect(mudCard.getByText("Mud level: 35% / 58% max")).toBeVisible();
+  await mudCard.getByRole("button", { name: "Check" }).click();
+
+  await expect(mudCard.getByRole("button", { name: "Practiced ✓" })).toBeVisible();
+  await expect(mudCard.locator(".result-analysis")).toHaveCount(0);
+});
+
+test("Mud Monster shows Result Analysis when effective mud exceeds threshold", async ({ page }) => {
+  await page.goto("/");
+
+  await clickHudOption(page, "auto-solve");
+  await page.getByRole("button", { name: "Return" }).click();
+
+  await page.locator(".puzzle-item", {
+    has: page.getByText("Paint Workbench"),
+  }).getByRole("button", { name: "Enter" }).click();
+
+  const mudCard = page.locator(".puzzle-item", {
+    has: page.getByText("Mud Monster"),
+  });
+  await mudCard.getByRole("button", { name: "Practice" }).click();
+
+  await mudCard.getByRole("button", { name: "Add orange contaminant" }).click();
+  await mudCard.getByRole("button", { name: "Add purple contaminant" }).click();
+  await mudCard.getByRole("button", { name: "Check" }).click();
+
+  await expect(mudCard.locator(".result-analysis")).toBeVisible();
+  await expect(mudCard.locator(".result-analysis__title")).toHaveText("Result Analysis");
+  await expect(mudCard.locator(".result-analysis__item").first()).toBeVisible();
+});

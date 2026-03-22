@@ -387,7 +387,7 @@ const puzzleConcepts: Record<string, { title: string; body: string }> = {
   },
   "puzzle-17": {
     title: "Mud Prevention: Avoiding Complement Overload",
-    body: "When complementary pigments (colors opposite on the color wheel) are mixed, they neutralize each other toward brown or gray mud. A small amount creates a beautiful neutral; too much creates dull, lifeless color. Avoiding muddiness means limiting how many complementary pairs you combine in a single mix and keeping your palette clean.",
+    body: "When complementary pigments (colors opposite on the color wheel) are mixed, they neutralize each other toward brown or gray mud. In Mud Monster, red touches raise base mud directly and also add extra neutralising pressure, so the real goal is keeping the effective mud bar below the fail threshold.",
   },
   "puzzle-18": {
     title: "Optical Color Mixing and Pointillism",
@@ -619,6 +619,9 @@ function validatePuzzleInput(puzzleId: string, input: any): boolean {
         "joyful carnival": "C",
         "calm ocean": "A",
         "creepy dungeon": "B",
+        "romantic sunset": "D",
+        "focused studio": "A",
+        "mystical and premium": "D",
       };
       const sel = (input as { selections?: Record<string, string> }).selections;
       return sel != null && Object.entries(correct).every(([mood, id]) => sel[mood] === id);
@@ -662,7 +665,7 @@ function validatePuzzleInput(puzzleId: string, input: any): boolean {
       return hasYellow && hasBlue && input.mudLevel <= 0.16;
     }
     case "puzzle-17":
-      return Boolean(input.complementPairsAdded <= 1 && !input.muddyResult);
+      return Boolean((input.mudLevel ?? 1) < 0.58);
     case "puzzle-18":
       return Boolean(input.usedPureDots && !input.mixedOnPalette && input.opticalBlendVisible);
     case "puzzle-19":

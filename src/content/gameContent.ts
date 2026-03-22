@@ -270,14 +270,14 @@ export function createStationsAndPuzzles(): Station[] {
         return hasYellow && hasBlue && input.mudLevel <= 0.16;
       },
     ),
-    createPuzzle<{ complementPairsAdded: number; muddyResult: boolean }>(
+    createPuzzle<{ complementTouchesAdded: number; mudLevel: number; muddyResult: boolean }>(
       "puzzle-17",
       "station-06",
       "Mud Monster",
       "Avoid over-mixing complements into muddy brown.",
       PuzzleType.MUD_PREVENTION,
       "pet-17",
-      (input) => input.complementPairsAdded <= 1 && !input.muddyResult,
+      (input) => input.mudLevel < 0.58,
     ),
     createPuzzle<{ usedPureDots: boolean; mixedOnPalette: boolean; opticalBlendVisible: boolean }>(
       "puzzle-18",

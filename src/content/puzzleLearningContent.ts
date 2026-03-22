@@ -446,25 +446,25 @@ export const puzzleLearningContent: Record<string, PuzzleLearningContent> = {
   "puzzle-17": {
     title: "Mud Monster",
     intro: [
-      "Complementary pairs are powerful neutralizers. A little can be useful, but too many mixed together quickly create dull mud.",
-      "Intentional mixing means limiting opposing pairs and preserving separation until you know exactly what neutral you want.",
+      "Complementary pairs are powerful neutralizers. A little can be useful, but repeated red touches add neutralising pressure that makes the mix muddier.",
+      "Intentional mixing means watching the mud bar and knowing that red adds both direct muddiness and an extra complement penalty.",
     ],
     illustrationSvg: makePuzzleIllustration("Limit complement overload", "#8b5cf6", "#22c55e", "#6b7280"),
-    howToWin: "Add pigments one at a time and stop before the mix becomes a dull neutral — the goal is a rich dark, not mud.",
-    whyFailed: "Each additional complement pair neutralizes chroma further; too many makes an irreversibly dull brown.",
+    howToWin: "Keep the effective mud bar below the fail threshold by using green to clean the mix and red only when you can afford the extra mud.",
+    whyFailed: "Mud comes from both the pigments you add and the extra penalty from repeated complement touches; the puzzle fails when the combined mud total crosses the threshold.",
     tooltips: ["complement: the color directly opposite on the color wheel", "chroma: the intensity or purity of a color", "saturation: degree of colorfulness"],
     quiz: [
       {
         prompt: "What happens when too many complements are mixed together?",
         options: ["Color gets cleaner", "Color neutralizes into mud", "Value increases only", "Hue rotates predictably"],
         correctIndex: 1,
-        explanation: "Multiple complement interactions can collapse chroma quickly.",
+        explanation: "Multiple complement interactions add neutralising pressure that can push the mud bar over the limit.",
       },
       {
         prompt: "A practical anti-mud strategy is to...",
         options: ["Mix everything at once", "Limit complement pair additions", "Use only white paint", "Avoid saturation entirely"],
         correctIndex: 1,
-        explanation: "Controlled additions keep mixtures intentional.",
+        explanation: "Red touches are sometimes useful, but too many add extra mud and can tip the mix over the threshold.",
       },
     ],
   },
