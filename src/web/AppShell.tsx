@@ -152,7 +152,7 @@ export function AppShell() {
           <div className="info-modal-header">
             <h3 className="info-modal-title" id="info-modal-title"></h3>
             <button className="info-modal-close" id="info-modal-close" aria-label="Close">
-              \u2715
+              {"\u2715"}
             </button>
           </div>
           <div className="info-modal-body" id="info-modal-body"></div>

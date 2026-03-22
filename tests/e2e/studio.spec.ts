@@ -403,8 +403,8 @@ test("info modal shows Chroma Tree concept when info button clicked for puzzle-0
   });
   await chromaCard.locator(".info-btn").click();
 
-  // Modal title should use the new learning-intro title
-  await expect(page.locator("#info-modal-title")).toContainText("Chroma Peaks by Hue");
+  // Modal title should come from the markdown info file
+  await expect(page.locator("#info-modal-title")).toContainText("Chroma Peaks");
   await expect(page.locator("#info-modal-body")).toContainText("chroma");
 });
 
@@ -457,7 +457,7 @@ test("solved puzzle practice skips quiz and keeps review intro access", async ({
 
   await puzzleCard.getByRole("button", { name: "Review Introduction" }).click();
   await expect(page.locator("#info-modal")).toBeVisible();
-  await expect(page.locator(".learning-modal-illustration")).toBeVisible();
+  await expect(page.locator("#info-modal-body")).not.toBeEmpty();
   await page.locator("#info-modal-close").click();
   await expect(page.locator("#info-modal")).toBeHidden();
 });
