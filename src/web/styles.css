@@ -1040,7 +1040,7 @@ body {
 
 .pet-collection {
   display: grid;
-  grid-template-columns: repeat(9, 1fr);
+  grid-template-columns: repeat(7, 1fr);
   gap: 0.3rem;
   margin-bottom: 0.6rem;
 }
@@ -1053,10 +1053,20 @@ body {
   transition: opacity 220ms ease, transform 220ms ease;
 }
 
-.pet-slot svg {
-  width: 100%;
-  height: auto;
+.pet-sprite {
+  border-radius: 10px;
+  overflow: hidden;
   display: block;
+}
+
+.pet-sprite--grid {
+  width: 100%;
+  aspect-ratio: 10 / 13;
+}
+
+.pet-sprite--locked {
+  filter: grayscale(1) saturate(0.35) brightness(1.04);
+  opacity: 0.72;
 }
 
 .pet-slot--collected {
@@ -1121,6 +1131,27 @@ body {
 .toast-icon {
   font-size: 0.88rem;
   line-height: 1;
+}
+
+.toast-icon--pet {
+  width: 1.7rem;
+  height: 1.7rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.45);
+}
+
+.toast-icon--pet .pet-sprite--toast {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.pet-sprite--toast {
+  width: 100%;
+  height: 100%;
 }
 
 .toast-text {

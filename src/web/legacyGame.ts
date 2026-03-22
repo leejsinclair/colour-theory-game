@@ -130,30 +130,37 @@ document.addEventListener("keydown", (e) => {
   }
 });
 
-/** Colour assigned to each pet's jellybean. */
-const PET_COLOURS: Record<string, string> = {
-  "pet-01": "#FFE566", // Glow Sprite - bright yellow
-  "pet-02": "#4C2A85", // Ink Octopus - deep purple
-  "pet-03": "#6C757D", // Shadow Cat - medium grey
-  "pet-04": "#ADB5BD", // Shadow Mouse - light grey
-  "pet-05": "#E67E22", // Gradient Hedgehog - warm orange
-  "pet-06": "#27AE60", // Chroma Gecko - vivid green
-  "pet-07": "#E74C3C", // Prism Fox - red
-  "pet-08": "#E91E63", // Palette Parrot - magenta
-  "pet-09": "#7B2FBE", // Mood Bat - purple
-  "pet-10": "#16A085", // Chameleon Lizard - teal
-  "pet-11": "#2ECC71", // Contrast Frog - bright green
-  "pet-12": "#8B7355", // Neutral Turtle - warm tan
-  "pet-13": "#74C0FC", // Sky Jelly - sky blue
-  "pet-14": "#9BE7F5", // Air Sprite - pale cyan
-  "pet-15": "#F59F00", // Dusk Owl - amber
-  "pet-16": "#A9E34B", // Paint Slime - lime green
-  "pet-17": "#795548", // Mud Blob - brown
-  "pet-18": "#FFD43B", // Dot Bee - golden yellow
-  "pet-19": "#B0E0E6", // Harmony Dove - powder blue
-  "pet-20": "#C9A0DC", // Empathy Moth - soft violet
-  "pet-21": "#FF7F7F", // Vibration Hummingbird - coral red
+const PET_SPRITE_HREF = "assets/pets/pets.png";
+const PET_SPRITE_NATURAL_WIDTH = 680;
+const PET_SPRITE_NATURAL_HEIGHT = 386;
+
+/** Sprite centres in the 680x386 pets sprite viewBox. */
+const PET_SPRITE_CENTRES: Record<string, { cx: number; cy: number }> = {
+  "pet-01": { cx: 48, cy: 62 },
+  "pet-02": { cx: 145, cy: 62 },
+  "pet-03": { cx: 243, cy: 62 },
+  "pet-04": { cx: 340, cy: 62 },
+  "pet-05": { cx: 437, cy: 62 },
+  "pet-06": { cx: 535, cy: 62 },
+  "pet-07": { cx: 632, cy: 62 },
+  "pet-08": { cx: 48, cy: 182 },
+  "pet-09": { cx: 145, cy: 182 },
+  "pet-10": { cx: 243, cy: 182 },
+  "pet-11": { cx: 340, cy: 182 },
+  "pet-12": { cx: 437, cy: 182 },
+  "pet-13": { cx: 535, cy: 182 },
+  "pet-14": { cx: 632, cy: 182 },
+  "pet-15": { cx: 48, cy: 302 },
+  "pet-16": { cx: 145, cy: 302 },
+  "pet-17": { cx: 243, cy: 302 },
+  "pet-18": { cx: 340, cy: 302 },
+  "pet-19": { cx: 437, cy: 302 },
+  "pet-20": { cx: 535, cy: 302 },
+  "pet-21": { cx: 632, cy: 302 },
 };
+
+/** Pets with lower extents that benefit from a larger crop. */
+const PET_SPRITE_LARGE_CROP = new Set(["pet-02", "pet-10", "pet-13"]);
 
 /** All 21 pet IDs in order. */
 const ALL_PET_IDS = Array.from({ length: 21 }, (_, i) => `pet-${String(i + 1).padStart(2, "0")}`);
@@ -183,50 +190,44 @@ const PET_NAMES: Record<string, string> = {
   "pet-21": "Vibration Hummingbird",
 };
 
-/** Build a jellybean-shaped SVG element for one pet slot. */
-function createJellybeanSvg(petId: string, collected: boolean): SVGSVGElement {
-  const ns = "http://www.w3.org/2000/svg";
-  const svg = document.createElementNS(ns, "svg") as SVGSVGElement;
-  svg.setAttribute("viewBox", "0 0 40 24");
-  svg.setAttribute("width", "40");
-  svg.setAttribute("height", "24");
-  svg.setAttribute("role", "img");
-  svg.setAttribute("aria-label", `${PET_NAMES[petId] ?? petId}${collected ? " (collected)" : ""}`);
+/** Build a CSS-sprite div for one pet slot. */
+function createPetSpriteDiv(
+  petId: string,
+  collected: boolean,
+  options: { includeLabel?: boolean } = {},
+): HTMLDivElement {
+  const sprite = document.createElement("div");
+  const centre = PET_SPRITE_CENTRES[petId] ?? { cx: 48, cy: 62 };
+  const includeLabel = options.includeLabel ?? true;
+  const cropHalf = PET_SPRITE_LARGE_CROP.has(petId) ? 44 : 40;
+  const cropWidth = cropHalf * 2;
+  const cropHeight = cropWidth + (includeLabel ? 24 : 0);
+  const cropX = centre.cx - cropHalf;
+  const cropY = centre.cy - cropHalf;
+  const scaleX = PET_SPRITE_NATURAL_WIDTH / cropWidth;
+  const scaleY = PET_SPRITE_NATURAL_HEIGHT / cropHeight;
 
-  const bodyColour = collected ? (PET_COLOURS[petId] ?? "#0d8db0") : "#d8dbe3";
+  // Position based on crop rectangle origin so labels remain in frame.
+  const posX = ((-cropX / cropWidth) / (1 - scaleX)) * 100;
+  const posY = ((-cropY / cropHeight) / (1 - scaleY)) * 100;
 
-  // Jellybean body – a rounded path that is wider on the right end
-  const body = document.createElementNS(ns, "path");
-  body.setAttribute(
-    "d",
-    "M8,2 C3,2 1,5 1,8 C1,11 1,14 1,16 C1,20 4,22 8,22 C13,22 27,22 32,22 C36,22 39,19 39,15 C39,11 39,9 39,7 C39,3 36,2 32,2 Z",
-  );
-  body.setAttribute("fill", bodyColour);
-  svg.appendChild(body);
-
-  if (collected) {
-    // Glossy highlight on the upper portion
-    const shine = document.createElementNS(ns, "ellipse");
-    shine.setAttribute("cx", "19");
-    shine.setAttribute("cy", "9");
-    shine.setAttribute("rx", "12");
-    shine.setAttribute("ry", "3.5");
-    shine.setAttribute("fill", "rgba(255,255,255,0.32)");
-    svg.appendChild(shine);
-  } else {
-    // Subtle lock dot in the centre for uncollected slots
-    const dot = document.createElementNS(ns, "circle");
-    dot.setAttribute("cx", "20");
-    dot.setAttribute("cy", "12");
-    dot.setAttribute("r", "2.5");
-    dot.setAttribute("fill", "rgba(80,90,110,0.25)");
-    svg.appendChild(dot);
+  sprite.className = "pet-sprite";
+  if (!collected) {
+    sprite.classList.add("pet-sprite--locked");
   }
 
-  return svg;
+  sprite.setAttribute("role", "img");
+  sprite.setAttribute("aria-label", `${PET_NAMES[petId] ?? petId}${collected ? " (collected)" : ""}`);
+  sprite.style.backgroundImage = `url(${PET_SPRITE_HREF})`;
+  sprite.style.backgroundRepeat = "no-repeat";
+  sprite.style.backgroundSize = `${scaleX * 100}% ${scaleY * 100}%`;
+  sprite.style.backgroundPosition = `${posX}% ${posY}%`;
+  sprite.style.backgroundColor = collected ? "#ffffff" : "#d8dbe3";
+
+  return sprite;
 }
 
-/** Rebuild the 2-row pet jellybean grid below the scoreboard. */
+/** Rebuild the 2-row pet sprite grid below the scoreboard. */
 let _lastCollectedSnapshot = "";
 
 function renderPetCollection(): void {
@@ -246,7 +247,9 @@ function renderPetCollection(): void {
     const wrapper = document.createElement("div");
     wrapper.className = `pet-slot${collected ? " pet-slot--collected" : ""}`;
     wrapper.title = `${PET_NAMES[petId] ?? petId}${collected ? "" : " (not yet collected)"}`;
-    wrapper.appendChild(createJellybeanSvg(petId, collected));
+    const sprite = createPetSpriteDiv(petId, collected, { includeLabel: true });
+    sprite.classList.add("pet-sprite--grid");
+    wrapper.appendChild(sprite);
     petCollectionEl.appendChild(wrapper);
   }
 }
@@ -258,13 +261,20 @@ let practicePuzzleId: string | null = null;
 /** Show a brief floating reward toast message. */
 function showToast(
   message: string,
-  options: { kind?: "default" | "success"; icon?: string } = {},
+  options: { kind?: "default" | "success"; icon?: string; petId?: string } = {},
 ): void {
   const el = document.createElement("div");
   const kind = options.kind ?? "default";
   el.className = `toast${kind === "success" ? " toast--success" : ""}`;
 
-  if (options.icon) {
+  if (options.petId) {
+    const iconWrap = document.createElement("span");
+    iconWrap.className = "toast-icon toast-icon--pet";
+    const sprite = createPetSpriteDiv(options.petId, true, { includeLabel: false });
+    sprite.classList.add("pet-sprite--toast");
+    iconWrap.appendChild(sprite);
+    el.appendChild(iconWrap);
+  } else if (options.icon) {
     const iconEl = document.createElement("span");
     iconEl.className = "toast-icon";
     iconEl.textContent = options.icon;
@@ -292,7 +302,7 @@ function updateHud(): void {
 
   renderMuiMilestoneChips(milestoneBadgesEl, progress.petMilestonesUnlocked);
 
-  // Rebuild jellybean pet collection grid
+  // Rebuild pet collection sprite grid
   renderPetCollection();
 }
 
@@ -920,7 +930,7 @@ function addCheckButton(wrapper: HTMLDivElement, puzzleId: string, inputFactory:
 
     if (scoreEvent.reason.includes("Pet Rescued") && puzzleMeta) {
       const petName = PET_NAMES[puzzleMeta.rewardPetId] ?? "New Pet";
-      showToast(`Pet unlocked: ${petName}`, { kind: "success", icon: "🐾" });
+      showToast(`Pet unlocked: ${petName}`, { kind: "success", petId: puzzleMeta.rewardPetId });
     }
 
     if (scoreEvent.reason.includes("Station Complete") && puzzleMeta) {

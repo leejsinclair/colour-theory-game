@@ -1,0 +1,372 @@
+<svg width="100%" viewBox="0 0 680 386">
+<defs><marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></marker></defs>
+
+<!-- 01 Glow Sprite -->
+<g transform="translate(48,62)">
+<circle r="32" fill="#FFE566" opacity="0.13"></circle>
+<ellipse cx="-15" cy="4" rx="12" ry="6" fill="#FFFDE7" transform="rotate(-35,-15,4)"></ellipse>
+<ellipse cx="15" cy="4" rx="12" ry="6" fill="#FFFDE7" transform="rotate(35,15,4)"></ellipse>
+<ellipse cy="14" rx="7" ry="10" fill="#FFE566"></ellipse>
+<circle cy="-5" r="10" fill="#FFE566"></circle>
+<circle cx="-3" cy="-6" r="1.5" fill="#8B6000"></circle>
+<circle cx="3" cy="-6" r="1.5" fill="#8B6000"></circle>
+<path d="M-2,-2 Q0,-1 2,-2" fill="none" stroke="#8B6000" stroke-width="1" stroke-linecap="round"></path>
+<line x1="-3" y1="-14" x2="-7" y2="-21" stroke="#D4A900" stroke-width="1.5" stroke-linecap="round"></line>
+<circle cx="-7" cy="-22" r="2" fill="#D4A900"></circle>
+<line x1="3" y1="-14" x2="7" y2="-21" stroke="#D4A900" stroke-width="1.5" stroke-linecap="round"></line>
+<circle cx="7" cy="-22" r="2" fill="#D4A900"></circle>
+</g>
+<text class="ts" x="48" y="113" text-anchor="middle" style="font-size:11px">Glow Sprite</text>
+
+<!-- 02 Ink Octopus -->
+<g transform="translate(145,62)">
+<circle r="32" fill="#4C2A85" opacity="0.13"></circle>
+<ellipse rx="18" ry="15" cy="-4" fill="#4C2A85"></ellipse>
+<circle cx="-7" cy="-7" r="4" fill="white"></circle>
+<circle cx="7" cy="-7" r="4" fill="white"></circle>
+<circle cx="-6" cy="-7" r="2" fill="#1A0A40"></circle>
+<circle cx="7" cy="-7" r="2" fill="#1A0A40"></circle>
+<path d="M-16,8 Q-20,20 -16,30 Q-14,36 -18,38" fill="none" stroke="#4C2A85" stroke-width="4.5" stroke-linecap="round"></path>
+<path d="M-8,10 Q-10,22 -6,30 Q-4,36 -8,38" fill="none" stroke="#4C2A85" stroke-width="4" stroke-linecap="round"></path>
+<path d="M0,11 Q0,23 2,32 Q4,37 0,39" fill="none" stroke="#4C2A85" stroke-width="4" stroke-linecap="round"></path>
+<path d="M8,10 Q12,22 8,30 Q6,36 10,38" fill="none" stroke="#4C2A85" stroke-width="4" stroke-linecap="round"></path>
+<path d="M16,8 Q20,20 16,30 Q14,36 18,38" fill="none" stroke="#4C2A85" stroke-width="4.5" stroke-linecap="round"></path>
+</g>
+<text class="ts" x="145" y="113" text-anchor="middle" style="font-size:11px">Ink Octopus</text>
+
+<!-- 03 Shadow Cat -->
+<g transform="translate(243,62)">
+<circle r="32" fill="#6C757D" opacity="0.13"></circle>
+<ellipse cy="14" rx="14" ry="12" fill="#6C757D"></ellipse>
+<circle cy="-4" r="13" fill="#6C757D"></circle>
+<polygon points="-10,-16 -16,-28 -4,-20" fill="#5A6268"></polygon>
+<polygon points="10,-16 16,-28 4,-20" fill="#5A6268"></polygon>
+<polygon points="-9,-17 -13,-25 -6,-21" fill="#98A0A6" opacity="0.5"></polygon>
+<polygon points="9,-17 13,-25 6,-21" fill="#98A0A6" opacity="0.5"></polygon>
+<ellipse cx="-5" cy="-5" rx="3.5" ry="2.5" fill="#1A1A2E"></ellipse>
+<ellipse cx="5" cy="-5" rx="3.5" ry="2.5" fill="#1A1A2E"></ellipse>
+<polygon points="0,-2 -2,1 2,1" fill="#9E6678"></polygon>
+<circle cx="-9" cy="-1" r="1" fill="#8B9096"></circle>
+<circle cx="-12" cy="0" r="1" fill="#8B9096"></circle>
+<circle cx="9" cy="-1" r="1" fill="#8B9096"></circle>
+<circle cx="12" cy="0" r="1" fill="#8B9096"></circle>
+<path d="M13,20 Q28,14 26,2" fill="none" stroke="#6C757D" stroke-width="4" stroke-linecap="round"></path>
+</g>
+<text class="ts" x="243" y="113" text-anchor="middle" style="font-size:11px">Shadow Cat</text>
+
+<!-- 04 Shadow Mouse -->
+<g transform="translate(340,62)">
+<circle r="32" fill="#ADB5BD" opacity="0.13"></circle>
+<circle cx="-9" cy="-19" r="11" fill="#ADB5BD"></circle>
+<circle cx="9" cy="-19" r="11" fill="#ADB5BD"></circle>
+<circle cx="-9" cy="-19" r="7" fill="#D0D6DC"></circle>
+<circle cx="9" cy="-19" r="7" fill="#D0D6DC"></circle>
+<ellipse cy="13" rx="10" ry="12" fill="#ADB5BD"></ellipse>
+<circle cy="-4" r="12" fill="#ADB5BD"></circle>
+<circle cx="-4" cy="-5" r="2.5" fill="#2D3338"></circle>
+<circle cx="4" cy="-5" r="2.5" fill="#2D3338"></circle>
+<circle cx="-3.5" cy="-6" r="0.8" fill="white"></circle>
+<circle cx="4.5" cy="-6" r="0.8" fill="white"></circle>
+<ellipse cy="-1" rx="3" ry="2" fill="#C78FA0"></ellipse>
+<path d="M8,22 Q20,30 22,20 Q24,10 18,6" fill="none" stroke="#9AA3AA" stroke-width="2" stroke-linecap="round"></path>
+</g>
+<text class="ts" x="340" y="113" text-anchor="middle" style="font-size:11px">Shadow Mouse</text>
+
+<!-- 05 Gradient Hedgehog -->
+<g transform="translate(437,62)">
+<circle r="32" fill="#E67E22" opacity="0.13"></circle>
+<ellipse cy="10" rx="22" ry="16" fill="#E67E22"></ellipse>
+<polygon points="-18,-4 -14,-20 -10,-4" fill="#C45F10"></polygon>
+<polygon points="-9,-6 -5,-22 -1,-6" fill="#C45F10"></polygon>
+<polygon points="1,-8 5,-24 9,-8" fill="#C45F10"></polygon>
+<polygon points="9,-6 13,-22 17,-6" fill="#C45F10"></polygon>
+<ellipse cx="-12" cy="8" rx="10" ry="9" fill="#F0952E"></ellipse>
+<circle cx="-14" cy="5" r="2.5" fill="#1A0A00"></circle>
+<circle cx="-13.5" cy="4.5" r="0.8" fill="white"></circle>
+<circle cx="-20" cy="10" r="2" fill="#1A0A00"></circle>
+<path d="M-22,12 Q-20,15 -18,12" fill="none" stroke="#1A0A00" stroke-width="1" stroke-linecap="round"></path>
+</g>
+<text class="ts" x="437" y="109" text-anchor="middle" style="font-size:11px">Gradient</text>
+<text class="ts" x="437" y="122" text-anchor="middle" style="font-size:11px">Hedgehog</text>
+
+<!-- 06 Chroma Gecko -->
+<g transform="translate(535,62)">
+<circle r="32" fill="#27AE60" opacity="0.13"></circle>
+<path d="M16,8 Q30,14 30,4 Q30,-4 22,-6" fill="none" stroke="#27AE60" stroke-width="6" stroke-linecap="round"></path>
+<ellipse rx="16" ry="10" fill="#27AE60"></ellipse>
+<ellipse cx="-10" cy="10" rx="5" ry="3.5" fill="#1D8A4A" transform="rotate(30,-10,10)"></ellipse>
+<ellipse cx="6" cy="10" rx="5" ry="3.5" fill="#1D8A4A" transform="rotate(-20,6,10)"></ellipse>
+<ellipse cx="-8" cy="-10" rx="5" ry="3" fill="#1D8A4A" transform="rotate(-20,-8,-10)"></ellipse>
+<ellipse cx="8" cy="-10" rx="5" ry="3" fill="#1D8A4A" transform="rotate(20,8,-10)"></ellipse>
+<ellipse cx="-20" cy="-2" rx="9" ry="8" fill="#27AE60"></ellipse>
+<circle cx="-23" cy="-5" r="4" fill="#E8F8F5"></circle>
+<circle cx="-22" cy="-5" r="2.5" fill="#0A4020"></circle>
+<circle cx="-21.5" cy="-5.5" r="0.8" fill="white"></circle>
+</g>
+<text class="ts" x="535" y="113" text-anchor="middle" style="font-size:11px">Chroma Gecko</text>
+
+<!-- 07 Prism Fox -->
+<g transform="translate(632,62)">
+<circle r="32" fill="#E74C3C" opacity="0.13"></circle>
+<path d="M12,16 Q26,22 24,8 Q22,-2 14,-4 Z" fill="#E74C3C"></path>
+<circle cx="22" cy="12" r="8" fill="#E74C3C"></circle>
+<circle cx="22" cy="6" r="6" fill="white"></circle>
+<ellipse cy="12" rx="12" ry="11" fill="#E74C3C"></ellipse>
+<circle cy="-5" r="12" fill="#E74C3C"></circle>
+<polygon points="-9,-16 -14,-28 -3,-22" fill="#C0281C"></polygon>
+<polygon points="9,-16 14,-28 3,-22" fill="#C0281C"></polygon>
+<polygon points="-8,-17 -11,-25 -4,-21" fill="#FFAAA0" opacity="0.6"></polygon>
+<polygon points="8,-17 11,-25 4,-21" fill="#FFAAA0" opacity="0.6"></polygon>
+<ellipse cy="-2" rx="6" ry="4" fill="#F5B8B2"></ellipse>
+<circle cx="-4" cy="-7" r="2.5" fill="#1A0A00"></circle>
+<circle cx="4" cy="-7" r="2.5" fill="#1A0A00"></circle>
+<circle cx="-3.5" cy="-7.5" r="0.8" fill="white"></circle>
+<ellipse cy="-3" rx="2" ry="1.5" fill="#1A0A00"></ellipse>
+</g>
+<text class="ts" x="632" y="113" text-anchor="middle" style="font-size:11px">Prism Fox</text>
+
+<!-- 08 Palette Parrot -->
+<g transform="translate(48,182)">
+<circle r="32" fill="#E91E63" opacity="0.13"></circle>
+<line x1="6" y1="20" x2="0" y2="36" stroke="#D81B60" stroke-width="3" stroke-linecap="round"></line>
+<line x1="10" y1="19" x2="14" y2="34" stroke="#C2185B" stroke-width="2.5" stroke-linecap="round"></line>
+<line x1="2" y1="21" x2="-5" y2="35" stroke="#AD1457" stroke-width="2.5" stroke-linecap="round"></line>
+<ellipse cy="10" rx="13" ry="14" fill="#E91E63"></ellipse>
+<path d="M12,4 Q24,8 22,20 Q14,24 10,18 Z" fill="#C2185B"></path>
+<circle cy="-10" r="11" fill="#E91E63"></circle>
+<path d="M-4,-7 L-12,-10 L-4,-14 Z" fill="#F59F00"></path>
+<circle cx="-3" cy="-11" r="3.5" fill="white"></circle>
+<circle cx="-3" cy="-11" r="2" fill="#1A0A00"></circle>
+<circle cx="-2.5" cy="-11.5" r="0.6" fill="white"></circle>
+</g>
+<text class="ts" x="48" y="233" text-anchor="middle" style="font-size:11px">Palette Parrot</text>
+
+<!-- 09 Mood Bat -->
+<g transform="translate(145,182)">
+<circle r="32" fill="#7B2FBE" opacity="0.13"></circle>
+<path d="M-6,0 Q-20,-10 -30,-2 Q-26,14 -14,12 Q-8,10 -6,4 Z" fill="#7B2FBE"></path>
+<path d="M6,0 Q20,-10 30,-2 Q26,14 14,12 Q8,10 6,4 Z" fill="#7B2FBE"></path>
+<path d="M-6,2 Q-22,-2 -28,2" fill="none" stroke="#5A1E9A" stroke-width="1" opacity="0.5"></path>
+<path d="M6,2 Q22,-2 28,2" fill="none" stroke="#5A1E9A" stroke-width="1" opacity="0.5"></path>
+<ellipse cy="6" rx="9" ry="12" fill="#7B2FBE"></ellipse>
+<circle cy="-8" r="9" fill="#7B2FBE"></circle>
+<polygon points="-6,-16 -10,-28 -2,-22" fill="#5A1E9A"></polygon>
+<polygon points="6,-16 10,-28 2,-22" fill="#5A1E9A"></polygon>
+<circle cx="-3" cy="-9" r="2" fill="#1A0040"></circle>
+<circle cx="3" cy="-9" r="2" fill="#1A0040"></circle>
+<line x1="-2" y1="-1" x2="-3" y2="3" stroke="white" stroke-width="1.5" stroke-linecap="round"></line>
+<line x1="2" y1="-1" x2="3" y2="3" stroke="white" stroke-width="1.5" stroke-linecap="round"></line>
+</g>
+<text class="ts" x="145" y="233" text-anchor="middle" style="font-size:11px">Mood Bat</text>
+
+<!-- 10 Chameleon Lizard -->
+<g transform="translate(243,182)">
+<circle r="32" fill="#16A085" opacity="0.13"></circle>
+<path d="M16,14 Q28,14 26,4 Q24,-4 16,0" fill="none" stroke="#16A085" stroke-width="5" stroke-linecap="round"></path>
+<ellipse rx="16" ry="11" cy="4" fill="#16A085"></ellipse>
+<circle cx="-12" cy="-6" r="3.5" fill="#0D7A65"></circle>
+<circle cx="-6" cy="-10" r="3.5" fill="#0D7A65"></circle>
+<circle cx="0" cy="-12" r="3.5" fill="#0D7A65"></circle>
+<circle cx="6" cy="-10" r="3.5" fill="#0D7A65"></circle>
+<circle cx="12" cy="-6" r="3.5" fill="#0D7A65"></circle>
+<path d="M-10,10 L-12,22" fill="none" stroke="#16A085" stroke-width="3.5" stroke-linecap="round"></path>
+<path d="M10,10 L12,22" fill="none" stroke="#16A085" stroke-width="3.5" stroke-linecap="round"></path>
+<ellipse cx="-22" cy="0" rx="10" ry="9" fill="#16A085"></ellipse>
+<circle cx="-26" cy="-3" r="7" fill="#E8F8F5"></circle>
+<circle cx="-25" cy="-3" r="4" fill="#0A4A38"></circle>
+<circle cx="-24" cy="-4" r="1.5" fill="white"></circle>
+<path d="M-30,2 Q-38,4 -36,8" fill="none" stroke="#E74C3C" stroke-width="2" stroke-linecap="round"></path>
+<circle cx="-36" cy="8" r="2.5" fill="#E74C3C"></circle>
+</g>
+<text class="ts" x="243" y="229" text-anchor="middle" style="font-size:11px">Chameleon</text>
+<text class="ts" x="243" y="242" text-anchor="middle" style="font-size:11px">Lizard</text>
+
+<!-- 11 Contrast Frog -->
+<g transform="translate(340,182)">
+<circle r="32" fill="#2ECC71" opacity="0.13"></circle>
+<ellipse cy="8" rx="20" ry="14" fill="#2ECC71"></ellipse>
+<circle cx="-10" cy="-6" r="9" fill="#2ECC71"></circle>
+<circle cx="10" cy="-6" r="9" fill="#2ECC71"></circle>
+<circle cx="-10" cy="-6" r="5" fill="#1A1A2E"></circle>
+<circle cx="10" cy="-6" r="5" fill="#1A1A2E"></circle>
+<circle cx="-9" cy="-7" r="1.5" fill="white"></circle>
+<circle cx="11" cy="-7" r="1.5" fill="white"></circle>
+<path d="M-18,16 Q-24,20 -20,26" fill="none" stroke="#2ECC71" stroke-width="4" stroke-linecap="round"></path>
+<path d="M18,16 Q24,20 20,26" fill="none" stroke="#2ECC71" stroke-width="4" stroke-linecap="round"></path>
+<path d="M-16,22 Q-26,24 -24,30" fill="none" stroke="#2ECC71" stroke-width="4" stroke-linecap="round"></path>
+<path d="M16,22 Q26,24 24,30" fill="none" stroke="#2ECC71" stroke-width="4" stroke-linecap="round"></path>
+<path d="M-8,12 Q0,16 8,12" fill="none" stroke="#20A860" stroke-width="1.5" stroke-linecap="round"></path>
+</g>
+<text class="ts" x="340" y="233" text-anchor="middle" style="font-size:11px">Contrast Frog</text>
+
+<!-- 12 Neutral Turtle -->
+<g transform="translate(437,182)">
+<circle r="32" fill="#8B7355" opacity="0.13"></circle>
+<ellipse cx="-14" cy="-12" rx="7" ry="4.5" fill="#7A6348" transform="rotate(-30,-14,-12)"></ellipse>
+<ellipse cx="14" cy="-12" rx="7" ry="4.5" fill="#7A6348" transform="rotate(30,14,-12)"></ellipse>
+<ellipse cx="-14" cy="12" rx="7" ry="4.5" fill="#7A6348" transform="rotate(30,-14,12)"></ellipse>
+<ellipse cx="14" cy="12" rx="7" ry="4.5" fill="#7A6348" transform="rotate(-30,14,12)"></ellipse>
+<ellipse rx="18" ry="16" fill="#8B7355"></ellipse>
+<ellipse rx="14" ry="12" fill="#9E8666" opacity="0.7"></ellipse>
+<path d="M0,-12 L-8,6 L8,6 Z" fill="none" stroke="#6A5740" stroke-width="1.2" opacity="0.7"></path>
+<path d="M-8,6 L-14,12" fill="none" stroke="#6A5740" stroke-width="1.2" opacity="0.7"></path>
+<path d="M8,6 L14,12" fill="none" stroke="#6A5740" stroke-width="1.2" opacity="0.7"></path>
+<circle cy="-18" r="7" fill="#7A6348"></circle>
+<circle cx="-3" cy="-20" r="2.5" fill="#1A1A00"></circle>
+<circle cx="-2.5" cy="-20.5" r="0.8" fill="white"></circle>
+</g>
+<text class="ts" x="437" y="233" text-anchor="middle" style="font-size:11px">Neutral Turtle</text>
+
+<!-- 13 Sky Jelly -->
+<g transform="translate(535,182)">
+<circle r="32" fill="#74C0FC" opacity="0.13"></circle>
+<path d="M-12,6 Q-14,18 -10,28 Q-8,34 -12,38" fill="none" stroke="#4A9FE0" stroke-width="2.5" stroke-linecap="round"></path>
+<path d="M-4,8 Q-4,20 -2,29 Q0,34 -4,38" fill="none" stroke="#74C0FC" stroke-width="2" stroke-linecap="round"></path>
+<path d="M4,8 Q6,20 4,29 Q2,34 6,38" fill="none" stroke="#4A9FE0" stroke-width="2" stroke-linecap="round"></path>
+<path d="M12,6 Q14,18 10,28 Q8,34 12,38" fill="none" stroke="#74C0FC" stroke-width="2.5" stroke-linecap="round"></path>
+<ellipse cy="-4" rx="10" ry="4" fill="#4A9FE0" opacity="0.5"></ellipse>
+<path d="M-18,-4 Q-18,-22 0,-22 Q18,-22 18,-4 Q16,10 0,10 Q-16,10 -18,-4 Z" fill="#74C0FC"></path>
+<circle cx="-6" cy="-10" r="2" fill="white" opacity="0.5"></circle>
+<circle cx="6" cy="-8" r="1.5" fill="white" opacity="0.4"></circle>
+<circle cx="0" cy="-14" r="1" fill="white" opacity="0.5"></circle>
+</g>
+<text class="ts" x="535" y="233" text-anchor="middle" style="font-size:11px">Sky Jelly</text>
+
+<!-- 14 Air Sprite -->
+<g transform="translate(632,182)">
+<circle r="32" fill="#9BE7F5" opacity="0.13"></circle>
+<path d="M-14,-26 Q-14,-28 0,-28 Q14,-28 14,-26 L14,16 Q10,22 6,16 Q2,10 0,16 Q-2,22 -6,16 Q-10,10 -14,16 Z" fill="#9BE7F5"></path>
+<ellipse cy="-8" rx="8" ry="10" fill="#B8EEF8" opacity="0.4"></ellipse>
+<circle cx="-5" cy="-10" r="3" fill="#1A6080"></circle>
+<circle cx="5" cy="-10" r="3" fill="#1A6080"></circle>
+<circle cx="-4.5" cy="-10.5" r="1" fill="white"></circle>
+<circle cx="5.5" cy="-10.5" r="1" fill="white"></circle>
+<path d="M-14,4 Q-22,0 -22,8" fill="none" stroke="#9BE7F5" stroke-width="3" stroke-linecap="round"></path>
+<path d="M14,4 Q22,0 22,8" fill="none" stroke="#9BE7F5" stroke-width="3" stroke-linecap="round"></path>
+</g>
+<text class="ts" x="632" y="233" text-anchor="middle" style="font-size:11px">Air Sprite</text>
+
+<!-- 15 Sun Finch -->
+<g transform="translate(48,302)">
+<circle r="32" fill="#F59F00" opacity="0.13"></circle>
+<path d="M14,6 L22,14 M14,8 L20,18 M14,10 L18,20" fill="none" stroke="#D4860A" stroke-width="2.5" stroke-linecap="round"></path>
+<ellipse cy="4" rx="14" ry="12" fill="#F59F00"></ellipse>
+<path d="M4,-4 Q16,-8 16,6 Q14,12 4,8 Z" fill="#D4860A"></path>
+<circle cy="-14" r="10" fill="#F59F00"></circle>
+<polygon points="-2,-12 -12,-14 -2,-16" fill="#CF6A00"></polygon>
+<circle cx="3" cy="-15" r="3" fill="#1A0A00"></circle>
+<circle cx="3.5" cy="-15.5" r="1" fill="white"></circle>
+<path d="M-6,16 L-8,24 M-8,24 L-10,28 M-8,24 L-6,28" fill="none" stroke="#D4860A" stroke-width="1.8" stroke-linecap="round"></path>
+<path d="M4,16 L6,24 M6,24 L4,28 M6,24 L8,28" fill="none" stroke="#D4860A" stroke-width="1.8" stroke-linecap="round"></path>
+</g>
+<text class="ts" x="48" y="353" text-anchor="middle" style="font-size:11px">Sun Finch</text>
+
+<!-- 16 Paint Slime -->
+<g transform="translate(145,302)">
+<circle r="32" fill="#A9E34B" opacity="0.13"></circle>
+<path d="M-4,22 Q-2,34 0,36 Q2,34 4,22" fill="#A9E34B"></path>
+<circle r="20" fill="#A9E34B"></circle>
+<circle cx="-14" cy="-12" r="8" fill="#A9E34B"></circle>
+<circle cx="14" cy="-10" r="7" fill="#A9E34B"></circle>
+<circle cx="0" cy="-18" r="7" fill="#A9E34B"></circle>
+<circle cx="-7" cy="-2" r="5.5" fill="white"></circle>
+<circle cx="7" cy="-2" r="5.5" fill="white"></circle>
+<circle cx="-7" cy="-2" r="3" fill="#2A5A00"></circle>
+<circle cx="7" cy="-2" r="3" fill="#2A5A00"></circle>
+<circle cx="-6" cy="-3" r="1" fill="white"></circle>
+<circle cx="8" cy="-3" r="1" fill="white"></circle>
+<path d="M-5,6 Q0,11 5,6" fill="none" stroke="#5A8A00" stroke-width="1.8" stroke-linecap="round"></path>
+<circle cx="-13" cy="6" r="3" fill="#E74C3C" opacity="0.75"></circle>
+<circle cx="11" cy="8" r="3" fill="#3498DB" opacity="0.75"></circle>
+<circle cx="2" cy="-9" r="2.5" fill="#F59F00" opacity="0.75"></circle>
+</g>
+<text class="ts" x="145" y="353" text-anchor="middle" style="font-size:11px">Paint Slime</text>
+
+<!-- 17 Mud Blob -->
+<g transform="translate(243,302)">
+<circle r="32" fill="#795548" opacity="0.13"></circle>
+<path d="M-20,10 Q-26,-2 -18,-14 Q-8,-24 4,-20 Q16,-22 22,-10 Q28,2 18,16 Q10,24 0,22 Q-12,26 -20,10 Z" fill="#795548"></path>
+<circle cx="-12" cy="-8" r="5" fill="#8D6454"></circle>
+<circle cx="10" cy="-12" r="4.5" fill="#8D6454"></circle>
+<circle cx="18" cy="4" r="4" fill="#8D6454"></circle>
+<circle cx="-6" cy="0" r="4" fill="#3A2418"></circle>
+<circle cx="6" cy="-2" r="4" fill="#3A2418"></circle>
+<circle cx="-5" cy="-1" r="1.5" fill="#C8A090" opacity="0.4"></circle>
+<circle cx="7" cy="-3" r="1.5" fill="#C8A090" opacity="0.4"></circle>
+<path d="M-5,8 Q0,6 5,8" fill="none" stroke="#3A2418" stroke-width="1.5" stroke-linecap="round"></path>
+</g>
+<text class="ts" x="243" y="353" text-anchor="middle" style="font-size:11px">Mud Blob</text>
+
+<!-- 18 Dot Bee -->
+<g transform="translate(340,302)">
+<circle r="32" fill="#FFD43B" opacity="0.13"></circle>
+<ellipse cx="-12" cy="-10" rx="10" ry="6" fill="#AEF0FA" opacity="0.7" transform="rotate(-20,-12,-10)"></ellipse>
+<ellipse cx="12" cy="-10" rx="10" ry="6" fill="#AEF0FA" opacity="0.7" transform="rotate(20,12,-10)"></ellipse>
+<ellipse cy="12" rx="10" ry="14" fill="#F0C020"></ellipse>
+<rect x="-10" y="4" width="20" height="4.5" rx="2" fill="#2D2D2D" opacity="0.55"></rect>
+<rect x="-10" y="13" width="20" height="4.5" rx="2" fill="#2D2D2D" opacity="0.55"></rect>
+<ellipse cy="-4" rx="10" ry="8" fill="#FFD43B"></ellipse>
+<circle cy="-16" r="8" fill="#FFD43B"></circle>
+<line x1="-3" y1="-23" x2="-7" y2="-30" stroke="#2D2D2D" stroke-width="1.5" stroke-linecap="round"></line>
+<circle cx="-7" cy="-31" r="2" fill="#2D2D2D"></circle>
+<line x1="3" y1="-23" x2="7" y2="-30" stroke="#2D2D2D" stroke-width="1.5" stroke-linecap="round"></line>
+<circle cx="7" cy="-31" r="2" fill="#2D2D2D"></circle>
+<circle cx="-4" cy="-17" r="2.5" fill="#2D2D2D"></circle>
+<circle cx="4" cy="-17" r="2.5" fill="#2D2D2D"></circle>
+<polygon points="0,26 -3,32 3,32" fill="#A07000"></polygon>
+</g>
+<text class="ts" x="340" y="353" text-anchor="middle" style="font-size:11px">Dot Bee</text>
+
+<!-- 19 Harmony Dove -->
+<g transform="translate(437,302)">
+<circle r="32" fill="#B0E0E6" opacity="0.13"></circle>
+<path d="M8,16 Q14,24 8,30 M0,18 Q0,28 0,34 M-8,16 Q-14,24 -8,30" fill="none" stroke="#7ABBC4" stroke-width="3" stroke-linecap="round"></path>
+<path d="M-10,0 Q-28,-10 -30,6 Q-26,18 -10,14 Z" fill="#B0E0E6"></path>
+<path d="M10,0 Q28,-10 30,6 Q26,18 10,14 Z" fill="#B0E0E6"></path>
+<path d="M-10,2 Q-22,-6 -28,6" fill="none" stroke="#7ABBC4" stroke-width="1" opacity="0.6"></path>
+<path d="M10,2 Q22,-6 28,6" fill="none" stroke="#7ABBC4" stroke-width="1" opacity="0.6"></path>
+<ellipse cy="8" rx="12" ry="10" fill="#B0E0E6"></ellipse>
+<circle cy="-8" r="10" fill="#B0E0E6"></circle>
+<polygon points="-2,-5 -12,-8 -2,-11" fill="#F0A030"></polygon>
+<circle cx="3" cy="-9" r="3.5" fill="#1A4050"></circle>
+<circle cx="3.5" cy="-9.5" r="1" fill="white"></circle>
+</g>
+<text class="ts" x="437" y="353" text-anchor="middle" style="font-size:11px">Harmony Dove</text>
+
+<!-- 20 Empathy Moth -->
+<g transform="translate(535,302)">
+<circle r="32" fill="#C9A0DC" opacity="0.13"></circle>
+<path d="M-6,8 Q-24,14 -22,28 Q-16,32 -8,22 Z" fill="#B080C8"></path>
+<path d="M6,8 Q24,14 22,28 Q16,32 8,22 Z" fill="#B080C8"></path>
+<path d="M-8,-4 Q-30,-16 -28,4 Q-26,18 -8,12 Z" fill="#C9A0DC"></path>
+<path d="M8,-4 Q30,-16 28,4 Q26,18 8,12 Z" fill="#C9A0DC"></path>
+<circle cx="-18" cy="-4" r="4" fill="#E8C8F0" opacity="0.5"></circle>
+<circle cx="18" cy="-4" r="4" fill="#E8C8F0" opacity="0.5"></circle>
+<circle cx="-16" cy="16" r="3" fill="#8060A0" opacity="0.4"></circle>
+<circle cx="16" cy="16" r="3" fill="#8060A0" opacity="0.4"></circle>
+<ellipse cy="4" rx="5" ry="14" fill="#9A60B8"></ellipse>
+<circle cy="-14" r="6" fill="#9A60B8"></circle>
+<path d="M-3,-19 Q-10,-26 -14,-22" fill="none" stroke="#B080C8" stroke-width="2" stroke-linecap="round"></path>
+<path d="M3,-19 Q10,-26 14,-22" fill="none" stroke="#B080C8" stroke-width="2" stroke-linecap="round"></path>
+<circle cx="-14" cy="-22" r="2.5" fill="#B080C8"></circle>
+<circle cx="14" cy="-22" r="2.5" fill="#B080C8"></circle>
+</g>
+<text class="ts" x="535" y="353" text-anchor="middle" style="font-size:11px">Empathy Moth</text>
+
+<!-- 21 Vibration Hummingbird -->
+<g transform="translate(632,302)">
+<circle r="32" fill="#FF7F7F" opacity="0.13"></circle>
+<path d="M8,12 L14,22 M4,14 L6,26 M0,14 L0,28 M-4,14 L-6,26" fill="none" stroke="#CC5555" stroke-width="2" stroke-linecap="round"></path>
+<path d="M4,-2 Q16,-12 20,-4 Q16,4 4,6" fill="#FFB0B0" opacity="0.6"></path>
+<path d="M4,-1 Q18,-8 22,-2 Q18,6 4,8" fill="#FF7F7F" opacity="0.35"></path>
+<ellipse cy="4" rx="8" ry="12" fill="#FF7F7F"></ellipse>
+<circle cy="-12" r="8" fill="#FF7F7F"></circle>
+<line x1="-6" y1="-14" x2="-28" y2="-18" stroke="#CC5555" stroke-width="2.5" stroke-linecap="round"></line>
+<circle cx="-2" cy="-14" r="2.5" fill="#1A0A00"></circle>
+<circle cx="-1.5" cy="-14.5" r="0.8" fill="white"></circle>
+<ellipse cy="-4" rx="5" ry="4" fill="#FF6080" opacity="0.5"></ellipse>
+</g>
+<text class="ts" x="632" y="349" text-anchor="middle" style="font-size:11px">Vibration</text>
+<text class="ts" x="632" y="362" text-anchor="middle" style="font-size:11px">Hummingbird</text>
+
+</svg>
