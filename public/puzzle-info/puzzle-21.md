@@ -15,5 +15,6 @@ The effect is maximised at full saturation — muted or grey-shifted complements
 
 **Further reading**
 - https://www.tate.org.uk/art/art-terms/o/op-art
-- https://www.jacksonsart.com/blog/2019/03/20/what-is-simultaneous-contrast/
-- https://www.britannica.com/art/op-art
+- https://www.britannica.com/art/Op-art
+- https://www.colormatters.com/color-and-design/basic-color-theory
+

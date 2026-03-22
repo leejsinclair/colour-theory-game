@@ -15,7 +15,7 @@ Restraint is also relevant on the palette itself. Pigments that have already bee
 
 **Further reading**
 - https://drawpaintacademy.com/muddy-colors/
-- https://www.artistsnetwork.com/art-mediums/oil-painting/how-to-avoid-muddy-colors/
-- https://www.jacksonsart.com/blog/2020/06/18/how-to-avoid-muddy-colours/
+- https://drawpaintacademy.com/color-mixing/
+- https://www.artistsnetwork.com/art-techniques/color-mixing/tips-for-using-mixing-black/
 
 ---

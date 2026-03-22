@@ -14,7 +14,7 @@ The technique has limits: very fine detail is lost, and control over exact colou
 - **Divisionism**: the broader theoretical framework behind pointillism, concerned with how to divide colour for maximum optical effect
 
 **Further reading**
-- https://www.visual-arts-cork.com/painting/pointillism.htm
-- https://www.khanacademy.org/humanities/ap-art-history/later-europe-and-americas/impressionism-france/a/seurat-and-pointillism
-- https://www.tate.org.uk/art/art-terms/p/pointillism
+- https://www.tate.org.uk/art/art-terms/n/neo-impressionism
+- https://www.theartstory.org/artist/seurat-georges/
+- https://www.theartstory.org/movement/neo-impressionism/
 

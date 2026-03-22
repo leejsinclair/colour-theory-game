@@ -14,8 +14,8 @@ Chevreul's law states that adjacent colours always push each other toward their 
 - **Albers' Interaction of Color**: landmark 1963 study demonstrating how extensively context modifies perceived colour
 
 **Further reading**
-- https://www.visual-arts-cork.com/color-theory.htm
-- https://www.paletton.com/wiki/index.php?title=Simultaneous_contrast
-- https://drawpaintacademy.com/color-relativity/
+- https://www.britannica.com/science/complementary-color
+- https://www.colormatters.com/color-and-design/basic-color-theory
+- https://www.britannica.com/science/color/The-perception-of-colour
 
 ---

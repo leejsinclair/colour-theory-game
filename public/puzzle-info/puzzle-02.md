@@ -15,7 +15,7 @@ Understanding this distinction between additive and subtractive mixing is founda
 
 **Further reading**
 - https://www.colormatters.com/color-and-design/basic-color-theory
-- https://www.adobe.com/uk/creativecloud/design/discover/cmyk-vs-rgb.html
-- https://www.printingforless.com/cmyk-color-model.html
+- https://www.britannica.com/science/subtractive-mixture
+- https://www.britannica.com/science/primary-color
 
 ---

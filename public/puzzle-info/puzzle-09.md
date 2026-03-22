@@ -15,6 +15,6 @@ A further nuance: creative subversion of expectations carries meaning too. A hor
 
 **Further reading**
 - https://www.colorpsychology.org/
-- https://www.interaction-design.org/literature/article/color-psychology-in-ux-and-ui-design
-- https://drawpaintacademy.com/color-temperature/
+- https://www.colormatters.com/color-symbolism/color-symbolism-theories
+- https://drawpaintacademy.com/a-comprehensive-guide-to-color-theory-for-artists/
 

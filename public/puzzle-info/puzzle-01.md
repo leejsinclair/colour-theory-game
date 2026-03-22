@@ -14,8 +14,8 @@ Partial overlaps produce secondary colours. Red + Green = Yellow. Green + Blue =
 - **Luminance**: the overall brightness of a colour; adding more light always increases it
 
 **Further reading**
-- https://www.nixsensor.com/what-is-additive-color/
-- https://www.khanacademy.org/computing/pixar/color/introduction-to-color/a/color-and-light
-- https://photographylife.com/additive-vs-subtractive-colors
+- https://www.britannica.com/science/RGB-color-model
+- https://www.sciencelearn.org.nz/resources/47-colors-of-light
+- https://www.britannica.com/science/primary-color
 
 ---
