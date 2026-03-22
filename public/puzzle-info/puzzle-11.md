@@ -14,8 +14,8 @@ The strength of the induction depends on the **saturation** and **size** of the 
 - **Afterimage**: the related phenomenon where staring at a colour and then looking at grey induces its complement
 
 **Further reading**
-- https://www.colormatters.com/color-and-design/basic-color-theory
-- https://www.scienceofcolor.org/contrast.htm
-- https://www.jacksonsart.com/blog/2019/03/20/what-is-simultaneous-contrast/
+- https://www.colormatters.com/color-and-vision/color-and-vision-matters
+- https://www.britannica.com/science/color/The-perception-of-colour
+- https://drawpaintacademy.com/impressionists-used-complementary-colors/
 
 ---

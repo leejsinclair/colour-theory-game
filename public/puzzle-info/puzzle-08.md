@@ -14,8 +14,8 @@ Understanding triadic harmony helps explain why some three-colour combinations f
 - **Hue rotation**: the position of a colour measured in degrees around the colour wheel (0°–360°)
 
 **Further reading**
-- https://www.sessions.edu/color-calculator/
-- https://www.canva.com/colors/color-wheel/
-- https://www.adobe.com/uk/creativecloud/design/discover/triadic-colors.html
+- https://drawpaintacademy.com/color-schemes/
+- https://drawpaintacademy.com/a-comprehensive-guide-to-color-theory-for-artists/
+- https://www.britannica.com/science/primary-color
 
 ---

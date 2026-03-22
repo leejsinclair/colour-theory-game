@@ -15,7 +15,7 @@ A deeper skill is understanding that **colour alone rarely determines meaning** 
 
 **Further reading**
 - https://www.colorpsychology.org/
-- https://www.verywellmind.com/color-psychology-2795824
-- https://www.interaction-design.org/literature/article/color-psychology-in-ux-and-ui-design
+- https://www.colormatters.com/color-symbolism/color-symbolism-theories
+- https://www.britannica.com/science/color/The-psychology-of-colour
 
 ---

@@ -14,8 +14,8 @@ This system, sometimes called **split primary mixing**, is one of the most pract
 - **Split primary palette**: a mixing system that uses two versions of each primary (one warm-biased, one cool-biased) to enable clean mixing across the full spectrum
 
 **Further reading**
-- https://www.handprint.com/HP/WCL/pigmt1.html
-- https://www.janeblundellart.com/colour-bias.html
-- https://www.artistsnetwork.com/art-mediums/watercolor/color-bias-in-watercolor/
+- https://www.handprint.com/HP/WCL/mixtable.html
+- https://www.janeblundellart.com/cool-yellows.html
+- https://drawpaintacademy.com/color-mixing/
 
 ---

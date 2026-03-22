@@ -14,7 +14,7 @@ Mixing naturalistic neutrals is itself a skill. Rather than using tube grey or t
 - **Focal accent**: a small area of high saturation used to direct the viewer's attention
 
 **Further reading**
-- https://drawpaintacademy.com/neutrals-in-painting/
-- https://www.artistsnetwork.com/art-mediums/acrylic-painting/using-neutral-colors/
-- https://www.thesprucecrafts.com/how-to-mix-neutral-colors-2578441
+- https://www.artistsnetwork.com/art-techniques/demonstrations/what-colors-make-gray/
+- https://drawpaintacademy.com/color-saturation/
+- https://drawpaintacademy.com/color-mixing/
 

@@ -14,8 +14,8 @@ This is also why artists talk about grouping values: keeping your lights togethe
 - **Local colour**: the actual colour of a surface as seen in neutral light, before shadows or highlights modify it
 
 **Further reading**
-- https://drawpaintacademy.com/squinting/
-- https://www.artistsnetwork.com/art-mediums/painting/the-importance-of-value-in-painting/
-- https://www.watercolorpainting.com/value-in-watercolor/
+- https://drawpaintacademy.com/what-is-value-in-art/
+- https://drawpaintacademy.com/compressed-values/
+- https://www.britannica.com/science/color
 
 ---

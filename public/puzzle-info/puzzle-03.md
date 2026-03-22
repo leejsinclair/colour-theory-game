@@ -14,7 +14,7 @@ The concept that a dark area can still hold meaningful hue is sometimes called *
 - **Chromatic depth**: shadows and darks that retain a subtle, living hue rather than going flat grey
 
 **Further reading**
-- https://drawpaintacademy.com/painting-shadows/
-- https://www.artistsnetwork.com/art-mediums/oil-painting/mixing-blacks/
-- https://www.jacksonsart.com/blog/2018/11/15/mixing-blacks-without-black-paint/
+- https://www.artistsnetwork.com/art-techniques/color-mixing/tips-for-using-mixing-black/
+- https://www.artistsnetwork.com/product-recommendation/studio-staples-black-to-black/
+- https://www.artistsnetwork.com/art-techniques/demonstrations/what-colors-make-gray/
 

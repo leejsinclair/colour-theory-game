@@ -15,8 +15,8 @@ Value organisation also underpins compositional hierarchy. The area of highest v
 - **Tonal range**: the span from the darkest to lightest value used in a composition
 
 **Further reading**
-- https://www.drawingacademy.com/values-in-drawing-and-painting/
-- https://www.artistsnetwork.com/art-mediums/oil-painting/painting-values/
-- https://conceptartempire.com/value-in-art/
+- https://drawpaintacademy.com/what-is-value-in-art/
+- https://drawpaintacademy.com/a-comprehensive-guide-to-color-theory-for-artists/
+- https://www.britannica.com/science/color/The-visible-spectrum
 
 ---

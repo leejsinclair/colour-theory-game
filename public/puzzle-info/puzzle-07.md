@@ -14,8 +14,8 @@ A common mistake is treating all "opposite" hues as equal complements. The exact
 - **Neutralising**: reducing chroma by mixing a colour with its complement
 
 **Further reading**
-- https://www.sessions.edu/color-calculator/
+- https://www.britannica.com/science/complementary-color
 - https://www.colormatters.com/color-and-design/basic-color-theory
-- https://drawpaintacademy.com/complementary-colors/
+- https://drawpaintacademy.com/impressionists-used-complementary-colors/
 
 ---

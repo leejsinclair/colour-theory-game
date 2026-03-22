@@ -20,7 +20,7 @@ Ignoring atmospheric perspective produces paintings where distant mountains look
 
 **Further reading**
 - https://drawpaintacademy.com/atmospheric-perspective/
-- https://www.masterclass.com/articles/aerial-perspective-in-art
-- https://www.artistsnetwork.com/art-mediums/painting/aerial-perspective-in-landscape-painting/
+- https://drawpaintacademy.com/how-to-use-atmospheric-perspective/
+- https://drawpaintacademy.com/color-saturation/
 
 ---

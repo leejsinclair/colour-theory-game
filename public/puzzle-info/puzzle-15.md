@@ -16,7 +16,7 @@ Understanding these shifts requires coordinating several variables simultaneousl
 - **Complementary shadow colour**: the tendency of shadows to lean toward the complement of the dominant light source
 
 **Further reading**
-- https://www.lightstalking.com/what-is-golden-hour/
-- https://www.dpreview.com/articles/0707780785/understanding-color-temperature
-- https://drawpaintacademy.com/painting-light/
+- https://www.handprint.com/HP/WCL/color12.html
+- https://drawpaintacademy.com/how-to-use-atmospheric-perspective/
+- https://drawpaintacademy.com/a-comprehensive-guide-to-color-theory-for-artists/
 

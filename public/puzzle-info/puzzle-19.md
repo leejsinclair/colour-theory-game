@@ -14,8 +14,8 @@ The rule is not a law — it is a reliable starting point. Understanding why it 
 - **Visual hierarchy**: the ordering of elements in a composition so the eye knows what to read first, second, and third
 
 **Further reading**
-- https://www.thespruce.com/what-is-the-60-30-10-rule-1976060
-- https://www.canva.com/learn/color-palettes/
-- https://www.interaction-design.org/literature/article/the-rule-of-3-in-ui-design
+- https://drawpaintacademy.com/color-schemes/
+- https://drawpaintacademy.com/a-comprehensive-guide-to-color-theory-for-artists/
+- https://www.britannica.com/science/color
 
 ---

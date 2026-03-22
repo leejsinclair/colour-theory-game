@@ -22,9 +22,9 @@ Partial overlaps produce secondary colours. Red + Green = Yellow. Green + Blue =
 - **Luminance**: the overall brightness of a colour; adding more light always increases it
 
 **Further reading**
-- https://www.nixsensor.com/what-is-additive-color/
-- https://www.khanacademy.org/computing/pixar/color/introduction-to-color/a/color-and-light
-- https://photographylife.com/additive-vs-subtractive-colors
+- https://www.britannica.com/science/RGB-color-model
+- https://www.sciencelearn.org.nz/resources/47-colors-of-light
+- https://www.britannica.com/science/primary-color
 
 ---
 
@@ -45,8 +45,8 @@ Understanding this distinction between additive and subtractive mixing is founda
 
 **Further reading**
 - https://www.colormatters.com/color-and-design/basic-color-theory
-- https://www.adobe.com/uk/creativecloud/design/discover/cmyk-vs-rgb.html
-- https://www.printingforless.com/cmyk-color-model.html
+- https://www.britannica.com/science/subtractive-mixture
+- https://www.britannica.com/science/primary-color
 
 ---
 
@@ -66,9 +66,9 @@ The concept that a dark area can still hold meaningful hue is sometimes called *
 - **Chromatic depth**: shadows and darks that retain a subtle, living hue rather than going flat grey
 
 **Further reading**
-- https://drawpaintacademy.com/painting-shadows/
-- https://www.artistsnetwork.com/art-mediums/oil-painting/mixing-blacks/
-- https://www.jacksonsart.com/blog/2018/11/15/mixing-blacks-without-black-paint/
+- https://www.artistsnetwork.com/art-techniques/color-mixing/tips-for-using-mixing-black/
+- https://www.artistsnetwork.com/product-recommendation/studio-staples-black-to-black/
+- https://www.artistsnetwork.com/art-techniques/demonstrations/what-colors-make-gray/
 
 ---
 
@@ -90,9 +90,9 @@ This is also why artists talk about grouping values: keeping your lights togethe
 - **Local colour**: the actual colour of a surface as seen in neutral light, before shadows or highlights modify it
 
 **Further reading**
-- https://drawpaintacademy.com/squinting/
-- https://www.artistsnetwork.com/art-mediums/painting/the-importance-of-value-in-painting/
-- https://www.watercolorpainting.com/value-in-watercolor/
+- https://drawpaintacademy.com/what-is-value-in-art/
+- https://drawpaintacademy.com/compressed-values/
+- https://www.britannica.com/science/color
 
 ---
 
@@ -113,21 +113,98 @@ Value organisation also underpins compositional hierarchy. The area of highest v
 - **Tonal range**: the span from the darkest to lightest value used in a composition
 
 **Further reading**
-- https://www.drawingacademy.com/values-in-drawing-and-painting/
-- https://www.artistsnetwork.com/art-mediums/oil-painting/painting-values/
-- https://conceptartempire.com/value-in-art/
+- https://drawpaintacademy.com/what-is-value-in-art/
+- https://drawpaintacademy.com/a-comprehensive-guide-to-color-theory-for-artists/
+- https://www.britannica.com/science/color/The-visible-spectrum
 
 ---
 
-### Puzzle 6: Chroma Peaks and the Limits of Saturation
+#### The Three Dimensions of Colour
 
-**Chroma** (also called saturation or colour intensity) describes how vivid or pure a colour is. A fire-engine red has high chroma. A dusty rose has low chroma. Mixing in any neutral — white, grey, black, or a complement — reduces chroma.
+In visual fundamentals, colour is understood through a triadic system:
 
-A critical and often overlooked fact: **different hues reach their peak chroma at different values**. Yellow is most vivid at a high value (close to white). Violet is most vivid at a low value (close to black). Orange peaks mid-high. This relationship was systematically mapped by the American artist and teacher Albert Munsell in the early 20th century, and his colour system is still used today.
+1. **Hue** - the identity of the wavelength
+1. **Value** - the lightness or darkness
+1. **Chroma** - the intensity or purity of the colour
 
-This has direct practical consequences. If you want the most vivid yellow possible, you should work at a light value. If you darken that yellow toward a mid-tone to "deepen" it, you are actually moving it away from its natural chroma peak — the result will look olive or muddy. Conversely, lightening a violet to a pastel reduces its chroma naturally. The most saturated violet you can mix is a deep one.
+While beginners often rely solely on hue, the master artist uses Chroma to establish focal points, create compositional hierarchy, and shape emotional resonance.
 
-Many muddy colour mixes occur because the painter is trying to achieve high chroma at the wrong value for that hue. Understanding where each hue's chroma peak lives prevents a great deal of frustration.
+Chroma - distinct from the more casual term saturation—describes the vividness or purity of a colour relative to the physical limits of that hue's gamut.
+A "fire-engine red" sits near maximum chroma; a "dusty rose" has been pulled toward the neutral centre of colour space.
+
+Chroma States
+
+## Chroma States
+
+| **State**       | **Characteristics**                                   | **Additive / Mixing Method**                                      |
+|-----------------|--------------------------------------------------------|--------------------------------------------------------------------|
+| **High Chroma** | Vivid, pure, intense; maximum visual impact           | Pure pigment; minimal mixing; transparent glazing                  |
+| **Low Chroma**  | Muted, neutralised, dusty; recedes to provide rest    | Mixing with white, grey, black, or complements                     |
+
+
+
+Understanding a pigment's baseline purity is essential. Once you know a hue's maximum intensity, you can avoid accidental mud and instead make deliberate, controlled adjustments.
+
+#### The Mechanics of Desaturation
+
+A common challenge for students is managing the hierarchy of attention.
+
+If everything is high-chroma, nothing stands out. The eye becomes fatigued.
+
+To create a sophisticated palette, you must master desaturation-the intentional reduction of chroma.
+
+Four Neutral Additives
+
+- **White** - creates a tint; raises value and reduces chroma
+- **Grey** - creates a tone; neutralises without major value shift
+- **Black** - creates a shade; darkens and suppresses chroma
+- **Complements** - neutralise while maintaining harmonic coherence
+
+> **Critical Application**: The Professional's Method
+> Mixing with complements is the most elegant and natural way to reduce chroma.
+> It preserves the logic of the palette and avoids the "deadness" of black-mixed shadows.
+
+Even so, chromatic behaviour is ultimately governed by the physical and perceptual limits of human vision, not by digital sliders.
+
+#### The Munsell Relationship: Chroma and Value
+
+Chroma is inseparable from Value.
+
+Albert Munsell's early 20th-century system mapped this relationship and revealed a crucial truth:
+
+Different hues reach their peak chroma at different value levels.
+
+Because human eyes are not equally sensitive to all wavelengths, the colour space is not a neat geometric solid-it is an irregular, "spiky" structure.
+
+Hierarchy of Peak Chroma
+
+- **Yellow** - most vivid at high values (near white)
+- **Orange** - peaks at mid-high values
+- **Violet** - most vivid at low values (near black)
+
+> Critical Application: Avoiding the Digital Trap Digital HSB sliders create a false equivalence. A violet at "100% brightness" is not perceptually equal to a yellow at "100% brightness."
+> If you lighten violet toward white, you must lose chroma.
+> This is not a flaw-it is a physical limitation of both pigment and perception.
+
+The Munsell "colour tree" remains irregular because it reflects reality, not convenience.
+
+#### Summary for the Student Artist
+
+Mastering chroma is the bridge between beginner colour use and true artistic control.
+
+**Critical Takeaways**
+
+1. **Chroma vs Saturation**:
+	- Saturation = distance from neutral grey.
+	- Chroma = purity of the hue across value levels.
+1. **Desaturation Hierarchy**:
+	- Complements create the most natural, integrated neutrals.
+1. **Hues Are Not Equal**:
+	- Each hue peaks at a specific value.
+	- Forcing a hue away from its natural peak always reduces chroma.
+1. **The Digital Trap**:
+	- HSB sliders lie.
+	- Trust perceptual models (like Munsell), not software abstractions.
 
 **Key terms**
 - **Chroma / Saturation**: the purity or intensity of a colour; how far it is from neutral grey
@@ -135,9 +212,11 @@ Many muddy colour mixes occur because the painter is trying to achieve high chro
 - **Munsell system**: a colour notation system that models hue, value, and chroma as three independent dimensions
 
 **Further reading**
-- https://munsell.com/color-blog/munsell-hue-value-chroma/
-- https://drawpaintacademy.com/chroma/
-- https://www.handprint.com/HP/WCL/color7.html
+- https://www.virtualartacademy.com/munsell-color-system/
+- https://www.andrewwerth.com/color/#hue10Y
+- https://drawpaintacademy.com/color-saturation/
+- https://www.virtualartacademy.com/saturation-in-art/
+- https://www.handprint.com/HP/WCL/color12.html
 
 ---
 
@@ -159,9 +238,9 @@ A common mistake is treating all "opposite" hues as equal complements. The exact
 - **Neutralising**: reducing chroma by mixing a colour with its complement
 
 **Further reading**
-- https://www.sessions.edu/color-calculator/
+- https://www.britannica.com/science/complementary-color
 - https://www.colormatters.com/color-and-design/basic-color-theory
-- https://drawpaintacademy.com/complementary-colors/
+- https://drawpaintacademy.com/impressionists-used-complementary-colors/
 
 ---
 
@@ -181,9 +260,9 @@ Understanding triadic harmony helps explain why some three-colour combinations f
 - **Hue rotation**: the position of a colour measured in degrees around the colour wheel (0°–360°)
 
 **Further reading**
-- https://www.sessions.edu/color-calculator/
-- https://www.canva.com/colors/color-wheel/
-- https://www.adobe.com/uk/creativecloud/design/discover/triadic-colors.html
+- https://drawpaintacademy.com/color-schemes/
+- https://drawpaintacademy.com/a-comprehensive-guide-to-color-theory-for-artists/
+- https://www.britannica.com/science/primary-color
 
 ---
 
@@ -204,8 +283,8 @@ A further nuance: creative subversion of expectations carries meaning too. A hor
 
 **Further reading**
 - https://www.colorpsychology.org/
-- https://www.interaction-design.org/literature/article/color-psychology-in-ux-and-ui-design
-- https://drawpaintacademy.com/color-temperature/
+- https://www.colormatters.com/color-symbolism/color-symbolism-theories
+- https://drawpaintacademy.com/a-comprehensive-guide-to-color-theory-for-artists/
 
 ---
 
@@ -227,9 +306,9 @@ Chevreul's law states that adjacent colours always push each other toward their 
 - **Albers' Interaction of Color**: landmark 1963 study demonstrating how extensively context modifies perceived colour
 
 **Further reading**
-- https://www.visual-arts-cork.com/color-theory.htm
-- https://www.paletton.com/wiki/index.php?title=Simultaneous_contrast
-- https://drawpaintacademy.com/color-relativity/
+- https://www.britannica.com/science/complementary-color
+- https://www.colormatters.com/color-and-design/basic-color-theory
+- https://www.britannica.com/science/color/The-perception-of-colour
 
 ---
 
@@ -249,9 +328,9 @@ The strength of the induction depends on the **saturation** and **size** of the 
 - **Afterimage**: the related phenomenon where staring at a colour and then looking at grey induces its complement
 
 **Further reading**
-- https://www.colormatters.com/color-and-design/basic-color-theory
-- https://www.scienceofcolor.org/contrast.htm
-- https://www.jacksonsart.com/blog/2019/03/20/what-is-simultaneous-contrast/
+- https://www.colormatters.com/color-and-vision/color-and-vision-matters
+- https://www.britannica.com/science/color/The-perception-of-colour
+- https://drawpaintacademy.com/impressionists-used-complementary-colors/
 
 ---
 
@@ -271,9 +350,9 @@ Mixing naturalistic neutrals is itself a skill. Rather than using tube grey or t
 - **Focal accent**: a small area of high saturation used to direct the viewer's attention
 
 **Further reading**
-- https://drawpaintacademy.com/neutrals-in-painting/
-- https://www.artistsnetwork.com/art-mediums/acrylic-painting/using-neutral-colors/
-- https://www.thesprucecrafts.com/how-to-mix-neutral-colors-2578441
+- https://www.artistsnetwork.com/art-techniques/demonstrations/what-colors-make-gray/
+- https://drawpaintacademy.com/color-saturation/
+- https://drawpaintacademy.com/color-mixing/
 
 ---
 
@@ -301,8 +380,8 @@ Ignoring atmospheric perspective produces paintings where distant mountains look
 
 **Further reading**
 - https://drawpaintacademy.com/atmospheric-perspective/
-- https://www.masterclass.com/articles/aerial-perspective-in-art
-- https://www.artistsnetwork.com/art-mediums/painting/aerial-perspective-in-landscape-painting/
+- https://drawpaintacademy.com/how-to-use-atmospheric-perspective/
+- https://drawpaintacademy.com/color-saturation/
 
 ---
 
@@ -346,9 +425,9 @@ Understanding these shifts requires coordinating several variables simultaneousl
 - **Complementary shadow colour**: the tendency of shadows to lean toward the complement of the dominant light source
 
 **Further reading**
-- https://www.lightstalking.com/what-is-golden-hour/
-- https://www.dpreview.com/articles/0707780785/understanding-color-temperature
-- https://drawpaintacademy.com/painting-light/
+- https://www.handprint.com/HP/WCL/color12.html
+- https://drawpaintacademy.com/how-to-use-atmospheric-perspective/
+- https://drawpaintacademy.com/a-comprehensive-guide-to-color-theory-for-artists/
 
 ---
 
@@ -370,9 +449,9 @@ This system, sometimes called **split primary mixing**, is one of the most pract
 - **Split primary palette**: a mixing system that uses two versions of each primary (one warm-biased, one cool-biased) to enable clean mixing across the full spectrum
 
 **Further reading**
-- https://www.handprint.com/HP/WCL/pigmt1.html
-- https://www.janeblundellart.com/colour-bias.html
-- https://www.artistsnetwork.com/art-mediums/watercolor/color-bias-in-watercolor/
+- https://www.handprint.com/HP/WCL/mixtable.html
+- https://www.janeblundellart.com/cool-yellows.html
+- https://drawpaintacademy.com/color-mixing/
 
 ---
 
@@ -393,8 +472,8 @@ Restraint is also relevant on the palette itself. Pigments that have already bee
 
 **Further reading**
 - https://drawpaintacademy.com/muddy-colors/
-- https://www.artistsnetwork.com/art-mediums/oil-painting/how-to-avoid-muddy-colors/
-- https://www.jacksonsart.com/blog/2020/06/18/how-to-avoid-muddy-colours/
+- https://drawpaintacademy.com/color-mixing/
+- https://www.artistsnetwork.com/art-techniques/color-mixing/tips-for-using-mixing-black/
 
 ---
 
@@ -414,9 +493,9 @@ The technique has limits: very fine detail is lost, and control over exact colou
 - **Divisionism**: the broader theoretical framework behind pointillism, concerned with how to divide colour for maximum optical effect
 
 **Further reading**
-- https://www.visual-arts-cork.com/painting/pointillism.htm
-- https://www.khanacademy.org/humanities/ap-art-history/later-europe-and-americas/impressionism-france/a/seurat-and-pointillism
-- https://www.tate.org.uk/art/art-terms/p/pointillism
+- https://www.tate.org.uk/art/art-terms/n/neo-impressionism
+- https://www.theartstory.org/artist/seurat-georges/
+- https://www.theartstory.org/movement/neo-impressionism/
 
 ---
 
@@ -438,9 +517,9 @@ The rule is not a law — it is a reliable starting point. Understanding why it 
 - **Visual hierarchy**: the ordering of elements in a composition so the eye knows what to read first, second, and third
 
 **Further reading**
-- https://www.thespruce.com/what-is-the-60-30-10-rule-1976060
-- https://www.canva.com/learn/color-palettes/
-- https://www.interaction-design.org/literature/article/the-rule-of-3-in-ui-design
+- https://drawpaintacademy.com/color-schemes/
+- https://drawpaintacademy.com/a-comprehensive-guide-to-color-theory-for-artists/
+- https://www.britannica.com/science/color
 
 ---
 
@@ -461,8 +540,8 @@ A deeper skill is understanding that **colour alone rarely determines meaning** 
 
 **Further reading**
 - https://www.colorpsychology.org/
-- https://www.verywellmind.com/color-psychology-2795824
-- https://www.interaction-design.org/literature/article/color-psychology-in-ux-and-ui-design
+- https://www.colormatters.com/color-symbolism/color-symbolism-theories
+- https://www.britannica.com/science/color/The-psychology-of-colour
 
 ---
 
@@ -483,5 +562,5 @@ The effect is maximised at full saturation — muted or grey-shifted complements
 
 **Further reading**
 - https://www.tate.org.uk/art/art-terms/o/op-art
-- https://www.jacksonsart.com/blog/2019/03/20/what-is-simultaneous-contrast/
-- https://www.britannica.com/art/op-art
+- https://www.britannica.com/art/Op-art
+- https://www.colormatters.com/color-and-design/basic-color-theory
