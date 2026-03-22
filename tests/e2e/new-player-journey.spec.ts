@@ -70,8 +70,8 @@ async function passQuizForPuzzle01(page: Page): Promise<void> {
     return;
   }
   await startQuizButton.click();
-  await puzzleCard.locator('label.learning-option:has-text("They produce white") input').check();
-  await puzzleCard.locator('label.learning-option:has-text("Digital displays") input').check();
+  await puzzleCard.locator('label.learning-option:has-text("Because emitted light wavelengths add to form other colors") input').check();
+  await puzzleCard.locator('label.learning-option:has-text("It shifts toward green and may become lighter") input').check();
   await puzzleCard.getByRole("button", { name: "Submit Quiz" }).click();
 }
 
@@ -164,9 +164,9 @@ test("learning gate: wrong answers show failure score and per-question explanati
   const puzzleCard = page.locator(".puzzle-item", { has: page.getByText("Create White Light") });
   await puzzleCard.getByRole("button", { name: "Start Quiz" }).click();
 
-  // Select the wrong options  — "They produce black" and "Ink printing"
-  await puzzleCard.locator('label.learning-option:has-text("They produce black") input').check();
-  await puzzleCard.locator('label.learning-option:has-text("Ink printing") input').check();
+  // Select the wrong options — "Because pigments reflect those three colors" and "It becomes darker because colors cancel out"
+  await puzzleCard.locator('label.learning-option:has-text("Because pigments reflect those three colors") input').check();
+  await puzzleCard.locator('label.learning-option:has-text("It becomes darker because colors cancel out") input').check();
   await puzzleCard.getByRole("button", { name: "Submit Quiz" }).click();
 
   // Failure feedback should mention the 100% requirement

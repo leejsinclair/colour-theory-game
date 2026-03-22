@@ -38,6 +38,27 @@ function openInfoModal(puzzleId: string): void {
       infoModalBodyEl.appendChild(p);
     });
 
+    if (learning.howToWin) {
+      const row = document.createElement("p");
+      row.className = "learning-meta learning-meta--how";
+      row.innerHTML = `<strong>How to win:</strong> ${learning.howToWin}`;
+      infoModalBodyEl.appendChild(row);
+    }
+
+    if (learning.whyFailed) {
+      const row = document.createElement("p");
+      row.className = "learning-meta learning-meta--why";
+      row.innerHTML = `<strong>Why this fails:</strong> ${learning.whyFailed}`;
+      infoModalBodyEl.appendChild(row);
+    }
+
+    if (learning.tooltips && learning.tooltips.length > 0) {
+      const row = document.createElement("p");
+      row.className = "learning-meta learning-meta--tooltips";
+      row.innerHTML = `<strong>Key terms:</strong> ${learning.tooltips.join(" · ")}`;
+      infoModalBodyEl.appendChild(row);
+    }
+
     infoModalEl.removeAttribute("hidden");
     infoModalCloseEl.focus();
     return;
@@ -718,6 +739,11 @@ function renderLockedOrSolvedControls(wrapper: HTMLDivElement, puzzleId: string,
       render();
     });
     wrapper.appendChild(replayButton);
+
+    if (puzzleLearningContent[puzzleId]) {
+      addReviewIntroButton(wrapper, puzzleId);
+    }
+
     return true;
   }
 
@@ -871,6 +897,27 @@ function renderLearningIntro(zone: HTMLDivElement, puzzleId: string, onStartQuiz
     p.textContent = paragraph;
     card.appendChild(p);
   });
+
+  if (learning.howToWin) {
+    const row = document.createElement("p");
+    row.className = "learning-meta learning-meta--how";
+    row.innerHTML = `<strong>How to win:</strong> ${learning.howToWin}`;
+    card.appendChild(row);
+  }
+
+  if (learning.whyFailed) {
+    const row = document.createElement("p");
+    row.className = "learning-meta learning-meta--why";
+    row.innerHTML = `<strong>Why this fails:</strong> ${learning.whyFailed}`;
+    card.appendChild(row);
+  }
+
+  if (learning.tooltips && learning.tooltips.length > 0) {
+    const row = document.createElement("p");
+    row.className = "learning-meta learning-meta--tooltips";
+    row.innerHTML = `<strong>Key terms:</strong> ${learning.tooltips.join(" · ")}`;
+    card.appendChild(row);
+  }
 
   const startButton = document.createElement("button");
   startButton.className = "btn btn-primary";

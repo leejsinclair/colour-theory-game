@@ -51,14 +51,19 @@ function Puzzle01View({ persistedState }: Puzzle01ViewProps): React.ReactElement
       ? "White light! \u2713 All beams aligned"
       : parts.join("+") || "No beams";
 
+  const swatchAriaLabel = localState.overlap
+    ? previewLabel
+    : `No overlap active. Active beams: ${parts.length > 0 ? parts.join(", ") : "none"}`;
+
   return (
     <>
-      <div className="beam-btns">
+      <div className="beam-btns" role="group" aria-label="Light beam controls">
         {beamDefs.map(({ key, label }) => (
           <button
             key={key}
             className={`beam-btn${localState[key] ? " --on" : ""}`}
             data-beam={key}
+            aria-pressed={localState[key]}
             onClick={() => toggleBeam(key)}
           >
             {label}
@@ -69,9 +74,11 @@ function Puzzle01View({ persistedState }: Puzzle01ViewProps): React.ReactElement
       <div className="color-preview-row">
         <div
           className="color-preview-swatch"
+          role="img"
+          aria-label={swatchAriaLabel}
           style={{ background: localState.overlap ? `rgb(${r}, ${g}, ${b})` : "#1a1a2e" }}
         />
-        <div className="color-preview-label">{previewLabel}</div>
+        <div className="color-preview-label" aria-live="polite" aria-atomic="true">{previewLabel}</div>
       </div>
     </>
   );

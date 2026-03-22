@@ -176,6 +176,19 @@ body {
   color: var(--ink);
 }
 
+.learning-meta {
+  margin: 0;
+  font-size: 0.82rem;
+  line-height: 1.4;
+  color: var(--ink);
+  opacity: 0.85;
+}
+
+.learning-meta--how { border-left: 3px solid #22c55e; padding-left: 0.5rem; }
+.learning-meta--why { border-left: 3px solid #f97316; padding-left: 0.5rem; }
+.learning-meta--tooltips { border-left: 3px solid #3b82f6; padding-left: 0.5rem; }
+.learning-meta--a11y { border-left: 3px solid #8b5cf6; padding-left: 0.5rem; }
+
 .learning-question {
   border: 1px solid rgba(31, 32, 48, 0.14);
   border-radius: 8px;

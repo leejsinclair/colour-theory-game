@@ -14,8 +14,8 @@ async function unlockPuzzle01FromLearningGate(page: Page): Promise<void> {
   const startQuizButton = puzzleCard.getByRole("button", { name: "Start Quiz" });
   if (await startQuizButton.count()) {
     await startQuizButton.click();
-    await puzzleCard.locator('label.learning-option:has-text("They produce white") input').check();
-    await puzzleCard.locator('label.learning-option:has-text("Digital displays") input').check();
+    await puzzleCard.locator('label.learning-option:has-text("Because emitted light wavelengths add to form other colors") input').check();
+    await puzzleCard.locator('label.learning-option:has-text("It shifts toward green and may become lighter") input').check();
     await puzzleCard.getByRole("button", { name: "Submit Quiz" }).click();
   }
 }
@@ -426,8 +426,8 @@ test("first-time puzzle flow gates interaction behind introduction and quiz", as
   await puzzleCard.getByRole("button", { name: "Start Quiz" }).click();
   await expect(puzzleCard.getByRole("button", { name: "Submit Quiz" })).toBeVisible();
 
-  await puzzleCard.locator('label.learning-option:has-text("They produce white") input').check();
-  await puzzleCard.locator('label.learning-option:has-text("Digital displays") input').check();
+  await puzzleCard.locator('label.learning-option:has-text("Because emitted light wavelengths add to form other colors") input').check();
+  await puzzleCard.locator('label.learning-option:has-text("It shifts toward green and may become lighter") input').check();
   await puzzleCard.getByRole("button", { name: "Submit Quiz" }).click();
 
   await expect(puzzleCard.locator('.beam-btn[data-beam="red"]')).toBeVisible();

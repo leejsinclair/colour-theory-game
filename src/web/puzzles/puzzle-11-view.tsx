@@ -32,19 +32,43 @@ function Puzzle11View({ persistedState, circularHueDistance }: Puzzle11ViewProps
     <PuzzleSlider label={label} value={localState[key]} min={min} max={max} step={step} onChange={(v) => setValue(key, v)} />
   );
 
+  const [highContrast, setHighContrast] = React.useState(false);
+
+  const feedbackText = orangeStrength >= 0.6
+    ? "Grey appears cooler/blue from warm orange context ✓"
+    : "Push toward a stronger orange surround to induce blue shift";
+
   return (
     <>
       <div className="illusion-board single">
-        <div className="illusion-panel" style={{ background: `hsl(${localState.surroundHue}, ${localState.surroundSat}%, ${localState.surroundLight}%)` }}>
-          <div className="illusion-square" style={{ background: "#9d9d9d" }} />
+        <div
+          className="illusion-panel"
+          role="img"
+          aria-label={`Surround colour: hue ${localState.surroundHue}°, saturation ${localState.surroundSat}%, lightness ${localState.surroundLight}%`}
+          style={{ background: `hsl(${localState.surroundHue}, ${localState.surroundSat}%, ${localState.surroundLight}%)` }}
+        >
+          <div
+            className="illusion-square"
+            role="img"
+            aria-label="Central grey square — colour is fixed at #9d9d9d"
+            style={{
+              background: "#9d9d9d",
+              outline: highContrast ? "3px dashed #000" : undefined,
+            }}
+          />
         </div>
       </div>
 
-      <div className="mini-label">
-        {orangeStrength >= 0.6
-          ? "Grey appears cooler/blue from warm orange context ✓"
-          : "Push toward a stronger orange surround to induce blue shift"}
-      </div>
+      <div className="mini-label" aria-live="polite" aria-atomic="true">{feedbackText}</div>
+
+      <label style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "0.82rem", marginBottom: "4px" }}>
+        <input
+          type="checkbox"
+          checked={highContrast}
+          onChange={(e) => setHighContrast(e.target.checked)}
+        />
+        High-contrast outline on grey square
+      </label>
 
       {slider("Surround hue", "surroundHue", 0, 360, 1)}
       {slider("Surround saturation", "surroundSat", 0, 100, 1)}
