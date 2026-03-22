@@ -12,6 +12,11 @@
 - All existing e2e tests updated for the learning gate flow (45 total, all passing)
 - Added learning content metadata unit tests (24 total, all passing)
 - Added full puzzle learning content section to storyplan.md (all 21 introductions and quizzes) for LLM analysis
+- Added Diagnostic Feedback System: puzzle validation now returns structured failure reasons drawn exclusively from canonical-failure-reasons.md
+- Added `src/web/puzzles/failureReasons.ts`: defines all 16 canonical `FailureReasonCode` types (plus `insufficient_luminosity` for puzzle-03) and concise player-facing explanation text for each
+- Added `src/web/puzzles/diagnose.ts`: implements `diagnoseFailure(puzzleId, input)` covering all 21 puzzles, returning an ordered array of failure codes (most critical first, 1–3 codes per failure); deepest per-input logic on Puzzle 13 (Depth Painting), Puzzle 16 (Vibrant Green), and Puzzle 17 (Mud Monster)
+- Result Analysis panel rendered after every failed attempt: lists concise player-facing explanations in importance order and allows immediate retry without blocking progression
+- Failure reason wiring integrated into `addCheckButton` in `legacyGame.ts`; works in both first-solve and practice-retry flows
 
 **17 March 2026**
 - Puzzle 16 (Vibrant Green): Simplified user interface for improved usability
@@ -126,6 +131,10 @@ Player rotates mirrors and lenses.
 Success Condition:
 RGB overlap produces white beam.
 
+Failure Feedback:
+- **unbalanced_mix** *(all three beams on but not yet overlapping)*: The beams are active but not combined — move them until all three share a common centre point.
+- **incorrect_hue_selection** *(one or more beams off)*: All three primaries must be active — toggle red, green, and blue so every beam is on, then overlap them.
+
 Reward Pet:
 Glow Sprite
 
@@ -141,6 +150,9 @@ Player adjusts cyan, magenta, and yellow ink sliders.
 
 Discovery:
 CMY cannot create perfect black.
+
+Failure Feedback:
+- **unbalanced_mix**: The ratio of cyan, magenta, and yellow doesn't match the target — adjust each slider incrementally until the mixed swatch aligns with the reference colour.
 
 Reward Pet:
 Ink Octopus
@@ -164,6 +176,10 @@ Yellow + Purple
 Success Condition:
 Shadow becomes luminous instead of flat.
 
+Failure Feedback:
+- **incorrect_hue_selection** *(wrong pigment pair)*: The pair are not true complements — choose from Blue + Orange, Red + Green, or Yellow + Purple.
+- **insufficient_luminosity** *(correct pair but shadow is flat)*: The complementary pair is right but the shadow looks dead — raise the Shadow Gloss slider to add chromatic lift and make the dark luminous.
+
 Reward Pet:
 Shadow Cat
 
@@ -185,6 +201,10 @@ Game periodically blurs screen.
 Success Condition:
 Object remains readable when blurred.
 
+Failure Feedback:
+- **incorrect_hue_selection** *(non-greyscale colour used)*: Only black and white are allowed — remove any coloured values from the painting.
+- **low_value_contrast** *(greyscale used but not readable when blurred)*: The value range is too narrow — push lights lighter and darks darker until the form stays readable when squinted at.
+
 Reward Pet:
 Shadow Mouse
 
@@ -199,6 +219,9 @@ Mechanic:
 Drag blocks into correct order.
 
 Hidden image appears when correct.
+
+Failure Feedback:
+- **incorrect_value_structure**: The tiles are not in correct dark-to-light order — re-sort so each step is distinctly lighter than the previous one.
 
 Reward Pet:
 Gradient Hedgehog
@@ -215,6 +238,9 @@ Player climbs nodes to reach max saturation points.
 
 Discovery:
 Different hues reach peak chroma at different values.
+
+Failure Feedback:
+- **insufficient_chroma**: Not enough hue branches explored, or peak-chroma nodes not reached — climb each branch to its top node to discover where that hue is most vivid.
 
 Reward Pet:
 Chroma Gecko
@@ -235,6 +261,9 @@ Red ↔ Green
 Blue ↔ Orange  
 Yellow ↔ Purple
 
+Failure Feedback:
+- **incorrect_hue_selection**: The chosen pair are not true complements — they must sit directly opposite each other on the colour wheel (e.g. red ↔ green, blue ↔ orange, yellow ↔ purple).
+
 Reward Pet:
 Prism Fox
 
@@ -250,6 +279,9 @@ Example solution:
 Red
 Blue
 Yellow
+
+Failure Feedback:
+- **incorrect_hue_selection**: The three chosen hues are not equally spaced — adjust until each pair of adjacent hues sits approximately 120° apart on the colour wheel.
 
 Reward Pet:
 Palette Parrot
@@ -269,6 +301,9 @@ Creepy dungeon
 
 Bonus points for creative subversion.
 
+Failure Feedback:
+- **incorrect_hue_selection**: The selected palette doesn't match the emotional prompt — warm saturated hues suggest energy and festivity; cool desaturated hues suggest calm; dark low-contrast palettes suggest dread.
+
 Reward Pet:
 Mood Bat
 
@@ -287,6 +322,9 @@ Adjust background colors until illusion disappears.
 Discovery:
 Color perception is relative.
 
+Failure Feedback:
+- **weak_simultaneous_contrast**: The two background areas are too similar — increase the difference between them so simultaneous contrast shifts both centre squares toward a matching appearance.
+
 Reward Pet:
 Chameleon Lizard
 
@@ -302,6 +340,9 @@ Manipulate surrounding colors.
 Correct approach:
 Use orange surroundings.
 
+Failure Feedback:
+- **weak_simultaneous_contrast**: The surrounding area is not warm enough to shift the grey — increase the orange saturation in the surrounding region until the fixed grey square appears cooler or blue by contrast.
+
 Reward Pet:
 Contrast Frog
 
@@ -314,6 +355,10 @@ Make bright color stand out using neutrals.
 
 Mechanic:
 Mix neutral browns and greys from complements.
+
+Failure Feedback:
+- **competing_focal_points** *(fewer than 2 neutrals in the composition)*: Too many colours are competing for attention — add at least two neutral tones so the accent dominates.
+- **weak_accent_isolation** *(accent contrast below threshold)*: The accent colour doesn't stand out — increase the contrast between the accent and the neutral areas around it.
 
 Reward Pet:
 Neutral Turtle
@@ -334,6 +379,10 @@ reduce saturation
 cool hue  
 reduce contrast
 
+Failure Feedback:
+- **insufficient_atmosphere** *(edge softening or saturation drop below 0.45)*: Distant layers are still too sharp or vivid — raise edge softening and lower saturation for mid and far mountains.
+- **incorrect_color_temperature** *(cool shift below 0.45)*: Far objects are not shifting toward cooler hues — raise the cool shift slider so distant layers read as bluish-grey.
+
 Reward Pet:
 Sky Jelly
 
@@ -344,6 +393,10 @@ Sky Jelly
 Activate atmospheric shader.
 
 Far objects shift toward blue.
+
+Failure Feedback:
+- **incorrect_color_temperature** *(far objects not yet shifting blue)*: Far objects are still warm — enable the blue-shift so atmospheric scattering cools distant layers.
+- **insufficient_atmosphere** *(scattering strength below 0.7)*: The scattering effect is too subtle — raise scattering strength to 0.7 or above so far objects visibly fade toward blue-grey.
 
 Reward Pet:
 Air Sprite
@@ -357,6 +410,12 @@ Time-limited challenge.
 Player mixes warm sunset palette before nightfall.
 
 Palette shifts to blue hour.
+
+Failure Feedback:
+- **incorrect_hue_selection** *(time-of-day palettes not matched)*: Palette cards are assigned to the wrong times — match each palette to its correct time of day before adjusting the light parameters.
+- **incorrect_color_temperature** *(colour temperature ≤ 0.70 or sun too high)*: The light is too cool or the sun is positioned too high — lower the sun and push colour temperature above 0.70 for warm golden light.
+- **insufficient_atmosphere** *(atmosphere below 0.40)*: Not enough haze — raise the atmosphere slider into the 0.40–0.60 range.
+- **excessive_atmosphere** *(atmosphere above 0.60)*: Too much haze is washing out the scene — reduce the atmosphere slider below 0.60.
 
 Reward Pet:
 Dusk Owl
@@ -375,6 +434,12 @@ Hansa Yellow
 
 Incorrect mixes produce muddy greens.
 
+Failure Feedback:
+- **incorrect_hue_selection** *(pigment count ≠ 2, or missing a yellow or blue)*: The pair cannot make green — choose exactly one pigment from the Yellows row and one from the Blues row.
+- **incorrect_hue_bias** *(biased pigment in an otherwise correct-family pair)*: A hidden warm or purple bias is pulling the mix off-target — try a pigment closer to the left end of its row where bias is lower.
+- **complement_conflict** *(correct-family pair but mud level > 0.16)*: Hidden opposing hues in the pigments are neutralising their green strength — choose cleaner, less-biased pigments to reduce the conflict.
+- **insufficient_chroma** *(correct-family pair but mud level > 0.16)*: The resulting green lacks vibrancy — move to the clean (left) end of each row to raise green strength.
+
 Reward Pet:
 Paint Slime
 
@@ -388,6 +453,10 @@ Result is muddy brown.
 
 Puzzle teaches avoiding over-mixing.
 
+Failure Feedback:
+- **complement_conflict** *(more than 1 complement clash added)*: Too many opposing pigment pairs have been introduced — keep complement clashes to one neutraliser at most.
+- **chroma_collapsed** *(muddy result regardless of clash count)*: The colour has collapsed into mud — reset the bowl and rebuild with clean green strokes before adding a single, careful neutraliser.
+
 Reward Pet:
 Mud Blob
 
@@ -400,6 +469,10 @@ Paint dots of pure colors.
 Viewer eye blends them.
 
 Demonstrates pointillism.
+
+Failure Feedback:
+- **overmixing** *(colours blended on palette before placing)*: Colours were mixed before placing — lay each colour as a pure, unmixed dot and let the eye do the blending at viewing distance.
+- **insufficient_chroma** *(dots not pure or coverage too low)*: The dots lack intensity or density — use fully saturated, unmixed dots at sufficient coverage for optical blending to activate.
 
 Reward Pet:
 Dot Bee
@@ -420,6 +493,9 @@ Player sets proportion sliders so values sum to 100%.
 
 Success Condition:
 Primary ≈ 60%, Secondary ≈ 30%, Accent ≈ 10% (within tolerance).
+
+Failure Feedback:
+- **unbalanced_mix**: The proportions are off — adjust the sliders until primary ≈ 60%, secondary ≈ 30%, and accent ≈ 10%, with all three values summing to 100%.
 
 Reward Pet:
 Harmony Dove
@@ -445,6 +521,9 @@ Green → Growth & Balance
 Discovery:
 Color carries emotional meaning before any conscious thought — designers exploit this to guide viewer response.
 
+Failure Feedback:
+- **incorrect_hue_selection**: One or more colour-to-emotion pairings are wrong — red signals excitement and urgency, blue signals trust and calm, yellow signals optimism and warmth, green signals growth and balance.
+
 Reward Pet:
 Empathy Moth
 
@@ -467,6 +546,10 @@ Values (lightness) of both colors are equal.
 Discovery:
 Maximum vibration occurs at the intersection of complementary hue contrast and zero value contrast.
 When value contrast is high, the eye reads contrast easily. When value contrast is zero but hues are complementary, the eye cannot decide which color is figure and which is ground — causing optical shimmer.
+
+Failure Feedback:
+- **incorrect_hue_selection** *(hues not approximately 180° apart)*: The colours are not complementary — adjust both hue sliders until the difference between them is close to 180° on the colour wheel.
+- **low_value_contrast** *(value-balance switch off)*: Equal lightness is required for maximum vibration — enable the value-balance toggle so both colours share the same value level.
 
 Reward Pet:
 Vibration Hummingbird
@@ -560,6 +643,7 @@ This section reflects what is currently implemented in the playable prototypes.
 - Score, streak, and pet milestones are implemented.
 - Browser UI includes progress HUD, pet collection display, puzzle concept modal, and reward toasts.
 - Browser UI includes Auto Solve Journey and Reset Run actions.
+- Diagnostic Feedback System: every failed attempt shows a "Result Analysis" panel with 1–3 player-facing explanations from the canonical failure reason taxonomy (`canonical-failure-reasons.md`). Codes and explanations live in `failureReasons.ts`; per-puzzle diagnosis logic lives in `diagnose.ts`. The system covers all 21 puzzles and can be extended by adding a new `case` to `diagnose.ts`.
 
 ## Completed Puzzle Content
 
