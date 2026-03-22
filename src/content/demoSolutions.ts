@@ -12,7 +12,16 @@ export const demoSolutions: Record<string, unknown> = {
   "puzzle-06": { exploredHues: ["red", "green", "blue"], discoveredDifferentChromaPeaks: true },
   "puzzle-07": { selectedColorA: "red", selectedColorB: "green" },
   "puzzle-08": { hueAngles: [0, 120, 240] },
-  "puzzle-09": { selections: { "joyful carnival": "C", "calm ocean": "A", "creepy dungeon": "B" } },
+  "puzzle-09": {
+    selections: {
+      "joyful carnival": "C",
+      "calm ocean": "A",
+      "creepy dungeon": "B",
+      "romantic sunset": "D",
+      "focused studio": "A",
+      "mystical and premium": "D",
+    },
+  },
   "puzzle-10": { perceivedDifference: 0.03, backgroundsAdjusted: true },
   "puzzle-11": { usedOrangeSurroundings: true, greySquareChanged: false },
   "puzzle-12": { neutralCount: 3, accentContrast: 0.75 },
@@ -24,7 +33,7 @@ export const demoSolutions: Record<string, unknown> = {
   "puzzle-14": { farObjectsShiftBlue: true, scatteringStrength: 0.8 },
   "puzzle-15": { palettesMatched: true, sunHeight: 0.25, colorTemperature: 0.80, atmosphere: 0.50 },
   "puzzle-16": { pigments: ["cobalt teal", "hansa yellow"], mudLevel: 0.12 },
-  "puzzle-17": { complementPairsAdded: 1, muddyResult: false },
+  "puzzle-17": { complementTouchesAdded: 1, mudLevel: 0.43, muddyResult: false },
   "puzzle-18": { usedPureDots: true, mixedOnPalette: false, opticalBlendVisible: true },
   "puzzle-19": { primaryPct: 60, secondaryPct: 30, accentPct: 10 },
   "puzzle-20": { mappings: { red: "excitement", blue: "trust", yellow: "optimism", green: "growth" } },
@@ -32,7 +41,14 @@ export const demoSolutions: Record<string, unknown> = {
 };
 
 export const moodPaletteSolution = {
-  selections: { "joyful carnival": "C", "calm ocean": "A", "creepy dungeon": "B" },
+  selections: {
+    "joyful carnival": "C",
+    "calm ocean": "A",
+    "creepy dungeon": "B",
+    "romantic sunset": "D",
+    "focused studio": "A",
+    "mystical and premium": "D",
+  },
 };
 
 export function getDemoSolution(puzzleId: string): unknown {

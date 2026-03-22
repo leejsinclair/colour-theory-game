@@ -814,8 +814,47 @@ body {
 
 .mud-controls {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr;
   gap: 0.35rem;
+}
+
+.mud-swatches {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.35rem;
+}
+
+.mud-swatch {
+  border: 1px solid rgba(31, 32, 48, 0.22);
+  border-radius: 9px;
+  height: 30px;
+  cursor: pointer;
+  transition: transform 120ms ease, box-shadow 120ms ease;
+}
+
+.mud-swatch:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 7px rgba(0, 0, 0, 0.18);
+}
+
+.mud-swatch:focus-visible {
+  outline: 2px solid rgba(35, 103, 255, 0.55);
+  outline-offset: 1px;
+}
+
+.mud-reset {
+  border: 1px solid rgba(31, 32, 48, 0.22);
+  border-radius: 8px;
+  background: rgba(245, 245, 247, 0.96);
+  color: #1f2030;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 0.44rem 0.55rem;
+  cursor: pointer;
+}
+
+.mud-reset:hover {
+  background: rgba(236, 236, 240, 0.98);
 }
 
 .mud-log {
@@ -1495,6 +1534,10 @@ body {
 
   .mud-controls {
     grid-template-columns: 1fr;
+  }
+
+  .mud-swatches {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .learning-card {

@@ -3,6 +3,8 @@
 ## Latest Updates
 
 **22 March 2026**
+- Puzzle 17 (Mud Monster) revised for consistent mud logic across gameplay, UI, and diagnostics: complement touches no longer cause instant failure, but each red touch adds an extra mud penalty to the effective mud bar
+- Puzzle 17 UI updated from verbose action buttons to color swatches with a live effective-mud meter, base-mud vs. complement-penalty readout, monster-state feedback, recipe log, and reset flow
 - Added full puzzle learning gate system: introduction card + two-question quiz shown before each puzzle's first attempt across all 21 puzzles
 - Players must pass the quiz (100%, unlimited retries) to unlock puzzle mechanics; solved puzzles bypass the gate and go straight to practice
 - Added Review Introduction button after unlock (persists across React re-renders)
@@ -447,15 +449,15 @@ Paint Slime
 
 ## Puzzle 17: Mud Monster
 
-Player mixes too many complements.
+Player experiments with a green mix while watching mud build in real time.
 
-Result is muddy brown.
+Red complement touches still push the mix toward neutral, but they now do so by adding extra mud pressure instead of triggering a separate hidden fail rule.
 
-Puzzle teaches avoiding over-mixing.
+Puzzle teaches avoiding over-mixing by keeping the effective mud bar below the fail threshold.
 
 Failure Feedback:
-- **complement_conflict** *(more than 1 complement clash added)*: Too many opposing pigment pairs have been introduced — keep complement clashes to one neutraliser at most.
-- **chroma_collapsed** *(muddy result regardless of clash count)*: The colour has collapsed into mud — reset the bowl and rebuild with clean green strokes before adding a single, careful neutraliser.
+- **complement_conflict** *(muddy result with one or more red complement touches present)*: Opposing pigment interactions helped push the mix into neutralisation — reduce red touches or clean the bowl with greener strokes before adding another complement.
+- **chroma_collapsed** *(effective mud bar reaches the fail threshold)*: The colour has collapsed into mud — bring the mud bar back below the threshold by simplifying the mix and leaning on cleaner green or yellow additions.
 
 Reward Pet:
 Mud Blob
@@ -1363,17 +1365,17 @@ Q2: What usually causes muddy green in this context?
 
 **Introduction**
 
-Complementary pairs are powerful neutralizers. A little can be useful, but too many mixed together quickly create dull mud.
+Complementary pairs are powerful neutralizers. A little can be useful, but repeated red complement touches quietly add neutralising pressure that makes the whole mix muddier.
 
-Intentional mixing means limiting opposing pairs and preserving separation until you know exactly what neutral you want.
+Intentional mixing means watching the mud bar, understanding what each pigment does, and stopping before the mix crosses from rich green into dull neutral.
 
 **How to win**
 
-Add pigments one at a time and stop before the mix becomes a dull neutral — the goal is a rich dark, not mud.
+Keep the effective mud bar below the fail threshold. Green strokes clean the bowl faster, yellow warms the mix slightly without muddying it much, and red raises base mud while also adding an extra complement penalty.
 
 **Why this fails**
 
-Each additional complement pair neutralizes chroma further; too many makes an irreversibly dull brown.
+Mud now comes from two sources working together: direct muddying from your pigment choices and extra neutralising pressure from repeated complement touches. The puzzle fails only when that combined mud total crosses the threshold.
 
 **Key terms**
 - complement: the color directly opposite on the color wheel
@@ -1388,7 +1390,7 @@ Q1: What happens when too many complements are mixed together?
 - C) Value increases only
 - D) Hue rotates predictably
 
-*Explanation: Multiple complement interactions can collapse chroma quickly.*
+*Explanation: Multiple complement interactions add neutralising pressure that can push the mud bar over the limit.*
 
 Q2: A practical anti-mud strategy is to …
 - A) Mix everything at once
@@ -1396,7 +1398,7 @@ Q2: A practical anti-mud strategy is to …
 - C) Use only white paint
 - D) Avoid saturation entirely
 
-*Explanation: Controlled additions keep mixtures intentional.*
+*Explanation: Red touches are sometimes useful, but too many add extra mud and can tip the mix over the threshold.*
 
 ---
 
@@ -1601,7 +1603,7 @@ This section tracks implementation against this story plan and `game-architectur
 	- Puzzle-02 (CMY print): live CMY-to-RGB preview swatches (current mix vs. target)
 	- Puzzle-03 (Chromatic Black): bowl-based pigment selection with live chromatic black preview and luminous-shadow feedback
 	- Puzzle-16 (Vibrant Green): live pigment mix color preview showing clean vs. muddy outcomes
-	- Puzzle-17 (Mud Monster): interactive mix board with action buttons, live mud meter, monster-state feedback, recipe log, and reset flow
+	- Puzzle-17 (Mud Monster): interactive mix board with color swatches, effective mud meter, base-mud vs. complement-penalty readout, monster-state feedback, recipe log, and reset flow
 	- Puzzle-18 (Optical Mixing): coverage bar tracks painted area percentage; pointer capture for uninterrupted drag-to-paint across canvas boundary
 	- Puzzle-07 (Complementary Colors): target-and-response complement drill using clickable color chips and streak feedback
 	- Puzzle-09 (Mood Palette): palette-builder board with inferred tags from hue/saturation/value/contrast interactions

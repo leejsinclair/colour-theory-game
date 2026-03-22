@@ -272,7 +272,14 @@ describe("Mood Palette puzzle solutions", () => {
     solveUpToPuzzle09(game);
     // joyful carnival mapped to ocean palette instead of the warm one
     const event = game.completePuzzle("puzzle-09", {
-      selections: { "joyful carnival": "A", "calm ocean": "A", "creepy dungeon": "B" },
+      selections: {
+        "joyful carnival": "A",
+        "calm ocean": "A",
+        "creepy dungeon": "B",
+        "romantic sunset": "D",
+        "focused studio": "A",
+        "mystical and premium": "D",
+      },
     });
     expect(event).toBeNull();
   });
@@ -381,19 +388,19 @@ describe("diagnoseFailure – Puzzle 16 (Vibrant Green)", () => {
 });
 
 describe("diagnoseFailure – Puzzle 17 (Mud Monster)", () => {
-  test("returns complement_conflict when too many complement pairs are added", () => {
-    const reasons = diagnoseFailure("puzzle-17", { complementPairsAdded: 2, muddyResult: true });
+  test("returns complement_conflict when complement touches contribute to a muddy failure", () => {
+    const reasons = diagnoseFailure("puzzle-17", { complementTouchesAdded: 2, mudLevel: 0.64, muddyResult: true });
     expect(reasons[0]).toBe("complement_conflict");
   });
 
   test("returns chroma_collapsed when result is muddy", () => {
-    const reasons = diagnoseFailure("puzzle-17", { complementPairsAdded: 1, muddyResult: true });
+    const reasons = diagnoseFailure("puzzle-17", { complementTouchesAdded: 1, mudLevel: 0.61, muddyResult: true });
     expect(reasons).toContain("chroma_collapsed");
   });
 
-  test("returns chroma_collapsed as fallback", () => {
-    const reasons = diagnoseFailure("puzzle-17", { complementPairsAdded: 0, muddyResult: false });
-    expect(reasons).toContain("chroma_collapsed");
+  test("returns no reasons when the effective mud stays below the threshold", () => {
+    const reasons = diagnoseFailure("puzzle-17", { complementTouchesAdded: 2, mudLevel: 0.42, muddyResult: false });
+    expect(reasons).toHaveLength(0);
   });
 });
 

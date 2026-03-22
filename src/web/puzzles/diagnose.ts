@@ -264,18 +264,21 @@ function diagnosePuzzle16(input: {
   return reasons;
 }
 
-// puzzle-17: Mud Monster (complement clash limit)
+// puzzle-17: Mud Monster (mud threshold)
 function diagnosePuzzle17(input: {
-  complementPairsAdded: number;
+  complementTouchesAdded: number;
+  mudLevel?: number;
   muddyResult: boolean;
 }): FailureReasonCode[] {
   const reasons: FailureReasonCode[] = [];
+  const mudLevel = input.mudLevel ?? (input.muddyResult ? 0.58 : 0);
+  const mudThresholdReached = mudLevel >= 0.58;
 
-  if (input.complementPairsAdded > 1) {
+  if (mudThresholdReached && input.complementTouchesAdded > 0) {
     reasons.push("complement_conflict");
   }
 
-  if (input.muddyResult) {
+  if (mudThresholdReached) {
     reasons.push("chroma_collapsed");
     // overmixing is the secondary cause only when complement_conflict is not already
     // the root cause — adding both for the same failure would be redundant.
@@ -284,7 +287,7 @@ function diagnosePuzzle17(input: {
     }
   }
 
-  return reasons.length > 0 ? reasons : ["chroma_collapsed"];
+  return reasons;
 }
 
 // puzzle-18: Optical Mixing (pointillist dots)
