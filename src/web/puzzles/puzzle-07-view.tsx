@@ -9,6 +9,7 @@ type Puzzle07State = {
   b: ColorName;
   rounds: number;
   streak: number;
+  matchedPairs: Set<ColorName>;
 };
 
 type Puzzle07ViewProps = {
@@ -34,15 +35,57 @@ const comp: Record<ColorName, ColorName> = {
 };
 
 function Puzzle07View({ persistedState }: Puzzle07ViewProps): React.ReactElement {
-  const [localState, setLocalState] = React.useState<Puzzle07State>({ ...persistedState });
-  const [resultText, setResultText] = React.useState("Build intuition: switch targets and test quick matches.");
+  const [localState, setLocalState] = React.useState<Puzzle07State>({
+    ...persistedState,
+    matchedPairs: new Set(persistedState.matchedPairs instanceof Set ? persistedState.matchedPairs : []),
+  });
+  const [resultText, setResultText] = React.useState("Build intuition: select a color, then pick its complement.");
 
   const updateState = (updater: (prev: Puzzle07State) => Puzzle07State): void => {
     setLocalState((prev) => {
       const next = updater(prev);
-      Object.assign(persistedState, next);
+      // Serialize matchedPairs to/from Set for persistence
+      Object.assign(persistedState, {
+        ...next,
+        matchedPairs: Array.from(next.matchedPairs),
+      });
       return next;
     });
+  };
+
+  const isMatched = (color: ColorName): boolean => localState.matchedPairs.has(color);
+  const isTargetSelected = (color: ColorName): boolean => color === localState.a;
+  const complementOf = (color: ColorName): ColorName => comp[color];
+
+  const handleTargetClick = (color: ColorName): void => {
+    if (!isMatched(color)) {
+      updateState((prev) => ({ ...prev, a: color }));
+      setResultText(`Selected ${color}. Now pick its complement!`);
+    }
+  };
+
+  const handleComplementClick = (color: ColorName): void => {
+    if (isMatched(color) || !localState.a) return;
+
+    const correct = complementOf(localState.a) === color;
+    updateState((prev) => {
+      const rounds = prev.rounds + 1;
+      const streak = correct ? prev.streak + 1 : 0;
+      const newMatched = new Set(prev.matchedPairs);
+      
+      if (correct) {
+        newMatched.add(prev.a);
+        newMatched.add(color);
+      }
+      
+      return { ...prev, b: color, rounds, streak, matchedPairs: newMatched };
+    });
+
+    if (correct) {
+      setResultText(`✓ Perfect! ${localState.a} + ${color}. Streak: ${localState.streak + 1}`);
+    } else {
+      setResultText(`✗ Not paired. ${localState.a} pairs with ${complementOf(localState.a)}.`);
+    }
   };
 
   return (
@@ -52,36 +95,39 @@ function Puzzle07View({ persistedState }: Puzzle07ViewProps): React.ReactElement
           <button
             key={`target-${def.name}`}
             className="chip-btn"
-            style={{ background: `hsl(${def.hue}, 78%, 54%)` }}
-            onClick={() => updateState((prev) => ({ ...prev, a: def.name }))}
+            style={{
+              background: `hsl(${def.hue}, 78%, 54%)`,
+              opacity: isMatched(def.name) ? 0.3 : 1,
+              border: isTargetSelected(def.name) ? "3px solid #fff" : "none",
+              cursor: isMatched(def.name) ? "not-allowed" : "pointer",
+              transform: isTargetSelected(def.name) ? "scale(1.08)" : "scale(1)",
+              transition: "all 0.2s ease",
+            }}
+            onClick={() => handleTargetClick(def.name)}
+            disabled={isMatched(def.name)}
           >
-            Target {def.name}
+            {def.name}
           </button>
         ))}
       </div>
 
-      <div className="mini-label">Target: pick the complement for {localState.a.toUpperCase()}</div>
+      <div className="mini-label">
+        {localState.a ? `Selected: ${localState.a.toUpperCase()}` : "Pick a starting color"}
+      </div>
 
       <div className="chip-row">
         {defs.map((def) => (
           <button
             key={`pick-${def.name}`}
             className="chip-btn"
-            style={{ background: `hsl(${def.hue}, 78%, 54%)` }}
-            onClick={() => {
-              updateState((prev) => {
-                const rounds = prev.rounds + 1;
-                const correct = comp[prev.a] === def.name;
-                const streak = correct ? prev.streak + 1 : 0;
-                return { ...prev, b: def.name, rounds, streak };
-              });
-              const correct = comp[localState.a] === def.name;
-              setResultText(
-                correct
-                  ? `Correct complement! Streak ${correct ? localState.streak + 1 : 0}`
-                  : `Not opposite on the wheel. ${localState.a} pairs with ${comp[localState.a]}.`,
-              );
+            style={{
+              background: `hsl(${def.hue}, 78%, 54%)`,
+              opacity: isMatched(def.name) ? 0.3 : 1,
+              cursor: isMatched(def.name) ? "not-allowed" : "pointer",
+              transition: "all 0.2s ease",
             }}
+            onClick={() => handleComplementClick(def.name)}
+            disabled={isMatched(def.name)}
           >
             {def.name}
           </button>
@@ -102,9 +148,24 @@ export const renderPuzzle07: PuzzleRenderer = (deps: PuzzleRenderDeps) => {
     addCheckButton,
   } = deps;
 
-  const state = ensureState<Puzzle07State>(puzzleId, { a: "red", b: "green", rounds: 0, streak: 0 });
+  const state = ensureState<Puzzle07State>(puzzleId, {
+    a: "red",
+    b: "green",
+    rounds: 0,
+    streak: 0,
+    matchedPairs: new Set(),
+  });
 
   createRoot(zone).render(<Puzzle07View persistedState={state} />);
 
-  addCheckButton(wrapper, puzzleId, () => ({ selectedColorA: state.a, selectedColorB: state.b }));
+  addCheckButton(wrapper, puzzleId, () => {
+    const matchedPairs = state.matchedPairs instanceof Set 
+      ? state.matchedPairs 
+      : new Set(state.matchedPairs as unknown as ColorName[]);
+    return {
+      selectedColorA: state.a,
+      selectedColorB: state.b,
+      matchedCount: matchedPairs.size / 2,
+    };
+  });
 };
