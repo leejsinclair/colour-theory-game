@@ -32,7 +32,6 @@ test("Result Analysis panel appears after wrong check on puzzle-16", async ({ pa
   await expect(vibrantCard.locator(".result-analysis__title")).toHaveText("Result Analysis");
   await expect(vibrantCard.locator(".result-analysis__item").first()).toBeVisible();
 
-  // Scroll panel into view and screenshot
   await vibrantCard.locator(".result-analysis").scrollIntoViewIfNeeded();
   await page.screenshot({ path: "/tmp/result-analysis.png", fullPage: false });
 });
@@ -52,17 +51,50 @@ test("Result Analysis panel clears on next attempt", async ({ page }) => {
   });
   await vibrantCard.getByRole("button", { name: "Practice" }).click();
 
-  // Wrong attempt
   await vibrantCard.getByRole("button", { name: "hansa yellow", exact: true }).click();
   await vibrantCard.getByRole("button", { name: "yellow ochre", exact: true }).click();
   await vibrantCard.getByRole("button", { name: "Check" }).click();
   await expect(vibrantCard.locator(".result-analysis")).toBeVisible();
 
-  // Correct attempt — hansa yellow replaces yellow ochre, then add phthalo blue
   await vibrantCard.getByRole("button", { name: "hansa yellow", exact: true }).click();
   await vibrantCard.getByRole("button", { name: "phthalo blue", exact: true }).click();
   await expect(vibrantCard.getByText("Vibrant green achieved! ✓")).toBeVisible();
   await vibrantCard.getByRole("button", { name: "Check" }).click();
 
   await expect(vibrantCard.locator(".result-analysis")).toHaveCount(0);
+});
+
+test("check how many Check buttons exist on puzzle-02", async ({ page }) => {
+  await page.goto("/");
+
+  // Enter Light Laboratory directly (puzzle-02 should be available after solving puzzle-01)
+  await clickHudOption(page, "auto-solve");
+  await page.getByRole("button", { name: "Return" }).click();
+
+  // Enter Light Laboratory
+  await page.locator(".puzzle-item", {
+    has: page.getByText("Light Laboratory"),
+  }).getByRole("button", { name: "Enter" }).click();
+
+  const printerCard = page.locator(".puzzle-item", {
+    has: page.getByText("Printer Pigments"),
+  });
+  await printerCard.getByRole("button", { name: "Practice" }).click();
+
+  // Count check buttons
+  const checkButtons = printerCard.getByRole("button", { name: "Check" });
+  const count = await checkButtons.count();
+  console.log("Number of Check buttons on puzzle-02:", count);
+  
+  // Screenshot of the current state
+  await page.screenshot({ path: "/tmp/puzzle-02-state.png", fullPage: false });
+  
+  // Also click Check with wrong values to see what feedback appears
+  // First, we need the sliders to be in wrong state
+  await checkButtons.first().click();
+  await page.waitForTimeout(500);
+  await page.screenshot({ path: "/tmp/puzzle-02-after-fail.png", fullPage: false });
+  
+  const panelCount = await printerCard.locator(".result-analysis").count();
+  console.log("Number of result-analysis panels:", panelCount);
 });
