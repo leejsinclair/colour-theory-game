@@ -15,7 +15,7 @@ import MoreVertIcon from "@mui/icons-material/MoreVert";
 import Typography from "@mui/material/Typography";
 import { appTheme } from "./muiTheme";
 
-const feedbackIssueUrl = "https://github.com/leejsinclair/colour-theory-game/issues/new/choose";
+const feedbackFormUrl = "https://form.jotform.com/260802651069052";
 
 export function AppShell() {
   const [isGameReady, setIsGameReady] = React.useState(false);
@@ -71,7 +71,7 @@ export function AppShell() {
                         <IconButton
                           id="feedback"
                           component="a"
-                          href={feedbackIssueUrl}
+                          href={feedbackFormUrl}
                           target="_blank"
                           rel="noreferrer"
                           size="small"
