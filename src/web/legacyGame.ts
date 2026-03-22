@@ -874,6 +874,9 @@ function triggerFailFeedback(
 }
 
 function addCheckButton(wrapper: HTMLDivElement, puzzleId: string, inputFactory: () => unknown): void {
+  const controls = document.createElement("div");
+  controls.className = "action-row";
+
   const button = document.createElement("button");
   button.className = "btn btn-primary";
   button.textContent = "Check";
@@ -928,7 +931,17 @@ function addCheckButton(wrapper: HTMLDivElement, puzzleId: string, inputFactory:
     }
     render();
   });
-  wrapper.appendChild(button);
+
+  const learnButton = document.createElement("button");
+  learnButton.className = "btn btn-secondary";
+  learnButton.textContent = "Learn";
+  learnButton.addEventListener("click", () => {
+    void openInfoModal(puzzleId);
+  });
+
+  controls.appendChild(button);
+  controls.appendChild(learnButton);
+  wrapper.appendChild(controls);
 }
 
 function addMiniLabel(container: HTMLElement, text: string): void {
@@ -1028,11 +1041,24 @@ function renderLearningIntro(zone: HTMLDivElement, puzzleId: string, onStartQuiz
     card.appendChild(row);
   }
 
+  const controls = document.createElement("div");
+  controls.className = "action-row";
+
   const startButton = document.createElement("button");
   startButton.className = "btn btn-primary";
   startButton.textContent = "Start Quiz";
   startButton.addEventListener("click", onStartQuiz);
-  card.appendChild(startButton);
+  controls.appendChild(startButton);
+
+  const learnButton = document.createElement("button");
+  learnButton.className = "btn btn-secondary";
+  learnButton.textContent = "Learn";
+  learnButton.addEventListener("click", () => {
+    void openInfoModal(puzzleId);
+  });
+  controls.appendChild(learnButton);
+
+  card.appendChild(controls);
 
   zone.appendChild(card);
 }
@@ -1132,6 +1158,14 @@ function renderLearningQuiz(zone: HTMLDivElement, puzzleId: string, uiState: Lea
     render();
   });
   controls.appendChild(submitButton);
+
+  const learnButton = document.createElement("button");
+  learnButton.className = "btn btn-secondary";
+  learnButton.textContent = "Learn";
+  learnButton.addEventListener("click", () => {
+    void openInfoModal(puzzleId);
+  });
+  controls.appendChild(learnButton);
 
   const backButton = document.createElement("button");
   backButton.className = "btn btn-secondary";
