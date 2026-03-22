@@ -92,7 +92,7 @@ npm run play
 |---|---|
 | **Options → Auto Solve Journey** | Instantly completes all 21 puzzles (demo / tour mode) |
 | **Options → Reset Run** | Clears all progress and restarts from the beginning |
-| **Send Feedback** | Opens the GitHub Issues template chooser |
+| **Send Feedback** | Opens the feedback form |
 
 ---
 
@@ -155,8 +155,8 @@ colour-theory-game/
 
 Contributions are welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines on how to report bugs, suggest improvements, and submit pull requests.
 
-Use the in-game **Send Feedback** button or open a GitHub Issue directly:  
-👉 https://github.com/leejsinclair/colour-theory-game/issues/new/choose
+Use the in-game **Send Feedback** button or open the feedback form directly:  
+👉 https://form.jotform.com/260802651069052
 
 ---
 
