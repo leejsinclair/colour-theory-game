@@ -4,6 +4,8 @@ import { Game } from "../game/Game";
 import { SceneType } from "../types/gameTypes";
 import { renderPuzzleById } from "./puzzles";
 import { mountMuiCheckbox, mountMuiSelect, mountMuiSlider, renderMuiMilestoneChips, upgradeMuiButtons } from "./muiControls";
+import { diagnoseFailure } from "./puzzles/diagnose";
+import { FAILURE_EXPLANATIONS, type FailureReasonCode } from "./puzzles/failureReasons";
 import "./styles.css";
 
 const progressEl = document.getElementById("progress") as HTMLPreElement;
@@ -751,16 +753,68 @@ function renderLockedOrSolvedControls(wrapper: HTMLDivElement, puzzleId: string,
 }
 
 /**
- * Trigger a CSS shake animation on a puzzle wrapper on failure.
+ * Remove any existing Result Analysis panel from a puzzle wrapper.
+ * Called at the start of each new attempt so stale feedback is cleared.
+ */
+function clearResultAnalysis(wrapper: HTMLDivElement): void {
+  wrapper.querySelector(".result-analysis")?.remove();
+}
+
+/**
+ * Render a "Result Analysis" panel inside the puzzle wrapper, listing
+ * player-facing explanations for the detected failure reasons.
+ *
+ * The panel occupies the full grid width (grid-column: 1/-1) and sits below
+ * the puzzle controls.  It is removed on the next check attempt.
+ */
+function showResultAnalysis(
+  wrapper: HTMLDivElement,
+  reasons: FailureReasonCode[],
+): void {
+  if (reasons.length === 0) {
+    return;
+  }
+
+  const panel = document.createElement("div");
+  panel.className = "result-analysis";
+
+  const title = document.createElement("div");
+  title.className = "result-analysis__title";
+  title.textContent = "Result Analysis";
+  panel.appendChild(title);
+
+  const list = document.createElement("ul");
+  list.className = "result-analysis__list";
+
+  for (const code of reasons) {
+    const item = document.createElement("li");
+    item.className = "result-analysis__item";
+    item.textContent = FAILURE_EXPLANATIONS[code];
+    list.appendChild(item);
+  }
+
+  panel.appendChild(list);
+  wrapper.appendChild(panel);
+}
+
+/**
+ * Trigger a CSS shake animation on a puzzle wrapper on failure, and show a
+ * Result Analysis panel when specific failure reasons are available.
+ *
  * Reading a layout property forces a reflow, which lets the browser restart
  * the shake animation even when the class is removed and re-added in the same
  * event-loop tick.
  */
-function triggerFailFeedback(wrapper: HTMLDivElement, button: HTMLButtonElement): void {
+function triggerFailFeedback(
+  wrapper: HTMLDivElement,
+  button: HTMLButtonElement,
+  reasons: FailureReasonCode[] = [],
+): void {
   button.textContent = "Try Again";
   wrapper.classList.remove("--failed");
   wrapper.getBoundingClientRect(); // force reflow
   wrapper.classList.add("--failed");
+  showResultAnalysis(wrapper, reasons);
   setTimeout(() => {
     button.textContent = "Check";
     wrapper.classList.remove("--failed");
@@ -776,10 +830,13 @@ function addCheckButton(wrapper: HTMLDivElement, puzzleId: string, inputFactory:
     const puzzleMeta = game.puzzleManager.getPuzzle(puzzleId);
     const puzzle = game.puzzleManager.getPuzzle(puzzleId);
     const wasFinalCanvasUnlocked = game.getProgress().finalCanvasUnlocked;
+    // Compute failure reasons once so both branches can reuse the same result.
+    const failureReasons = diagnoseFailure(puzzleId, input);
+    clearResultAnalysis(wrapper);
     if (puzzle?.solved) {
       const valid = validatePuzzleInput(puzzleId, input as any);
       if (!valid) {
-        triggerFailFeedback(wrapper, button);
+        triggerFailFeedback(wrapper, button, failureReasons);
         return;
       }
 
@@ -797,7 +854,7 @@ function addCheckButton(wrapper: HTMLDivElement, puzzleId: string, inputFactory:
 
     const scoreEvent = game.completePuzzle(puzzleId, input);
     if (!scoreEvent) {
-      triggerFailFeedback(wrapper, button);
+      triggerFailFeedback(wrapper, button, failureReasons);
       return;
     }
 

@@ -329,3 +329,126 @@ describe("Learning content metadata", () => {
     }
   });
 });
+
+// ---------------------------------------------------------------------------
+// Diagnostic Feedback System
+// ---------------------------------------------------------------------------
+
+import { diagnoseFailure } from "../src/web/puzzles/diagnose";
+import { FAILURE_EXPLANATIONS, type FailureReasonCode } from "../src/web/puzzles/failureReasons";
+
+describe("diagnoseFailure – Puzzle 16 (Vibrant Green)", () => {
+  test("returns incorrect_hue_selection when fewer than 2 pigments are selected", () => {
+    const reasons = diagnoseFailure("puzzle-16", { pigments: ["hansa yellow"], mudLevel: 0 });
+    expect(reasons).toContain("incorrect_hue_selection");
+  });
+
+  test("returns incorrect_hue_selection when both pigments are from same family", () => {
+    const reasons = diagnoseFailure("puzzle-16", {
+      pigments: ["hansa yellow", "cadmium lemon"],
+      mudLevel: 0.5,
+    });
+    expect(reasons).toContain("incorrect_hue_selection");
+  });
+
+  test("returns incorrect_hue_selection when no blue pigment is selected", () => {
+    const reasons = diagnoseFailure("puzzle-16", {
+      pigments: ["hansa yellow", "raw sienna"],
+      mudLevel: 0.5,
+    });
+    expect(reasons).toContain("incorrect_hue_selection");
+  });
+
+  test("returns hue bias and chroma reasons when yellow+blue but mud too high due to biased pigment", () => {
+    const reasons = diagnoseFailure("puzzle-16", {
+      pigments: ["raw sienna", "french ultramarine"],
+      mudLevel: 0.5,
+    });
+    expect(reasons[0]).toBe("incorrect_hue_bias");
+    expect(reasons).toContain("complement_conflict");
+    expect(reasons).toContain("insufficient_chroma");
+  });
+
+  test("returns complement_conflict and insufficient_chroma when yellow+blue but clean pigments still muddy", () => {
+    // hansa yellow + phthalo blue are low-bias; mudLevel > 0.16 still triggers failure
+    const reasons = diagnoseFailure("puzzle-16", {
+      pigments: ["hansa yellow", "phthalo blue"],
+      mudLevel: 0.2,
+    });
+    expect(reasons).toContain("complement_conflict");
+    expect(reasons).toContain("insufficient_chroma");
+  });
+});
+
+describe("diagnoseFailure – Puzzle 17 (Mud Monster)", () => {
+  test("returns complement_conflict when too many complement pairs are added", () => {
+    const reasons = diagnoseFailure("puzzle-17", { complementPairsAdded: 2, muddyResult: true });
+    expect(reasons[0]).toBe("complement_conflict");
+  });
+
+  test("returns chroma_collapsed when result is muddy", () => {
+    const reasons = diagnoseFailure("puzzle-17", { complementPairsAdded: 1, muddyResult: true });
+    expect(reasons).toContain("chroma_collapsed");
+  });
+
+  test("returns chroma_collapsed as fallback", () => {
+    const reasons = diagnoseFailure("puzzle-17", { complementPairsAdded: 0, muddyResult: false });
+    expect(reasons).toContain("chroma_collapsed");
+  });
+});
+
+describe("diagnoseFailure – Puzzle 13 (Depth Painting)", () => {
+  test("returns insufficient_atmosphere when edge softening and saturation are too low", () => {
+    const reasons = diagnoseFailure("puzzle-13", {
+      edgeSharpnessDropsWithDistance: false,
+      saturationDropsWithDistance: false,
+      hueShiftsCoolerWithDistance: true,
+    });
+    expect(reasons).toContain("insufficient_atmosphere");
+  });
+
+  test("returns incorrect_color_temperature when hue shift is missing", () => {
+    const reasons = diagnoseFailure("puzzle-13", {
+      edgeSharpnessDropsWithDistance: true,
+      saturationDropsWithDistance: true,
+      hueShiftsCoolerWithDistance: false,
+    });
+    expect(reasons).toContain("incorrect_color_temperature");
+  });
+
+  test("returns both atmosphere and temperature reasons when all cues are missing", () => {
+    const reasons = diagnoseFailure("puzzle-13", {
+      edgeSharpnessDropsWithDistance: false,
+      saturationDropsWithDistance: false,
+      hueShiftsCoolerWithDistance: false,
+    });
+    expect(reasons).toContain("insufficient_atmosphere");
+    expect(reasons).toContain("incorrect_color_temperature");
+  });
+});
+
+describe("diagnoseFailure – unknown puzzle", () => {
+  test("returns empty array for puzzles without specific diagnosis", () => {
+    const reasons = diagnoseFailure("puzzle-01", { redBeam: false });
+    expect(reasons).toHaveLength(0);
+  });
+});
+
+describe("FAILURE_EXPLANATIONS completeness", () => {
+  const allCodes: FailureReasonCode[] = [
+    "low_value_contrast", "incorrect_value_structure",
+    "chroma_collapsed", "insufficient_chroma", "excessive_chroma",
+    "complement_conflict", "incorrect_hue_selection", "incorrect_hue_bias",
+    "overmixing", "unbalanced_mix",
+    "insufficient_atmosphere", "excessive_atmosphere", "incorrect_color_temperature",
+    "weak_simultaneous_contrast", "competing_focal_points", "weak_accent_isolation",
+  ];
+
+  test("every canonical reason code has a non-empty explanation", () => {
+    for (const code of allCodes) {
+      const explanation = FAILURE_EXPLANATIONS[code];
+      expect(explanation, `Missing explanation for ${code}`).toBeTruthy();
+      expect(explanation.length, `Explanation too short for ${code}`).toBeGreaterThan(20);
+    }
+  });
+});
