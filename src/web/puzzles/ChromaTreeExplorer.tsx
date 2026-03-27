@@ -37,23 +37,47 @@ const RING_RADIUS = 80;
 const RING_CENTER = RING_SIZE / 2;
 
 const HUE_PRESETS = [
-  { name: "Red", hue: 0 },
-  { name: "Orange", hue: 30 },
-  { name: "Yellow", hue: 60 },
-  { name: "Yellow-Green", hue: 90 },
-  { name: "Green", hue: 120 },
-  { name: "Teal", hue: 180 },
-  { name: "Blue", hue: 210 },
-  { name: "Violet", hue: 270 },
-  { name: "Purple", hue: 300 },
-  { name: "Magenta", hue: 330 },
+  { name: "Red", hue: 0, munsell: "R" },
+  { name: "Orange", hue: 30, munsell: "YR" },
+  { name: "Yellow", hue: 60, munsell: "Y" },
+  { name: "Yellow-Green", hue: 90, munsell: "GY" },
+  { name: "Green", hue: 120, munsell: "G" },
+  { name: "Teal", hue: 180, munsell: "BG" },
+  { name: "Blue", hue: 210, munsell: "B" },
+  { name: "Violet", hue: 270, munsell: "PB" },
+  { name: "Purple", hue: 300, munsell: "P" },
+  { name: "Magenta", hue: 330, munsell: "RP" },
 ] as const;
+
+function getMunsellHueCode(hue: number): string {
+  const normalizedHue = ((hue % 360) + 360) % 360;
+  let nearestPreset: (typeof HUE_PRESETS)[number] = HUE_PRESETS[0];
+  let nearestDistance = Number.POSITIVE_INFINITY;
+
+  for (const preset of HUE_PRESETS) {
+    const distance = Math.min(
+      Math.abs(normalizedHue - preset.hue),
+      360 - Math.abs(normalizedHue - preset.hue),
+    );
+
+    if (distance < nearestDistance) {
+      nearestDistance = distance;
+      nearestPreset = preset;
+    }
+  }
+
+  return nearestPreset.munsell;
+}
+
+function formatMunsellCode(hue: number, value: number, chroma: number): string {
+  return `${getMunsellHueCode(hue)} ${value} - ${chroma}`;
+}
 
 // ─── Tooltip state ────────────────────────────────────────────────────────────
 
 type TooltipInfo =
-  | { reachable: true; value: number; chroma: number; color: string }
-  | { reachable: false; value: number };
+  | { reachable: true; value: number; chroma: number; chromaPercent: number; color: string; munsellCode: string }
+  | { reachable: false; value: number; chroma: number; munsellCode: string };
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
@@ -207,6 +231,7 @@ export function ChromaTreeExplorer(): React.ReactElement {
                 const reachable = chromaRatio <= maxChroma;
                 const isPeak = valueInt === peakValueRow && col === peakCol;
                 const cellColor = reachable ? toCSS(hue, valueInt, chromaRatio) : "#1a1a2e";
+                const munsellCode = formatMunsellCode(hue, valueInt, col);
                 const classNames = [
                   "chroma-tree-cell",
                   !reachable ? "chroma-tree-cell--unreachable" : "",
@@ -225,10 +250,12 @@ export function ChromaTreeExplorer(): React.ReactElement {
                           ? {
                               reachable: true,
                               value: valueInt,
-                              chroma: Math.round(chromaRatio * 100),
+                              chroma: col,
+                              chromaPercent: Math.round(chromaRatio * 100),
                               color: cellColor,
+                              munsellCode,
                             }
-                          : { reachable: false, value: valueInt },
+                          : { reachable: false, value: valueInt, chroma: col, munsellCode },
                       );
                     }}
                     onMouseLeave={() => setTooltip(null)}
@@ -262,7 +289,7 @@ export function ChromaTreeExplorer(): React.ReactElement {
         {tooltip ? (
           tooltip.reachable ? (
             <>
-              Value {tooltip.value} &middot; Chroma {tooltip.chroma}% &middot;{" "}
+              Munsell {tooltip.munsellCode} &middot; Value {tooltip.value} &middot; Chroma {tooltip.chroma} ({tooltip.chromaPercent}%) &middot;{" "}
               <span
                 style={{
                   display: "inline-block",
@@ -277,10 +304,10 @@ export function ChromaTreeExplorer(): React.ReactElement {
               accessible
             </>
           ) : (
-            `This chroma level is not reachable at value ${tooltip.value} for this hue.`
+            `Munsell ${tooltip.munsellCode} is not reachable for this hue. Value ${tooltip.value}, chroma ${tooltip.chroma}.`
           )
         ) : (
-          "Hover a cell to see value and chroma information."
+          "Hover a cell to see its Munsell code, value, and chroma information."
         )}
       </div>
 
@@ -313,6 +340,10 @@ export function ChromaTreeExplorer(): React.ReactElement {
 }
 
 /** Mount the ChromaTreeExplorer into the given container element. */
-export function mountChromaTreeExplorer(container: HTMLElement): void {
-  createRoot(container).render(<ChromaTreeExplorer />);
+export function mountChromaTreeExplorer(container: HTMLElement): () => void {
+  const root = createRoot(container);
+  root.render(<ChromaTreeExplorer />);
+  return () => {
+    root.unmount();
+  };
 }
