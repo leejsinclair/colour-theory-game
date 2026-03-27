@@ -811,6 +811,9 @@ function renderLockedOrSolvedControls(wrapper: HTMLDivElement, puzzleId: string,
 
     if (puzzleLearningContent[puzzleId]) {
       addReviewIntroButton(wrapper, puzzleId);
+      if (puzzleId === "puzzle-06") {
+        addChromaTreeToggle(wrapper);
+      }
     }
 
     return true;
@@ -1011,7 +1014,7 @@ function addReviewIntroButton(container: HTMLElement, puzzleId: string): void {
 
 function addChromaTreeToggle(container: HTMLElement): void {
   const toggleButton = document.createElement("button");
-  toggleButton.className = "btn learning-tool-toggle-btn";
+  toggleButton.className = "btn btn-secondary learning-tool-toggle-btn";
   toggleButton.textContent = showChromaTreeExplorer ? "Hide Chroma Tree" : "Explore Chroma Tree";
   toggleButton.addEventListener("click", () => {
     showChromaTreeExplorer = !showChromaTreeExplorer;

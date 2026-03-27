@@ -465,11 +465,10 @@ test("solved puzzle practice skips quiz and keeps review intro access", async ({
 // ─── Chroma Tree Explorer tests ───────────────────────────────────────────────
 
 /**
- * Helper: navigate to the Chroma Tree puzzle in practice mode.
- * Uses auto-solve so all puzzles are solved, then opens Value Sketchboard
- * and puts puzzle-06 into its interactive mini-game panel via Practice.
+ * Helper: navigate to the Value Sketchboard station (all puzzles auto-solved).
+ * Returns with puzzle-06 (Chroma Tree) card in the solved state.
  */
-async function openChromaTreePuzzleInPractice(page: Page): Promise<void> {
+async function openValueSketchboard(page: Page): Promise<void> {
   await page.goto("/");
   await clickHudOption(page, "auto-solve");
   await page.getByRole("button", { name: "Return" }).click();
@@ -477,6 +476,15 @@ async function openChromaTreePuzzleInPractice(page: Page): Promise<void> {
   await page.locator(".puzzle-item", {
     has: page.getByText("Value Sketchboard"),
   }).getByRole("button", { name: "Enter" }).click();
+}
+
+/**
+ * Helper: navigate to the Chroma Tree puzzle in practice mode.
+ * Uses auto-solve so all puzzles are solved, then opens Value Sketchboard
+ * and puts puzzle-06 into its interactive mini-game panel via Practice.
+ */
+async function openChromaTreePuzzleInPractice(page: Page): Promise<void> {
+  await openValueSketchboard(page);
 
   await page.locator(".puzzle-item", {
     has: page.getByText("Chroma Tree"),
@@ -496,6 +504,22 @@ test("chroma-tree-explorer-toggle", async ({ page }) => {
   await expect(page.locator(".chroma-tree-explorer")).toBeVisible();
 
   // Click again to hide it
+  await chromaCard.getByRole("button", { name: "Hide Chroma Tree" }).click();
+  await expect(page.locator(".chroma-tree-explorer")).not.toBeVisible();
+});
+
+test("chroma-tree-explorer-visible-when-solved", async ({ page }) => {
+  await openValueSketchboard(page);
+
+  const chromaCard = page.locator(".puzzle-item", { has: page.getByText("Chroma Tree") });
+
+  // Solved card (before entering Practice) must show Review Introduction AND Explore Chroma Tree
+  await expect(chromaCard.getByRole("button", { name: "Review Introduction" })).toBeVisible();
+  await expect(chromaCard.getByRole("button", { name: "Explore Chroma Tree" })).toBeVisible();
+
+  // Toggle must work from the solved-card state too
+  await chromaCard.getByRole("button", { name: "Explore Chroma Tree" }).click();
+  await expect(page.locator(".chroma-tree-explorer")).toBeVisible();
   await chromaCard.getByRole("button", { name: "Hide Chroma Tree" }).click();
   await expect(page.locator(".chroma-tree-explorer")).not.toBeVisible();
 });
