@@ -1,3 +1,10 @@
+/**
+ * Puzzle 01 View – Additive Color Mixing (RGB Light)
+ *
+ * View entry-point for Puzzle 01. Players toggle red, green, and blue light
+ * beams and align their overlap zone to produce white light. Demonstrates
+ * additive RGB colour mixing as used in screens and stage lighting.
+ */
 import React from "react";
 import { createRoot } from "react-dom/client";
 import { PuzzleRenderDeps, PuzzleRenderer } from "./types";

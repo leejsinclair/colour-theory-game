@@ -1,3 +1,12 @@
+/**
+ * Puzzle 14 – Rayleigh Scattering & Atmospheric Haze
+ *
+ * A sky-and-ridge landscape lets players adjust scatter and haze values. As
+ * scattering exceeds 0.6 the distant ridges shift toward blue, simulating
+ * the Rayleigh scattering responsible for blue skies and blue-tinted far
+ * mountains. An "Add Blue Haze Burst" button accelerates the effect. Teaches
+ * why distant objects appear progressively bluer and hazier.
+ */
 import React from "react";
 import { createRoot } from "react-dom/client";
 import { PuzzleActionButton, PuzzleSlider } from "./muiPuzzleControls";

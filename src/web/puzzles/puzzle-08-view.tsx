@@ -1,3 +1,11 @@
+/**
+ * Puzzle 08 – Triadic Harmony (120° Spacing)
+ *
+ * Players adjust three hue sliders and aim for roughly equal 120° spacing
+ * on the colour wheel. Visual markers show the gaps between hues and a
+ * "triad aligned" message appears when all gaps are within ±15° of 120°.
+ * Teaches the triadic colour scheme and the visual balance it creates.
+ */
 import React from "react";
 import { createRoot } from "react-dom/client";
 import { PuzzleSlider } from "./muiPuzzleControls";

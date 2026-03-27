@@ -1,3 +1,11 @@
+/**
+ * Puzzle 05 – Value Ordering (Lightest to Darkest)
+ *
+ * Players reorder a row of colour tiles from darkest to lightest using
+ * left/right arrow buttons. When all tiles are in the correct sequence a
+ * hidden icon is revealed. Teaches value progression and how ordered tonal
+ * gradients guide the eye through a composition.
+ */
 import React from "react";
 import { createRoot } from "react-dom/client";
 import { PuzzleActionButton } from "./muiPuzzleControls";

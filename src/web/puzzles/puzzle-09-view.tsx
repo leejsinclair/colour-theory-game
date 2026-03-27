@@ -1,3 +1,12 @@
+/**
+ * Puzzle 09 – Mood-to-Palette Matching
+ *
+ * Six mood cards (joyful carnival, calm ocean, creepy dungeon, romantic sunset,
+ * focused studio, mystical premium) each display four colour palettes. Players
+ * click the palette that best matches the mood's psychological associations.
+ * Teaches how colour combinations evoke specific emotional responses and are
+ * used in branding, film, and UX design.
+ */
 import React from "react";
 import { createRoot } from "react-dom/client";
 import { PuzzleRenderDeps, PuzzleRenderer } from "./types";

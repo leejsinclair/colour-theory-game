@@ -1,3 +1,11 @@
+/**
+ * Puzzle 07 – Complementary Colour Matching Game
+ *
+ * Players select a colour and then pick its complement from a set of options.
+ * Correct complementary pairs are red↔green, blue↔orange, and yellow↔purple.
+ * Incorrect guesses show immediate feedback. Builds intuitive knowledge of
+ * colour-wheel opposites through gamified interaction.
+ */
 import React from "react";
 import { createRoot } from "react-dom/client";
 import { PuzzleRenderDeps, PuzzleRenderer } from "./types";

@@ -1,3 +1,14 @@
+/**
+ * Puzzle 15 – Time of Day & Golden Hour (Two-Stage)
+ *
+ * Stage 1: Players match four colour palettes (cool blue, midday bright, warm
+ * golden, deep night) to the correct times of day (morning, midday, golden
+ * hour, after sunset).
+ * Stage 2: Players adjust sun height, atmospheric haze, and colour temperature
+ * to recreate golden-hour lighting across sky, ground, and sun glow layers.
+ * Teaches how sunlight colour and atmospheric scattering change throughout
+ * the day and why the golden hour produces warm, low-angle light.
+ */
 import React from "react";
 import { createRoot } from "react-dom/client";
 import { PuzzleRenderDeps, PuzzleRenderer } from "./types";

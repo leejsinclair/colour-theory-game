@@ -1,3 +1,12 @@
+/**
+ * Puzzle 18 – Art Station Mini-Game
+ *
+ * A thin React wrapper that mounts an external imperative mini-game via
+ * renderArtStationMiniGame. The mini-game is a colour-mixing drawing
+ * experience rendered outside the React tree. This component manages the
+ * lifecycle (mount/unmount) and passes puzzle state callbacks through to
+ * the external renderer.
+ */
 import React from "react";
 import { createRoot } from "react-dom/client";
 import { PuzzleRenderDeps, PuzzleRenderer } from "./types";

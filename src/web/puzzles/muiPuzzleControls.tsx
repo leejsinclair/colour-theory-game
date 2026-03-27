@@ -1,4 +1,14 @@
 import React from "react";
+/**
+ * muiPuzzleControls – Shared Puzzle UI Control Components
+ *
+ * Exports three reusable Material-UI-based controls used across puzzle views:
+ *   - PuzzleSlider:       Labelled slider with configurable min/max/step and
+ *                         value display at a specified decimal precision.
+ *   - PuzzleCheckbox:     Labelled checkbox wrapper.
+ *   - PuzzleActionButton: Contained secondary button with an optional small
+ *                         size variant (used for inline left/right arrow buttons).
+ */
 import Button from "@mui/material/Button";
 import Checkbox from "@mui/material/Checkbox";
 import FormControlLabel from "@mui/material/FormControlLabel";

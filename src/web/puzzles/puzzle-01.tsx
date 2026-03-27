@@ -1,3 +1,11 @@
+/**
+ * Puzzle 01 – Additive Color Mixing (RGB Light)
+ *
+ * Players toggle red, green, and blue light beams and align their overlap zone
+ * to produce white light. Demonstrates that combining all three primary light
+ * wavelengths additively creates white, teaching the fundamentals of RGB colour
+ * mixing as used in screens and stage lighting.
+ */
 import React from "react";
 import { createRoot } from "react-dom/client";
 import { PuzzleRenderDeps, PuzzleRenderer } from "./types";

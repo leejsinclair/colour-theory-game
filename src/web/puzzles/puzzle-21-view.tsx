@@ -1,3 +1,13 @@
+/**
+ * Puzzle 21 – Optical Vibration (Vibrating Colours)
+ *
+ * Players tune two hues toward complementary opposition and toggle value
+ * balance to equalise their lightness. Vibration intensity increases as hues
+ * approach 180° apart and lightness values converge. When intensity reaches
+ * ≥90% the colour pair animates with a vibrate effect. Teaches how true
+ * colour opposites at equal value create maximum visual tension and the
+ * optical vibration effect studied by Josef Albers and Op Art practitioners.
+ */
 import React from "react";
 import { createRoot } from "react-dom/client";
 import { PuzzleSlider } from "./muiPuzzleControls";
