@@ -1,3 +1,12 @@
+/**
+ * Puzzle 19 – Colour Balance & Composition Ratios (60-30-10 Rule)
+ *
+ * Players choose hues for a primary, secondary, and accent role, then adjust
+ * percentage sliders to hit target proportions: 60% primary, 30% secondary,
+ * and 10% accent (within tolerances). A stacked bar updates in real time to
+ * visualise the balance. Teaches the classic 60-30-10 colour composition
+ * rule widely used in interior design, fashion, and graphic design.
+ */
 import React from "react";
 import { createRoot } from "react-dom/client";
 import { PuzzleSlider } from "./muiPuzzleControls";

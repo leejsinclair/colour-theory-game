@@ -1,3 +1,12 @@
+/**
+ * Puzzle 04 – Value & Readability (Silhouette under Blur)
+ *
+ * Players paint a row of grayscale tone blocks and toggle a blur effect to
+ * test whether the silhouette remains readable. Success requires ≥75% tonal
+ * contrast between the darkest and lightest blocks. Teaches that a strong
+ * value range is essential for clear visual communication even when fine
+ * detail is lost.
+ */
 import React from "react";
 import { createRoot } from "react-dom/client";
 import { PuzzleActionButton } from "./muiPuzzleControls";

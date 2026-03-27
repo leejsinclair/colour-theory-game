@@ -1,3 +1,12 @@
+/**
+ * Puzzle 12 – Neutral Support & Accent Pop
+ *
+ * Players adjust the number of neutral colour fields, their lightness, and the
+ * accent colour's hue and saturation. A small accent chip sits on the neutral
+ * fields; the contrast metric rises with accent saturation. Teaches how
+ * desaturated supporting colours make a focal accent "pop" and demonstrates
+ * the supporting role of neutrals in colour composition.
+ */
 import React from "react";
 import { createRoot } from "react-dom/client";
 import { PuzzleSlider } from "./muiPuzzleControls";

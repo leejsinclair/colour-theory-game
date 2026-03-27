@@ -1,3 +1,12 @@
+/**
+ * Puzzle 06 – Chroma Peaks by Hue
+ *
+ * Players explore a branching tree of nodes with increasing saturation levels
+ * for red, green, and blue hues. Each hue reaches maximum vividness at a
+ * different saturation level (red peaks at level 4, green at 2, blue at 3).
+ * Teaches that hues have different inherent chroma ceilings and do not all
+ * reach peak saturation at the same point.
+ */
 import React from "react";
 import { createRoot } from "react-dom/client";
 import { PuzzleRenderDeps, PuzzleRenderer } from "./types";

@@ -1,3 +1,13 @@
+/**
+ * Puzzle 16 – Pigment Bias & Clean Green Mixing
+ *
+ * Players choose one yellow and one blue pigment from a palette of ten each.
+ * Yellows range from clean hansa yellow to warm/red-biased yellow ochre; blues
+ * from clean phthalo blue to purple-biased french ultramarine. A mud level is
+ * calculated from each pigment's bias; only the least-biased pair from each
+ * row produces a vibrant green. Teaches how pigment colour bias contaminates
+ * mixes and why choosing bias-compatible pigments matters.
+ */
 import React from "react";
 import { createRoot } from "react-dom/client";
 import { PuzzleRenderDeps, PuzzleRenderer } from "./types";

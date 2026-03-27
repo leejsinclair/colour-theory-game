@@ -1,3 +1,12 @@
+/**
+ * Puzzle 10 – Simultaneous Contrast Illusion
+ *
+ * Two panels each display a central gray square on a differently-coloured
+ * surround. Players adjust the hue, saturation, and lightness of each surround
+ * to minimise the perceived difference between the two grays (target ≤5%).
+ * Demonstrates how a surround colour shifts the apparent tone and hue of a
+ * neutral, illustrating the simultaneous contrast effect.
+ */
 import React from "react";
 import { createRoot } from "react-dom/client";
 import { PuzzleActionButton, PuzzleSlider } from "./muiPuzzleControls";

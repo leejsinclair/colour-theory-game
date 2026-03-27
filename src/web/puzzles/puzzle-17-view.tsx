@@ -1,3 +1,13 @@
+/**
+ * Puzzle 17 – Mud Management Interactive Painting
+ *
+ * Players interact with a "mud monster" by clicking swatch buttons that apply
+ * pigment actions: clean green strokes, neutralisers (red), tints (yellow/
+ * blue), glazes, and contaminants (orange/purple). Each action adjusts a mud
+ * percentage; complementary-colour touches add a penalty. The target is to
+ * keep mud below 58%. A recipe log tracks the sequence. Teaches how pigment
+ * choices and neutralising complements balance paint quality.
+ */
 import React from "react";
 import { createRoot } from "react-dom/client";
 import { PuzzleRenderDeps, PuzzleRenderer } from "./types";

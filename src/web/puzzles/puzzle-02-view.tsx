@@ -1,3 +1,12 @@
+/**
+ * Puzzle 02 – Subtractive Color Mixing (CMY Pigments)
+ *
+ * Players adjust cyan, magenta, and yellow sliders to mix a target colour.
+ * Internally converts CMY values to RGB using the subtractive formula
+ * (RGB = 255 × (1 − CMY)). Side-by-side swatches let players compare their
+ * mix against the target, teaching how pigment-based subtractive colour mixing
+ * differs from additive light mixing.
+ */
 import React from "react";
 import { createRoot } from "react-dom/client";
 import { PuzzleSlider } from "./muiPuzzleControls";

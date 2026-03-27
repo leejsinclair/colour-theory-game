@@ -1,3 +1,11 @@
+/**
+ * Puzzle 11 – Colour Induction (Warm Context → Cool Illusion)
+ *
+ * A neutral gray square sits inside a coloured surround. Players adjust the
+ * surround's hue, saturation, and lightness until the warm orange context is
+ * strong enough to make the gray appear cool/bluish. Teaches colour induction:
+ * how a complementary surround can shift the perceived hue of a neutral object.
+ */
 import React from "react";
 import { createRoot } from "react-dom/client";
 import { PuzzleSlider } from "./muiPuzzleControls";

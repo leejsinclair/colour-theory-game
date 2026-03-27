@@ -1,3 +1,12 @@
+/**
+ * Puzzle 20 – Colour Psychology & Emotional Association
+ *
+ * Four colour swatches (red, blue, yellow, green) each present four emotion
+ * labels with descriptions. Players click the emotion that best matches the
+ * colour's psychological association: red→excitement, blue→trust,
+ * yellow→optimism, green→growth. Teaches colour psychology as applied in
+ * branding, marketing, and UX design.
+ */
 import React from "react";
 import { createRoot } from "react-dom/client";
 import { PuzzleRenderDeps, PuzzleRenderer } from "./types";

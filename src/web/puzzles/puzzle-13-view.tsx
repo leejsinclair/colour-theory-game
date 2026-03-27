@@ -1,3 +1,12 @@
+/**
+ * Puzzle 13 – Atmospheric / Aerial Perspective
+ *
+ * Three mountain silhouette layers simulate depth. Players adjust edge
+ * softening (blur), saturation reduction, and cool hue shift to push distant
+ * mountains further back in space. All three depth cues must reach their
+ * target thresholds (≥0.45 each) to solve the puzzle. Teaches that soft edges,
+ * muted colour, and cooler temperature signal distance in landscape painting.
+ */
 import React from "react";
 import { createRoot } from "react-dom/client";
 import { PuzzleSlider } from "./muiPuzzleControls";

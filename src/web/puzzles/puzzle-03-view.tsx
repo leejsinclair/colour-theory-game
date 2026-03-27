@@ -1,3 +1,12 @@
+/**
+ * Puzzle 03 – Luminous Shadows from Complementary Pigments
+ *
+ * Players choose two pigment colours and set a "gloss" slider. When a true
+ * complementary pair (red+green, blue+orange, or yellow+purple) is selected
+ * with sufficient gloss (≥0.55), the mixed shadow becomes a warm, luminous
+ * chromatic black rather than a flat neutral. Teaches that shadows painted
+ * with complementary colours retain vibrancy and warmth.
+ */
 import React from "react";
 import { createRoot } from "react-dom/client";
 import { PuzzleSlider } from "./muiPuzzleControls";
