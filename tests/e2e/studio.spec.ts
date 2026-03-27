@@ -461,3 +461,80 @@ test("solved puzzle practice skips quiz and keeps review intro access", async ({
   await page.locator("#info-modal-close").click();
   await expect(page.locator("#info-modal")).toBeHidden();
 });
+
+// ─── Chroma Tree Explorer tests ───────────────────────────────────────────────
+
+/**
+ * Helper: navigate to the Chroma Tree puzzle in practice mode.
+ * Uses auto-solve so all puzzles are solved, then opens Value Sketchboard
+ * and puts puzzle-06 into its interactive mini-game panel via Practice.
+ */
+async function openChromaTreePuzzleInPractice(page: Page): Promise<void> {
+  await page.goto("/");
+  await clickHudOption(page, "auto-solve");
+  await page.getByRole("button", { name: "Return" }).click();
+
+  await page.locator(".puzzle-item", {
+    has: page.getByText("Value Sketchboard"),
+  }).getByRole("button", { name: "Enter" }).click();
+
+  await page.locator(".puzzle-item", {
+    has: page.getByText("Chroma Tree"),
+  }).getByRole("button", { name: "Practice" }).click();
+}
+
+test("chroma-tree-explorer-toggle", async ({ page }) => {
+  await openChromaTreePuzzleInPractice(page);
+
+  const chromaCard = page.locator(".puzzle-item", { has: page.getByText("Chroma Tree") });
+
+  // The Explore Chroma Tree button should be visible after the learning gate
+  await expect(chromaCard.getByRole("button", { name: "Explore Chroma Tree" })).toBeVisible();
+
+  // Click to open the explorer
+  await chromaCard.getByRole("button", { name: "Explore Chroma Tree" }).click();
+  await expect(page.locator(".chroma-tree-explorer")).toBeVisible();
+
+  // Click again to hide it
+  await chromaCard.getByRole("button", { name: "Hide Chroma Tree" }).click();
+  await expect(page.locator(".chroma-tree-explorer")).not.toBeVisible();
+});
+
+test("chroma-tree-grid-renders", async ({ page }) => {
+  await openChromaTreePuzzleInPractice(page);
+
+  const chromaCard = page.locator(".puzzle-item", { has: page.getByText("Chroma Tree") });
+  await chromaCard.getByRole("button", { name: "Explore Chroma Tree" }).click();
+  await expect(page.locator(".chroma-tree-explorer")).toBeVisible();
+
+  // At least one cell should be present
+  await expect(page.locator(".chroma-tree-cell").first()).toBeVisible();
+
+  // At least one unreachable cell should exist (boundary logic ran)
+  expect(await page.locator(".chroma-tree-cell--unreachable").count()).toBeGreaterThan(0);
+
+  // Exactly one peak cell should exist
+  await expect(page.locator(".chroma-tree-cell--peak")).toHaveCount(1);
+});
+
+test("chroma-tree-hue-chip-changes-grid", async ({ page }) => {
+  await openChromaTreePuzzleInPractice(page);
+
+  const chromaCard = page.locator(".puzzle-item", { has: page.getByText("Chroma Tree") });
+  await chromaCard.getByRole("button", { name: "Explore Chroma Tree" }).click();
+  await expect(page.locator(".chroma-tree-explorer")).toBeVisible();
+
+  // Record the background style of the peak cell before changing hue
+  const peakBefore = await page.locator(".chroma-tree-cell--peak").evaluate(
+    (el) => (el as HTMLElement).style.background,
+  );
+
+  // Click the Violet chip (hue 270°, which has a very different peak from Yellow 60°)
+  await page.getByRole("button", { name: "Violet" }).click();
+
+  // The peak cell background should have changed
+  const peakAfter = await page.locator(".chroma-tree-cell--peak").evaluate(
+    (el) => (el as HTMLElement).style.background,
+  );
+  expect(peakAfter).not.toBe(peakBefore);
+});

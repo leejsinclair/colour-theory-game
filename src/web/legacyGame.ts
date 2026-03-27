@@ -6,6 +6,7 @@ import { renderPuzzleById } from "./puzzles";
 import { mountMuiCheckbox, mountMuiSelect, mountMuiSlider, renderMuiMilestoneChips, upgradeMuiButtons } from "./muiControls";
 import { diagnoseFailure } from "./puzzles/diagnose";
 import { FAILURE_EXPLANATIONS, type FailureReasonCode } from "./puzzles/failureReasons";
+import { mountChromaTreeExplorer } from "./puzzles/ChromaTreeExplorer";
 import { marked } from "marked";
 import "./styles.css";
 
@@ -257,6 +258,7 @@ function renderPetCollection(): void {
 let game = new Game();
 let activeStationId: string | null = null;
 let practicePuzzleId: string | null = null;
+let showChromaTreeForPuzzle06 = false;
 
 /** Show a brief floating reward toast message. */
 function showToast(
@@ -1007,6 +1009,24 @@ function addReviewIntroButton(container: HTMLElement, puzzleId: string): void {
   container.appendChild(reviewButton);
 }
 
+function addChromaTreeToggle(container: HTMLElement): void {
+  const toggleButton = document.createElement("button");
+  toggleButton.className = "btn learning-tool-toggle-btn";
+  toggleButton.textContent = showChromaTreeForPuzzle06 ? "Hide Chroma Tree" : "Explore Chroma Tree";
+  toggleButton.addEventListener("click", () => {
+    showChromaTreeForPuzzle06 = !showChromaTreeForPuzzle06;
+    render();
+  });
+  container.appendChild(toggleButton);
+
+  if (showChromaTreeForPuzzle06) {
+    const mountDiv = document.createElement("div");
+    mountDiv.style.gridColumn = "1 / -1";
+    container.appendChild(mountDiv);
+    mountChromaTreeExplorer(mountDiv);
+  }
+}
+
 function renderLearningIntro(zone: HTMLDivElement, puzzleId: string, onStartQuiz: () => void): void {
   const learning = puzzleLearningContent[puzzleId];
   if (!learning) {
@@ -1265,6 +1285,9 @@ function renderPuzzleMiniGame(puzzleId: string, title: string, state: string): v
 
   if (learning) {
     addReviewIntroButton(wrapper, puzzleId);
+    if (puzzleId === "puzzle-06") {
+      addChromaTreeToggle(wrapper);
+    }
   }
 
   if (renderResult?.appended) {
