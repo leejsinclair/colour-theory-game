@@ -25,8 +25,53 @@ const infoModalTitleEl = document.getElementById("info-modal-title") as HTMLElem
 const infoModalBodyEl = document.getElementById("info-modal-body") as HTMLElement;
 const infoModalCloseEl = document.getElementById("info-modal-close") as HTMLButtonElement;
 
+let infoModalCleanup: (() => void) | null = null;
+
+function clearInfoModalBody(): void {
+  infoModalCleanup?.();
+  infoModalCleanup = null;
+  infoModalBodyEl.innerHTML = "";
+}
+
+function showInfoModal(title: string): void {
+  infoModalTitleEl.textContent = title;
+  infoModalEl.removeAttribute("hidden");
+  infoModalCloseEl.focus();
+}
+
+function openChromaTreeModal(): void {
+  clearInfoModalBody();
+
+  const intro = document.createElement("p");
+  intro.textContent = "Drag around the hue ring or use the quick-pick chips to compare where each hue reaches its highest chroma.";
+  infoModalBodyEl.appendChild(intro);
+
+  const mountDiv = document.createElement("div");
+  infoModalBodyEl.appendChild(mountDiv);
+  infoModalCleanup = mountChromaTreeExplorer(mountDiv);
+
+  showInfoModal("Explore Chroma Tree");
+}
+
+function createChromaTreeActionButton(): HTMLButtonElement {
+  const button = document.createElement("button");
+  button.className = "btn btn-secondary learning-tool-toggle-btn";
+  button.textContent = "Explore Chroma Tree";
+  button.addEventListener("click", openChromaTreeModal);
+  return button;
+}
+
+function appendChromaTreeAction(container: HTMLElement): void {
+  const controls = document.createElement("div");
+  controls.className = "action-row";
+  controls.appendChild(createChromaTreeActionButton());
+  container.appendChild(controls);
+}
+
 async function openInfoModal(puzzleId: string): Promise<void> {
   const url = new URL(`puzzle-info/${puzzleId}.md`, location.href).href;
+
+  clearInfoModalBody();
 
   try {
     const resp = await fetch(url);
@@ -37,7 +82,6 @@ async function openInfoModal(puzzleId: string): Promise<void> {
       const bodyMd = lines.slice(1).join("\n");
       const bodyHtml = await marked.parse(bodyMd);
 
-      infoModalTitleEl.textContent = titleLine;
       infoModalBodyEl.innerHTML = bodyHtml;
 
       infoModalBodyEl.querySelectorAll("a").forEach((a) => {
@@ -45,8 +89,11 @@ async function openInfoModal(puzzleId: string): Promise<void> {
         a.setAttribute("rel", "noopener noreferrer");
       });
 
-      infoModalEl.removeAttribute("hidden");
-      infoModalCloseEl.focus();
+      if (puzzleId === "puzzle-06") {
+        appendChromaTreeAction(infoModalBodyEl);
+      }
+
+      showInfoModal(titleLine);
       return;
     }
   } catch {
@@ -55,9 +102,6 @@ async function openInfoModal(puzzleId: string): Promise<void> {
 
   const learning = puzzleLearningContent[puzzleId];
   if (learning) {
-    infoModalTitleEl.textContent = learning.title;
-    infoModalBodyEl.innerHTML = "";
-
     const illustrationWrap = document.createElement("div");
     illustrationWrap.className = "learning-modal-illustration";
     illustrationWrap.innerHTML = learning.illustrationSvg;
@@ -90,8 +134,11 @@ async function openInfoModal(puzzleId: string): Promise<void> {
       infoModalBodyEl.appendChild(row);
     }
 
-    infoModalEl.removeAttribute("hidden");
-    infoModalCloseEl.focus();
+    if (puzzleId === "puzzle-06") {
+      appendChromaTreeAction(infoModalBodyEl);
+    }
+
+    showInfoModal(learning.title);
     return;
   }
 
@@ -100,8 +147,6 @@ async function openInfoModal(puzzleId: string): Promise<void> {
     return;
   }
 
-  infoModalTitleEl.textContent = concept.title;
-  infoModalBodyEl.innerHTML = "";
   for (const line of concept.body.split("\n")) {
     if (line.trim()) {
       const p = document.createElement("p");
@@ -109,11 +154,16 @@ async function openInfoModal(puzzleId: string): Promise<void> {
       infoModalBodyEl.appendChild(p);
     }
   }
-  infoModalEl.removeAttribute("hidden");
-  infoModalCloseEl.focus();
+
+  if (puzzleId === "puzzle-06") {
+    appendChromaTreeAction(infoModalBodyEl);
+  }
+
+  showInfoModal(concept.title);
 }
 
 function closeInfoModal(): void {
+  clearInfoModalBody();
   infoModalEl.setAttribute("hidden", "");
 }
 
@@ -258,7 +308,6 @@ function renderPetCollection(): void {
 let game = new Game();
 let activeStationId: string | null = null;
 let practicePuzzleId: string | null = null;
-let showChromaTreeExplorer = false;
 
 /** Show a brief floating reward toast message. */
 function showToast(
@@ -812,7 +861,7 @@ function renderLockedOrSolvedControls(wrapper: HTMLDivElement, puzzleId: string,
     if (puzzleLearningContent[puzzleId]) {
       addReviewIntroButton(wrapper, puzzleId);
       if (puzzleId === "puzzle-06") {
-        addChromaTreeToggle(wrapper);
+        addChromaTreeButton(wrapper);
       }
     }
 
@@ -1012,22 +1061,8 @@ function addReviewIntroButton(container: HTMLElement, puzzleId: string): void {
   container.appendChild(reviewButton);
 }
 
-function addChromaTreeToggle(container: HTMLElement): void {
-  const toggleButton = document.createElement("button");
-  toggleButton.className = "btn btn-secondary learning-tool-toggle-btn";
-  toggleButton.textContent = showChromaTreeExplorer ? "Hide Chroma Tree" : "Explore Chroma Tree";
-  toggleButton.addEventListener("click", () => {
-    showChromaTreeExplorer = !showChromaTreeExplorer;
-    render();
-  });
-  container.appendChild(toggleButton);
-
-  if (showChromaTreeExplorer) {
-    const mountDiv = document.createElement("div");
-    mountDiv.style.gridColumn = "1 / -1";
-    container.appendChild(mountDiv);
-    mountChromaTreeExplorer(mountDiv);
-  }
+function addChromaTreeButton(container: HTMLElement): void {
+  container.appendChild(createChromaTreeActionButton());
 }
 
 function renderLearningIntro(zone: HTMLDivElement, puzzleId: string, onStartQuiz: () => void): void {
@@ -1093,6 +1128,10 @@ function renderLearningIntro(zone: HTMLDivElement, puzzleId: string, onStartQuiz
     void openInfoModal(puzzleId);
   });
   controls.appendChild(learnButton);
+
+  if (puzzleId === "puzzle-06") {
+    controls.appendChild(createChromaTreeActionButton());
+  }
 
   card.appendChild(controls);
 
@@ -1289,7 +1328,7 @@ function renderPuzzleMiniGame(puzzleId: string, title: string, state: string): v
   if (learning) {
     addReviewIntroButton(wrapper, puzzleId);
     if (puzzleId === "puzzle-06") {
-      addChromaTreeToggle(wrapper);
+      addChromaTreeButton(wrapper);
     }
   }
 

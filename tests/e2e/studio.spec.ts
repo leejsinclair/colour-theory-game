@@ -501,10 +501,12 @@ test("chroma-tree-explorer-toggle", async ({ page }) => {
 
   // Click to open the explorer
   await chromaCard.getByRole("button", { name: "Explore Chroma Tree" }).click();
+  await expect(page.locator("#info-modal")).toBeVisible();
   await expect(page.locator(".chroma-tree-explorer")).toBeVisible();
 
-  // Click again to hide it
-  await chromaCard.getByRole("button", { name: "Hide Chroma Tree" }).click();
+  // Close modal using the close button
+  await page.locator("#info-modal-close").click();
+  await expect(page.locator("#info-modal")).toBeHidden();
   await expect(page.locator(".chroma-tree-explorer")).not.toBeVisible();
 });
 
@@ -517,10 +519,12 @@ test("chroma-tree-explorer-visible-when-solved", async ({ page }) => {
   await expect(chromaCard.getByRole("button", { name: "Review Introduction" })).toBeVisible();
   await expect(chromaCard.getByRole("button", { name: "Explore Chroma Tree" })).toBeVisible();
 
-  // Toggle must work from the solved-card state too
+  // Modal open/close must work from the solved-card state too
   await chromaCard.getByRole("button", { name: "Explore Chroma Tree" }).click();
+  await expect(page.locator("#info-modal")).toBeVisible();
   await expect(page.locator(".chroma-tree-explorer")).toBeVisible();
-  await chromaCard.getByRole("button", { name: "Hide Chroma Tree" }).click();
+  await page.locator("#info-modal-close").click();
+  await expect(page.locator("#info-modal")).toBeHidden();
   await expect(page.locator(".chroma-tree-explorer")).not.toBeVisible();
 });
 
