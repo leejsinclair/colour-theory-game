@@ -1,418 +1,87 @@
-# Chromatic Mastery – Game Architecture
+# Chromatic Mastery Game Architecture
 
-This document defines the technical architecture for the Chromatic Mastery puzzle game.
+This document describes how the codebase is structured at runtime and where core responsibilities live.
+It is architecture-focused and intentionally avoids duplicating coding policy and completion checklists.
 
-The architecture is designed to support:
-- puzzle driven gameplay
-- modular puzzle logic
-- collectible pets
-- simple rendering
-- extensible content
+For coding standards and done criteria, use:
+- [AGENTS.md](AGENTS.md)
+- [.github/copilot-instructions.md](.github/copilot-instructions.md)
+- [.github/instructions/coding-standards.instructions.md](.github/instructions/coding-standards.instructions.md)
+- [.github/instructions/completion-criteria.instructions.md](.github/instructions/completion-criteria.instructions.md)
+- [EPCC.md](EPCC.md)
 
-The design assumes a 2D scene with interactive stations.
+## High-Level Runtime Model
 
----
+The project supports two runtime surfaces:
+- CLI mode for terminal gameplay and diagnostics.
+- Web mode for interactive puzzle UX.
 
-# Core Architecture Principles
+Both modes share the same core domain and progression logic.
 
-1. Puzzles are modular
-2. Stations contain puzzles
-3. Pets are rewards for puzzles
-4. Game state tracks progress
-5. Rendering is independent of puzzle logic
+## Top-Level Code Areas
 
----
+- [src/game](src/game): game orchestration and scene flow.
+- [src/systems](src/systems): managers for puzzles, pets, stations, color, and persistence.
+- [src/entities](src/entities): domain entities and state containers.
+- [src/puzzles](src/puzzles): puzzle logic classes used by core game flows.
+- [src/web](src/web): browser shell, puzzle rendering, and UI behaviors.
+- [src/content](src/content): puzzle learning content and demo solutions.
+- [src/types](src/types): shared type definitions.
 
-# System Overview
+## Core Domain Layer
 
-Game
- ├── SceneManager
- ├── StationManager
- ├── PuzzleManager
- ├── PetManager
- ├── PlayerController
- └── SaveSystem
+The core domain layer is the source of truth for progression and rewards.
 
----
+Primary modules:
+- [src/game/Game.ts](src/game/Game.ts): coordinates puzzle completion, rewards, streaks, and unlock flow.
+- [src/systems/PuzzleManager.ts](src/systems/PuzzleManager.ts): puzzle lookup and solved-state management.
+- [src/systems/PetManager.ts](src/systems/PetManager.ts): pet unlock state and collection data.
+- [src/systems/StationManager.ts](src/systems/StationManager.ts): station metadata and completion status.
+- [src/systems/SaveSystem.ts](src/systems/SaveSystem.ts): serialization and load/restore behavior.
+- [src/systems/ColorEngine.ts](src/systems/ColorEngine.ts): color calculation helpers.
 
-# Scene System
+## Web Application Layer
 
-Scenes represent physical areas of the studio.
+Web UI is split into shell, controls, and puzzle-specific interactions.
 
-Scene Types:
+Key files:
+- [src/web/AppShell.tsx](src/web/AppShell.tsx): application shell and layout containers.
+- [src/web/main.tsx](src/web/main.tsx): web bootstrap entry.
+- [src/web/legacyGame.ts](src/web/legacyGame.ts): DOM-driven puzzle flow and progression wiring.
+- [src/web/puzzles](src/web/puzzles): per-puzzle logic and view implementations.
 
-StudioScene
-PuzzleScene
-FinalCanvasScene
+Puzzle modules are intentionally isolated. Add puzzle-specific behavior in the matching file pair inside [src/web/puzzles](src/web/puzzles) when possible.
 
-SceneManager responsibilities:
+## Content and Learning Layer
 
-loadScene()
-unloadScene()
-transitionScene()
+Learning copy, quiz questions, and explanatory metadata live in content modules:
+- [src/content/puzzleLearningContent.ts](src/content/puzzleLearningContent.ts)
+- [src/content/gameContent.ts](src/content/gameContent.ts)
+- [src/content/demoSolutions.ts](src/content/demoSolutions.ts)
 
----
+Detailed per-puzzle markdown references are in:
+- [public/puzzle-info](public/puzzle-info)
 
-# Station System
+## Validation and Testing Architecture
 
-Stations are interactive puzzle locations.
+Testing is divided by scope:
+- Unit tests: [tests/game.test.ts](tests/game.test.ts)
+- End-to-end browser flows: [tests/e2e](tests/e2e)
 
-Station Types:
+Standard validation commands:
+- npm run build
+- npm test
+- npm run lint
+- npm run test:e2e for UI/user-journey changes
 
-LightLaboratory
-ValueSketchboard
-ColorWheelTable
-OpticalIllusionWall
-WindowLandscape
-PaintWorkbench
-
-Station Model:
-
-Station
-    id
-    name
-    location
-    puzzles[]
-    unlocked
-    completed
-
----
+## Architectural Boundaries
 
-# Puzzle System
+- Keep game-rule decisions in the domain/systems layer, not inside presentational UI components.
+- Keep puzzle behavior localized to puzzle modules instead of central conditional branching where possible.
+- Keep persistence-compatible schema updates additive and backward-safe.
 
-Each puzzle is independent.
+## Evolution Notes
 
-Puzzle Model:
-
-Puzzle
-    id
-    stationId
-    title
-    description
-    puzzleType
-    state
-    solved
-    rewardPetId
-
-Puzzle State:
-
-locked
-available
-in_progress
-solved
-
-Puzzle Types:
-
-RGB_LIGHT
-CMY_PRINT
-CHROMATIC_BLACK
-VALUE_PAINT
-VALUE_SORT
-CHROMA_TREE
-COLOR_COMPLEMENT
-COLOR_TRIAD
-MOOD_PALETTE
-SQUARE_ILLUSION
-GREY_SHIFT
-NEUTRAL_POP
-LANDSCAPE_DEPTH
-RAYLEIGH_SCATTER
-GOLDEN_HOUR
-PIGMENT_MIX
-MUD_PREVENTION
-POINTILLISM
-
-Puzzle Interface:
-
-startPuzzle()
-updatePuzzle()
-checkSolution()
-completePuzzle()
-
----
-
-# Pet System
-
-Pets represent color concepts.
-
-Pet Model:
-
-Pet
-    id
-    name
-    type
-    sprite
-    unlocked
-    behavior
-
-Pet Types:
-
-GlowSprite
-InkOctopus
-ShadowCat
-ShadowMouse
-GradientHedgehog
-ChromaGecko
-PrismFox
-PaletteParrot
-MoodBat
-ChameleonLizard
-ContrastFrog
-NeutralTurtle
-SkyJelly
-AirSprite
-DuskOwl
-PaintSlime
-MudBlob
-DotBee
-
-Pet Behavior Model:
-
-PetBehavior
-    idle()
-    wander()
-    reactToColor()
-    interactWithPlayer()
-
-Example behaviors:
-
-GlowSprite increases brightness near light puzzles
-
-ShadowCat hides in dark areas
-
-SkyJelly floats near window
-
-PaintSlime moves toward paint palettes
-
----
-
-# Player System
-
-PlayerController responsibilities:
-
-movement
-interaction
-puzzle activation
-pet interaction
-
-Player Model:
-
-Player
-    position
-    interactionRange
-    collectedPets[]
-
-Interaction types:
-
-interactStation()
-inspectPuzzle()
-collectPet()
-
----
-
-# Puzzle Logic Examples
-
-Example: RGB Light Puzzle
-
-Inputs:
-
-redBeam
-greenBeam
-blueBeam
-
-Solution Condition:
-
-if redBeam AND greenBeam AND blueBeam overlap
-    outputColor = white
-    puzzleSolved = true
-
----
-
-Example: Complementary Color Puzzle
-
-Inputs:
-
-selectedColorA
-selectedColorB
-
-Solution:
-
-if colorWheel.opposite(selectedColorA) == selectedColorB
-    puzzleSolved = true
-
----
-
-Example: Atmospheric Perspective Puzzle
-
-Validation rules:
-
-distance increases:
-    edgeSharpness decreases
-    saturation decreases
-    temperature shifts cooler
-
-if rules satisfied
-    puzzleSolved = true
-
----
-
-# Pet Collection System
-
-When puzzle is solved:
-
-unlockPet(petId)
-
-Process:
-
-spawnPetAnimation()
-addPetToCollection()
-updateStudioPopulation()
-
-PetCollection Model:
-
-PetCollection
-    collectedPets[]
-    totalPets
-    completionPercent
-
----
-
-# Studio Population System
-
-Pets wander the studio after being unlocked.
-
-PetSpawner responsibilities:
-
-spawnPet()
-assignPetBehavior()
-controlPetMovement()
-
----
-
-# Rendering Layers
-
-Layer order:
-
-background
-studio environment
-player
-pets
-puzzle UI
-effects
-
-Rendering components:
-
-SpriteRenderer
-ParticleSystem
-ColorShader
-
----
-
-# Color Engine
-
-Color Engine handles color interactions.
-
-Functions:
-
-mixRGB()
-mixCMY()
-calculateComplement()
-applyAtmosphericPerspective()
-simulateOpticalMixing()
-
-Example:
-
-mixCMY(cyan, magenta, yellow)
-
-Returns simulated pigment result.
-
----
-
-# Save System
-
-Save data stored locally.
-
-SaveData Model:
-
-SaveData
-    completedPuzzles[]
-    collectedPets[]
-    unlockedStations[]
-    playerPosition
-
-Functions:
-
-saveGame()
-loadGame()
-
----
-
-# Final Canvas System
-
-Unlock condition:
-
-if collectedPets == 18
-    unlockFinalCanvas()
-
-Final canvas allows free painting using all mechanics.
-
-Canvas tools:
-
-color picker
-brush
-value slider
-chroma slider
-lighting filter
-
-Pets provide hints during painting.
-
----
-
-# Asset Structure
-
-/assets
-
-sprites
-    pets
-    stations
-    UI
-
-textures
-    paint
-    gradients
-
-audio
-    ambience
-    puzzleSolved
-    petUnlock
-
----
-
-# Recommended File Structure
-
-/src
-
-game
-    Game.ts
-    SceneManager.ts
-
-systems
-    PuzzleManager.ts
-    PetManager.ts
-    SaveSystem.ts
-
-entities
-    Player.ts
-    Pet.ts
-    Station.ts
-    Puzzle.ts
-
-puzzles
-    RGBPuzzle.ts
-    CMYPuzzle.ts
-    ComplementPuzzle.ts
-    AtmospherePuzzle.ts
-
-ui
-    PuzzleUI.ts
-    InventoryUI.ts
+If architecture changes materially, update this document and the related planning docs:
+- [storyplan.md](storyplan.md)
+- [cloud-handoff.md](cloud-handoff.md)
