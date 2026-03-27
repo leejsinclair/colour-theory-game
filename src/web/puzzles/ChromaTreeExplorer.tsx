@@ -3,16 +3,21 @@ import { createRoot } from "react-dom/client";
 
 // ─── Colour model helpers ─────────────────────────────────────────────────────
 
+// Cosine approximation: Yellow (60°) peaks near 8.5, Violet (270°) peaks near 3.5.
 function getPeakValue(hue: number): number {
   const h = ((hue % 360) + 360) % 360;
+  // Clamped to [2, 9.5]; base 6, amplitude 2.5, hue offset 60° (yellow at top).
   return Math.max(2, Math.min(9.5, 6 + 2.5 * Math.cos(((h - 60) * Math.PI) / 180)));
 }
 
+// Returns 0–1 representing the maximum reachable chroma fraction at a given hue+value.
 function maxChromaAtValue(hue: number, value: number): number {
   const peak = getPeakValue(hue);
   const dist = Math.abs(value - peak);
+  // Falloff: distance of 5 value steps drops to zero; exponent 1.4 softens the shoulder.
   const falloff = Math.max(0, 1 - (dist / 5) ** 1.4);
   const h = ((hue % 360) + 360) % 360;
+  // Hue boost: warm hues (near 30°) are slightly more chromatic than cool hues.
   const hueBoost = 0.85 + 0.15 * Math.cos(((h - 30) * Math.PI) / 180);
   return falloff * hueBoost;
 }

@@ -258,7 +258,7 @@ function renderPetCollection(): void {
 let game = new Game();
 let activeStationId: string | null = null;
 let practicePuzzleId: string | null = null;
-let showChromaTreeForPuzzle06 = false;
+let showChromaTreeExplorer = false;
 
 /** Show a brief floating reward toast message. */
 function showToast(
@@ -1012,14 +1012,14 @@ function addReviewIntroButton(container: HTMLElement, puzzleId: string): void {
 function addChromaTreeToggle(container: HTMLElement): void {
   const toggleButton = document.createElement("button");
   toggleButton.className = "btn learning-tool-toggle-btn";
-  toggleButton.textContent = showChromaTreeForPuzzle06 ? "Hide Chroma Tree" : "Explore Chroma Tree";
+  toggleButton.textContent = showChromaTreeExplorer ? "Hide Chroma Tree" : "Explore Chroma Tree";
   toggleButton.addEventListener("click", () => {
-    showChromaTreeForPuzzle06 = !showChromaTreeForPuzzle06;
+    showChromaTreeExplorer = !showChromaTreeExplorer;
     render();
   });
   container.appendChild(toggleButton);
 
-  if (showChromaTreeForPuzzle06) {
+  if (showChromaTreeExplorer) {
     const mountDiv = document.createElement("div");
     mountDiv.style.gridColumn = "1 / -1";
     container.appendChild(mountDiv);
