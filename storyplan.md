@@ -1613,7 +1613,16 @@ This section tracks implementation against this story plan and `game-architectur
 	- Puzzle-18 (Optical Mixing): added live tiled distance preview canvas to visualize optical blending while painting
 	- Puzzle-19 (Color Balance 60/30/10): interactive composition bar showing primary/secondary/accent proportions with live hue pickers and percentage sliders; bonus station unlocks after completing all 6 main stations
 	- All puzzles: shake animation + red border feedback on incorrect Check submission
-- Playwright e2e coverage expanded (12 tests):
+- **Puzzle-06 (Chroma Tree): ChromaTreeExplorer supplementary learning tool** (`src/web/puzzles/ChromaTreeExplorer.tsx`):
+	- Interactive cross-section grid (11 value rows × 14 chroma columns) showing the reachable chroma boundary for any hue
+	- Draggable SVG hue ring (mouse + touch) updates grid in real time
+	- 10 named hue quick-pick chips (Red → Magenta); active chip highlights to current hue
+	- Single peak cell (white border + white dot) marks maximum chroma point for each hue
+	- Hover tooltips on each cell: reachable cells show value/chroma/swatch; unreachable cells explain the boundary
+	- Insight card shows hue name and peak value with contextual note (high/mid/low)
+	- Three static callout cards explain "The tree leans", "Dark cells = impossible", and "White dot = peak"
+	- Toggle button ("Explore Chroma Tree" / "Hide Chroma Tree") shown alongside Review Introduction for puzzle-06 after the learning gate is passed; no effect on puzzle state, score, or save data
+- Playwright e2e coverage expanded (15 tests):
 	- RGB beam button toggling and color preview rendering
 	- Optical mixing coverage bar visibility and update-on-draw behavior
 	- Gamification HUD visibility (Score / Pets / Best Streak tiles)
@@ -1622,6 +1631,7 @@ This section tracks implementation against this story plan and `game-architectur
 	- Reward toast notification appears on first-time puzzle solve via Check button
 	- Progress panel shows Score line
 	- Golden Hour phase indicator visible when entering puzzle
+	- **Chroma Tree Explorer**: toggle show/hide, grid cell rendering/boundary logic, hue chip updates peak cell
 - **Gamification reward loop implemented** (`src/game/Game.ts`, `src/systems/SaveSystem.ts`):
 	- First-time puzzle solve: +100 pts
 	- New pet rescued: +25 pts
