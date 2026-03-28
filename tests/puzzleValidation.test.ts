@@ -394,6 +394,18 @@ describe("validatePuzzleInput", () => {
     expect(validatePuzzleInput("puzzle-21", { hueA: 0, hueB: 180, valueBalanced: false })).toBe(false);
   });
 
+  test("puzzle-23: all three correct surface choices pass", () => {
+    expect(validatePuzzleInput("puzzle-23", { selectedIndices: [1, 3, 0] })).toBe(true);
+  });
+
+  test("puzzle-23: lighting-biased selections fail", () => {
+    expect(validatePuzzleInput("puzzle-23", { selectedIndices: [0, 1, 2] })).toBe(false);
+  });
+
+  test("puzzle-23: incomplete round answers fail", () => {
+    expect(validatePuzzleInput("puzzle-23", { selectedIndices: [1, 3] })).toBe(false);
+  });
+
   test("unknown puzzle-id returns false", () => {
     expect(validatePuzzleInput("puzzle-99", {})).toBe(false);
   });

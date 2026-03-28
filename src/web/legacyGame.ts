@@ -781,9 +781,12 @@ function render(): void {
 }
 
 autoSolveButton.addEventListener("click", () => {
-  const totalPuzzles = game.getProgress().total;
-  for (let i = 1; i <= totalPuzzles; i += 1) {
-    const puzzleId = `puzzle-${String(i).padStart(2, "0")}`;
+  const puzzleIds = game.stationManager
+    .getAllStations()
+    .flatMap((station) => station.puzzles)
+    .map((puzzle) => puzzle.id);
+
+  for (const puzzleId of puzzleIds) {
     game.completePuzzle(puzzleId, getDemoSolution(puzzleId));
   }
 

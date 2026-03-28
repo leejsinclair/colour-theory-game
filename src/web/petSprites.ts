@@ -25,13 +25,16 @@ export const PET_SPRITE_CENTRES: Record<string, { cx: number; cy: number }> = {
   "pet-19": { cx: 437, cy: 302 },
   "pet-20": { cx: 535, cy: 302 },
   "pet-21": { cx: 632, cy: 302 },
+  // pet-22 coordinates are reserved for when the sprite is added to pets.png (row 4, col 1).
+  // Until then, createPetSpriteDiv uses the standalone pet-22.svg placeholder.
+  "pet-22": { cx: 48, cy: 422 },
 };
 
 /** Pets with lower extents that benefit from a larger crop. */
 export const PET_SPRITE_LARGE_CROP = new Set(["pet-02", "pet-10", "pet-13"]);
 
-/** All 21 pet IDs in order. */
-export const ALL_PET_IDS = Array.from({ length: 21 }, (_, i) => `pet-${String(i + 1).padStart(2, "0")}`);
+/** All 22 pet IDs in order. */
+export const ALL_PET_IDS = Array.from({ length: 22 }, (_, i) => `pet-${String(i + 1).padStart(2, "0")}`);
 
 /** Pet display names for tooltips. */
 export const PET_NAMES: Record<string, string> = {
@@ -56,6 +59,7 @@ export const PET_NAMES: Record<string, string> = {
   "pet-19": "Harmony Dove",
   "pet-20": "Empathy Moth",
   "pet-21": "Vibration Hummingbird",
+  "pet-22": "Constancy Chameleon",
 };
 
 /** Build a CSS-sprite div for one pet slot. */
@@ -70,22 +74,32 @@ export function createPetSpriteDiv(
   const cropHalf = PET_SPRITE_LARGE_CROP.has(petId) ? 44 : 40;
   const cropWidth = cropHalf * 2;
   const cropHeight = cropWidth + (includeLabel ? 24 : 0);
-  const cropX = centre.cx - cropHalf;
-  const cropY = centre.cy - cropHalf;
-  const scaleX = PET_SPRITE_NATURAL_WIDTH / cropWidth;
-  const scaleY = PET_SPRITE_NATURAL_HEIGHT / cropHeight;
-
-  // Position based on crop rectangle origin so labels remain in frame.
-  const posX = ((-cropX / cropWidth) / (1 - scaleX)) * 100;
-  const posY = ((-cropY / cropHeight) / (1 - scaleY)) * 100;
 
   sprite.className = "pet-sprite";
   if (!collected) {
     sprite.classList.add("pet-sprite--locked");
   }
-
   sprite.setAttribute("role", "img");
   sprite.setAttribute("aria-label", `${PET_NAMES[petId] ?? petId}${collected ? " (collected)" : ""}`);
+  sprite.style.backgroundColor = collected ? "#ffffff" : "#d8dbe3";
+
+  // pet-22 uses a standalone SVG placeholder until its sprite is added to pets.png.
+  if (petId === "pet-22") {
+    sprite.style.backgroundImage = "url(assets/pets/pet-22.svg)";
+    sprite.style.backgroundRepeat = "no-repeat";
+    sprite.style.backgroundSize = "contain";
+    sprite.style.backgroundPosition = `center ${includeLabel ? "4px" : "center"}`;
+    return sprite;
+  }
+
+  const cropX = centre.cx - cropHalf;
+  const cropY = centre.cy - cropHalf;
+  const scaleX = PET_SPRITE_NATURAL_WIDTH / cropWidth;
+  const scaleY = PET_SPRITE_NATURAL_HEIGHT / cropHeight;
+  // Position based on crop rectangle origin so labels remain in frame.
+  const posX = ((-cropX / cropWidth) / (1 - scaleX)) * 100;
+  const posY = ((-cropY / cropHeight) / (1 - scaleY)) * 100;
+
   sprite.style.backgroundImage = `url(${PET_SPRITE_HREF})`;
   sprite.style.backgroundRepeat = "no-repeat";
   sprite.style.backgroundSize = `${scaleX * 100}% ${scaleY * 100}%`;

@@ -33,6 +33,7 @@ export enum PuzzleType {
   COLOR_BALANCE = "COLOR_BALANCE",
   COLOR_PSYCHOLOGY = "COLOR_PSYCHOLOGY",
   COLOR_VIBRATION = "COLOR_VIBRATION",
+  COLOR_CONSTANCY = "COLOR_CONSTANCY",
 }
 
 export enum StationType {
@@ -67,6 +68,7 @@ export enum PetType {
   HarmonyDove = "HarmonyDove",
   EmpathyMoth = "EmpathyMoth",
   VibrationHummingbird = "VibrationHummingbird",
+  ConstancyChameleon = "ConstancyChameleon",
 }
 
 export type Vec2 = {

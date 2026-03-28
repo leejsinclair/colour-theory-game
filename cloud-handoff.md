@@ -117,6 +117,7 @@ Use this section as the execution contract for adding progression rewards beyond
   - Puzzle-16: contaminant-based mud model replacing confusing direct mud control
   - Puzzle-17: Mud Monster board with color swatches, effective mud meter, and complement-touch penalty readout
   - Puzzle-18: paint-pad coverage meter plus tiled optical blend distance preview
+  - Puzzle-23: colour constancy comparison board with three lighting panels, round tracking, and swatch selection across warm/cool/neutral scenes
 - **Gamification reward loop implemented** (completed):
   - Scoring: +100 first solve, +25 pet rescue, +50 station complete, +200 final canvas, +10 practice (cap 30/puzzle)
   - Streak tracking: currentStreak / bestStreak
