@@ -6,10 +6,8 @@ import { renderPuzzleById } from "./puzzles";
 import { mountMuiCheckbox, mountMuiSelect, mountMuiSlider, renderMuiMilestoneChips, upgradeMuiButtons } from "./muiControls";
 import { diagnoseFailure } from "./puzzles/diagnose";
 import { FAILURE_EXPLANATIONS } from "./puzzles/failureReasons";
-import { mountChromaTreeExplorer } from "./puzzles/ChromaTreeExplorer";
-import { marked } from "marked";
 import "./styles.css";
-import { puzzleObjectives, puzzleConcepts } from "./puzzleContent";
+import { puzzleObjectives } from "./puzzleContent";
 import { circularHueDistance, shuffleArray, validatePuzzleInput } from "./puzzleValidation";
 import { type LearningProgress, readLocalProgress, saveLocalProgress, clearLocalProgress } from "./localProgress";
 import { ALL_PET_IDS, PET_NAMES, createPetSpriteDiv } from "./petSprites";
@@ -26,6 +24,7 @@ import {
   type ArtPadState,
   renderArtStationMiniGame as renderArtStationMiniGameCard,
 } from "./legacy/artStationMiniGame";
+import { initInfoModal } from "./legacy/infoModal";
 
 const progressEl = document.getElementById("progress") as HTMLPreElement;
 const puzzleListEl = document.getElementById("puzzle-list") as HTMLDivElement;
@@ -37,165 +36,13 @@ const hudStreakValue = document.getElementById("hud-streak-value") as HTMLElemen
 const milestoneBadgesEl = document.getElementById("milestone-badges") as HTMLElement;
 const petCollectionEl = document.getElementById("pet-collection") as HTMLElement;
 const toastContainerEl = document.getElementById("toast-container") as HTMLElement;
-const infoModalEl = document.getElementById("info-modal") as HTMLElement;
-const infoModalTitleEl = document.getElementById("info-modal-title") as HTMLElement;
-const infoModalBodyEl = document.getElementById("info-modal-body") as HTMLElement;
-const infoModalCloseEl = document.getElementById("info-modal-close") as HTMLButtonElement;
 
-let infoModalCleanup: (() => void) | null = null;
-
-function clearInfoModalBody(): void {
-  infoModalCleanup?.();
-  infoModalCleanup = null;
-  infoModalBodyEl.innerHTML = "";
-}
-
-function showInfoModal(title: string): void {
-  infoModalTitleEl.textContent = title;
-  infoModalEl.removeAttribute("hidden");
-  infoModalCloseEl.focus();
-}
-
-function openChromaTreeModal(): void {
-  clearInfoModalBody();
-
-  const intro = document.createElement("p");
-  intro.textContent = "Drag around the hue ring or use the quick-pick chips to compare where each hue reaches its highest chroma.";
-  infoModalBodyEl.appendChild(intro);
-
-  const mountDiv = document.createElement("div");
-  infoModalBodyEl.appendChild(mountDiv);
-  infoModalCleanup = mountChromaTreeExplorer(mountDiv);
-
-  showInfoModal("Explore Chroma Tree");
-}
-
-function createChromaTreeActionButton(): HTMLButtonElement {
-  const button = document.createElement("button");
-  button.className = "btn btn-secondary learning-tool-toggle-btn";
-  button.textContent = "Explore Chroma Tree";
-  button.addEventListener("click", openChromaTreeModal);
-  return button;
-}
-
-function appendChromaTreeAction(container: HTMLElement): void {
-  const controls = document.createElement("div");
-  controls.className = "action-row";
-  controls.appendChild(createChromaTreeActionButton());
-  container.appendChild(controls);
-}
-
-async function openInfoModal(puzzleId: string): Promise<void> {
-  const url = new URL(`puzzle-info/${puzzleId}.md`, location.href).href;
-
-  clearInfoModalBody();
-
-  try {
-    const resp = await fetch(url);
-    if (resp.ok) {
-      const mdText = await resp.text();
-      const lines = mdText.split("\n");
-      const titleLine = lines[0].replace(/^#{1,6}\s*/, "").trim();
-      const bodyMd = lines.slice(1).join("\n");
-      const bodyHtml = await marked.parse(bodyMd);
-
-      infoModalBodyEl.innerHTML = bodyHtml;
-
-      infoModalBodyEl.querySelectorAll("a").forEach((a) => {
-        a.setAttribute("target", "_blank");
-        a.setAttribute("rel", "noopener noreferrer");
-      });
-
-      if (puzzleId === "puzzle-06") {
-        appendChromaTreeAction(infoModalBodyEl);
-      }
-
-      showInfoModal(titleLine);
-      return;
-    }
-  } catch {
-    // fall through to legacy content
-  }
-
-  const learning = puzzleLearningContent[puzzleId];
-  if (learning) {
-    const illustrationWrap = document.createElement("div");
-    illustrationWrap.className = "learning-modal-illustration";
-    illustrationWrap.innerHTML = learning.illustrationSvg;
-    infoModalBodyEl.appendChild(illustrationWrap);
-
-    learning.intro.forEach((paragraph) => {
-      const p = document.createElement("p");
-      p.textContent = paragraph;
-      infoModalBodyEl.appendChild(p);
-    });
-
-    if (learning.howToWin) {
-      const row = document.createElement("p");
-      row.className = "learning-meta learning-meta--how";
-      row.innerHTML = `<strong>How to win:</strong> ${learning.howToWin}`;
-      infoModalBodyEl.appendChild(row);
-    }
-
-    if (learning.whyFailed) {
-      const row = document.createElement("p");
-      row.className = "learning-meta learning-meta--why";
-      row.innerHTML = `<strong>Why this fails:</strong> ${learning.whyFailed}`;
-      infoModalBodyEl.appendChild(row);
-    }
-
-    if (learning.tooltips && learning.tooltips.length > 0) {
-      const row = document.createElement("p");
-      row.className = "learning-meta learning-meta--tooltips";
-      row.innerHTML = `<strong>Key terms:</strong> ${learning.tooltips.join(" · ")}`;
-      infoModalBodyEl.appendChild(row);
-    }
-
-    if (puzzleId === "puzzle-06") {
-      appendChromaTreeAction(infoModalBodyEl);
-    }
-
-    showInfoModal(learning.title);
-    return;
-  }
-
-  const concept = puzzleConcepts[puzzleId];
-  if (!concept) {
-    return;
-  }
-
-  for (const line of concept.body.split("\n")) {
-    if (line.trim()) {
-      const p = document.createElement("p");
-      p.textContent = line;
-      infoModalBodyEl.appendChild(p);
-    }
-  }
-
-  if (puzzleId === "puzzle-06") {
-    appendChromaTreeAction(infoModalBodyEl);
-  }
-
-  showInfoModal(concept.title);
-}
-
-function closeInfoModal(): void {
-  clearInfoModalBody();
-  infoModalEl.setAttribute("hidden", "");
-}
-
-infoModalCloseEl.addEventListener("click", closeInfoModal);
-
-infoModalEl.addEventListener("click", (e) => {
-  if (e.target === infoModalEl) {
-    closeInfoModal();
-  }
-});
-
-document.addEventListener("keydown", (e) => {
-  if (e.key === "Escape" && !infoModalEl.hasAttribute("hidden")) {
-    closeInfoModal();
-  }
+// Wire up the info modal (open/close, Chroma Tree explorer, event listeners).
+const { openInfoModal, createChromaTreeActionButton } = initInfoModal({
+  modal: document.getElementById("info-modal") as HTMLElement,
+  title: document.getElementById("info-modal-title") as HTMLElement,
+  body: document.getElementById("info-modal-body") as HTMLElement,
+  closeBtn: document.getElementById("info-modal-close") as HTMLButtonElement,
 });
 
 /** Rebuild the 2-row pet sprite grid below the scoreboard. */
@@ -291,6 +138,7 @@ const learningUiState = new Map<string, LearningUiState>();
 let skipNextPersist = false;
 let learningProgressByPuzzle: LearningProgress = {};
 
+/** Collect all solved puzzle IDs in puzzle-number order. */
 function getSolvedPuzzleIds(): string[] {
   return game.stationManager
     .getAllStations()
@@ -299,6 +147,10 @@ function getSolvedPuzzleIds(): string[] {
     .map((puzzle) => puzzle.id);
 }
 
+/**
+ * Persist the current game state to localStorage.
+ * Skips one call when `skipNextPersist` is set (used after a forced reset).
+ */
 function persistLocalProgress(): void {
   if (skipNextPersist) {
     skipNextPersist = false;
@@ -313,7 +165,10 @@ function persistLocalProgress(): void {
   });
 }
 
-
+/**
+ * Read the localStorage snapshot and replay completed puzzles, then
+ * restore the scene and active-station context.
+ */
 function restoreLocalProgress(): void {
   const snapshot = readLocalProgress();
   if (!snapshot) {
@@ -354,6 +209,10 @@ function restoreLocalProgress(): void {
   }
 }
 
+/**
+ * Create a fresh Game instance, reset all UI state, optionally restore
+ * saved progress, do an initial render, and fire the `ctg:ready` event.
+ */
 function initializeGame(options: { restoreFromLocal?: boolean } = {}): void {
   const restoreFromLocal = options.restoreFromLocal ?? true;
   game = new Game();
@@ -375,6 +234,10 @@ function initializeGame(options: { restoreFromLocal?: boolean } = {}): void {
   window.dispatchEvent(new Event("ctg:ready"));
 }
 
+/**
+ * Return the stored per-puzzle UI state, creating and caching an initial
+ * value the first time a given puzzle is seen.
+ */
 function ensureState<T>(puzzleId: string, initial: T): T {
   const existing = puzzleUiState.get(puzzleId) as T | undefined;
   if (existing) {
@@ -385,18 +248,24 @@ function ensureState<T>(puzzleId: string, initial: T): T {
   return initial;
 }
 
+/** Switch to puzzle scene for the given station and trigger a re-render. */
 function enterStation(stationId: string): void {
   activeStationId = stationId;
   game.sceneManager.transitionScene(SceneType.PuzzleScene);
   render();
 }
 
+/** Return to the studio lobby and trigger a re-render. */
 function leaveStation(): void {
   activeStationId = null;
   game.sceneManager.transitionScene(SceneType.StudioScene);
   render();
 }
 
+/**
+ * Find the next unlocked station after `currentStationId`.
+ * Tries sequential order first; falls back to any unlocked incomplete station.
+ */
 function getNextStationFor(currentStationId: string) {
   const stations = game.stationManager.getAllStations();
   const currentIndex = stations.findIndex((station) => station.id === currentStationId);
@@ -413,6 +282,7 @@ function getNextStationFor(currentStationId: string) {
   return stations.find((station) => station.id !== currentStationId && station.unlocked && !station.completed) ?? null;
 }
 
+/** Navigate directly to the next unlocked station from the current one. */
 function goToNextStation(currentStationId: string): void {
   const nextStation = getNextStationFor(currentStationId);
   if (!nextStation) {
@@ -423,11 +293,13 @@ function goToNextStation(currentStationId: string): void {
   enterStation(nextStation.id);
 }
 
+/** Clear the progress text element and refresh the HUD tiles and pet grid. */
 function updateProgressPanel(): void {
   progressEl.textContent = "";
   updateHud();
 }
 
+/** Build the base puzzle card DOM element with title, metadata, and info button. */
 function makePuzzleCard(puzzleId: string, title: string, state: string): HTMLDivElement {
   const wrapper = document.createElement("div");
   wrapper.className = "puzzle-item";
@@ -448,6 +320,11 @@ function makePuzzleCard(puzzleId: string, title: string, state: string): HTMLDiv
   return wrapper;
 }
 
+/**
+ * Append locked/solved UI controls to a puzzle card wrapper.
+ * Returns `true` when the puzzle is terminal (locked or solved without practice),
+ * signalling that no further interaction controls should be rendered.
+ */
 function renderLockedOrSolvedControls(wrapper: HTMLDivElement, puzzleId: string, state: string): boolean {
   if (state === "locked") {
     const label = document.createElement("span");
@@ -492,6 +369,11 @@ function renderLockedOrSolvedControls(wrapper: HTMLDivElement, puzzleId: string,
   return false;
 }
 
+/**
+ * Append a Check button and a Learn button to the puzzle card wrapper.
+ * On click, the input factory is called, the result is validated against
+ * the game engine, and success/failure feedback is shown.
+ */
 function addCheckButton(wrapper: HTMLDivElement, puzzleId: string, inputFactory: () => unknown): void {
   const controls = document.createElement("div");
   controls.className = "action-row";
@@ -563,6 +445,7 @@ function addCheckButton(wrapper: HTMLDivElement, puzzleId: string, inputFactory:
   wrapper.appendChild(controls);
 }
 
+/** Append a small descriptive label to a container element. */
 function addMiniLabel(container: HTMLElement, text: string): void {
   const label = document.createElement("div");
   label.className = "mini-label";
@@ -570,18 +453,22 @@ function addMiniLabel(container: HTMLElement, text: string): void {
   container.appendChild(label);
 }
 
+/** Mount a Material UI slider and return the underlying input element. */
 function addSlider(container: HTMLElement, label: string, value: number, min = 0, max = 1, step = 0.01, onInput: (value: number) => void): HTMLInputElement {
   return mountMuiSlider(container, label, value, min, max, step, onInput);
 }
 
+/** Mount a Material UI select dropdown and return the underlying select element. */
 function addSelect(container: HTMLElement, label: string, options: string[], current: string, onChange: (value: string) => void): HTMLSelectElement {
   return mountMuiSelect(container, label, options, current, onChange);
 }
 
+/** Mount a Material UI checkbox and return the underlying input element. */
 function addCheckbox(container: HTMLElement, label: string, checked: boolean, onChange: (checked: boolean) => void): HTMLInputElement {
   return mountMuiCheckbox(container, label, checked, onChange);
 }
 
+/** Create and append a `.mini-zone` interaction container inside the puzzle card wrapper. */
 function createInteractionZone(wrapper: HTMLDivElement): HTMLDivElement {
   const zone = document.createElement("div");
   zone.className = "mini-zone";
@@ -589,6 +476,10 @@ function createInteractionZone(wrapper: HTMLDivElement): HTMLDivElement {
   return zone;
 }
 
+/**
+ * Delegate to the extracted art station mini-game renderer, passing in all
+ * shared state and callbacks it needs from this module.
+ */
 function renderArtStationMiniGame(container: HTMLElement, wrapper: HTMLDivElement, puzzleId: string, state: string): void {
   renderArtStationMiniGameCard({
     container,
@@ -607,6 +498,13 @@ function renderArtStationMiniGame(container: HTMLElement, wrapper: HTMLDivElemen
   });
 }
 
+/**
+ * Render a full puzzle mini-game card into `puzzleListEl`.
+ *
+ * For available, unsolved puzzles that have learning content and no quiz pass,
+ * the learning gate (intro or quiz) is shown instead of puzzle mechanics.
+ * For all other states, the matching puzzle view from `src/web/puzzles` is used.
+ */
 function renderPuzzleMiniGame(puzzleId: string, title: string, state: string): void {
   const wrapper = makePuzzleCard(puzzleId, title, state);
   const isArtPuzzle = puzzleId === "puzzle-18";
@@ -704,6 +602,13 @@ function renderPuzzleMiniGame(puzzleId: string, title: string, state: string): v
   puzzleListEl.appendChild(wrapper);
 }
 
+/**
+ * Re-render the entire puzzle panel based on the current scene.
+ *
+ * - `StudioScene`: shows the station lobby list.
+ * - `FinalCanvasScene`: shows the game-complete message and a Return button.
+ * - `PuzzleScene`: shows the active station's puzzle cards.
+ */
 function updatePuzzlePanel(): void {
   puzzleListEl.innerHTML = "";
   const scene = game.sceneManager.getCurrentScene();
@@ -824,6 +729,7 @@ function updatePuzzlePanel(): void {
   upgradeMuiButtons(puzzleListEl);
 }
 
+/** Top-level render: refresh the progress panel, puzzle panel, and persist state. */
 function render(): void {
   updateProgressPanel();
   updatePuzzlePanel();

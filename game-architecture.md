@@ -47,10 +47,27 @@ Web UI is split into shell, controls, and puzzle-specific interactions.
 Key files:
 - [src/web/AppShell.tsx](src/web/AppShell.tsx): application shell and layout containers.
 - [src/web/main.tsx](src/web/main.tsx): web bootstrap entry.
-- [src/web/legacyGame.ts](src/web/legacyGame.ts): DOM-driven puzzle flow and progression wiring.
+- [src/web/legacyGame.ts](src/web/legacyGame.ts): DOM-driven puzzle flow and progression wiring; orchestrates the modules below.
 - [src/web/puzzles](src/web/puzzles): per-puzzle logic and view implementations.
+- [src/web/puzzleContent.ts](src/web/puzzleContent.ts): puzzle objective text and legacy concept descriptions.
+- [src/web/puzzleValidation.ts](src/web/puzzleValidation.ts): shared input-validation helpers (hue distance, shuffle, validate).
+- [src/web/localProgress.ts](src/web/localProgress.ts): localStorage read/write for save snapshots.
+- [src/web/petSprites.ts](src/web/petSprites.ts): pet ID lists, display names, and sprite builder.
 
 Puzzle modules are intentionally isolated. Add puzzle-specific behavior in the matching file pair inside [src/web/puzzles](src/web/puzzles) when possible.
+
+### Legacy UI Modules (`src/web/legacy/`)
+
+Focused sub-modules extracted from `legacyGame.ts` for clarity and testability:
+
+| File | Responsibility |
+|---|---|
+| [infoModal.ts](src/web/legacy/infoModal.ts) | Info modal lifecycle: open, close, markdown fetch, Chroma Tree explorer |
+| [learningFlow.ts](src/web/legacy/learningFlow.ts) | Learning gate: intro card, quiz rendering, quiz evaluation |
+| [resultFeedback.ts](src/web/legacy/resultFeedback.ts) | Result Analysis panel: show/clear failure reasons, fail animation |
+| [artStationMiniGame.ts](src/web/legacy/artStationMiniGame.ts) | Art Station (puzzle-18) paint pad, optical preview, and coverage bar |
+
+When extending the legacy UI, prefer adding new functionality to an existing legacy module or creating a new one rather than growing `legacyGame.ts` directly.
 
 ## Content and Learning Layer
 
