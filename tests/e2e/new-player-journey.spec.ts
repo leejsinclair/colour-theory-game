@@ -547,6 +547,22 @@ test("game completion: all 22 pets collected after solving all puzzles", async (
   await expect(page.locator("#hud-pets-value")).toHaveText("22/22");
 });
 
+test("game completion: certificate shows congratulations, stats, and all rescued pets", async ({ page }) => {
+  await page.goto("/");
+
+  await clickHudOption(page, "auto-solve");
+
+  const certificate = page.locator(".completion-certificate");
+  await expect(certificate).toBeVisible();
+  await expect(certificate).toContainText("Grand Canvas Unlocked");
+  await expect(certificate).toContainText("Congratulations");
+  await expect(certificate).toContainText("Pets Rescued");
+  await expect(certificate).toContainText("22/22");
+  await expect(certificate.locator(".completion-certificate__confetti-piece")).toHaveCount(28);
+  await expect(certificate.locator(".completion-certificate__pet-slot")).toHaveCount(22);
+  await expect(page.getByRole("button", { name: "Review and practice previously solved puzzles" })).toBeVisible();
+});
+
 test("game completion: Return from Grand Canvas lets player explore solved stations", async ({ page }) => {
   await page.goto("/");
 

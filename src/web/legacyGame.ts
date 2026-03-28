@@ -1,7 +1,10 @@
 import { getDemoSolution } from "../content/demoSolutions";
+import { createElement } from "react";
+import { createRoot } from "react-dom/client";
 import { puzzleLearningContent } from "../content/puzzleLearningContent";
 import { Game } from "../game/Game";
 import { SceneType } from "../types/gameTypes";
+import { CompletionCertificate } from "./CompletionCertificate";
 import { renderPuzzleById } from "./puzzles";
 import { mountMuiCheckbox, mountMuiSelect, mountMuiSlider, renderMuiMilestoneChips, upgradeMuiButtons } from "./muiControls";
 import { diagnoseFailure } from "./puzzles/diagnose";
@@ -364,6 +367,34 @@ function makePuzzleCard(puzzleId: string, title: string, state: string): HTMLDiv
   return wrapper;
 }
 
+/** Build the game-complete certificate card shown in Final Canvas scene. */
+function renderCompletionCertificate(): HTMLDivElement {
+  const progress = game.getProgress();
+  const solvedPuzzleCount = getSolvedPuzzleIds().length;
+  const unlockedPetIds = game.petManager.getUnlockedPets().map((pet) => pet.id);
+
+  const certificate = document.createElement("div");
+  createRoot(certificate).render(
+    createElement(CompletionCertificate, {
+      solvedPuzzleCount,
+      petsCollected: progress.petsCollected,
+      totalPets: progress.total,
+      bestStreak: progress.bestStreak,
+      unlockedPetIds,
+      onReturn: () => {
+        game.sceneManager.transitionScene(SceneType.StudioScene);
+        render();
+      },
+      onReviewPractice: () => {
+        game.sceneManager.transitionScene(SceneType.StudioScene);
+        render();
+      },
+    }),
+  );
+
+  return certificate;
+}
+
 /**
  * Append locked/solved UI controls to a puzzle card wrapper.
  * Returns `true` when the puzzle is terminal (locked or solved without practice),
@@ -692,24 +723,12 @@ function updatePuzzlePanel(): void {
   }
 
   if (scene === SceneType.FinalCanvasScene) {
-    const message = document.createElement("div");
-    message.className = "puzzle-item";
-    message.innerHTML = "<div><strong>Grand Canvas Unlocked</strong><div class=\"puzzle-meta\">All pets are free. You can now paint the final masterpiece.</div></div>";
-    puzzleListEl.appendChild(message);
+    const certificate = renderCompletionCertificate();
+    puzzleListEl.appendChild(certificate);
 
     const backWrapper = document.createElement("div");
     backWrapper.className = "puzzle-item";
-    const backInfo = document.createElement("div");
-    backInfo.innerHTML = "<strong>Explore Unlocked Studio</strong><div class=\"puzzle-meta\">Return to station scenes and keep experimenting.</div>";
-    const backButton = document.createElement("button");
-    backButton.className = "btn btn-secondary";
-    backButton.textContent = "Return";
-    backButton.addEventListener("click", () => {
-      game.sceneManager.transitionScene(SceneType.StudioScene);
-      render();
-    });
-    backWrapper.appendChild(backInfo);
-    backWrapper.appendChild(backButton);
+    backWrapper.innerHTML = "<div><strong>Explore Unlocked Studio</strong><div class=\"puzzle-meta\">All stations stay open so you can revisit lessons and practice puzzles.</div></div>";
     puzzleListEl.appendChild(backWrapper);
     upgradeMuiButtons(puzzleListEl);
     return;

@@ -2,6 +2,13 @@
 
 ## Latest Updates
 
+**28 March 2026**
+- Added Puzzle 23 (Colour Constancy) as the fourth Design Studio puzzle, increasing total implemented content to 22 puzzles / 22 pets.
+- Puzzle 23 now ships with three rounds of warm/cool/neutral comparison and canonical diagnostics (`incorrect_color_temperature`, `incorrect_hue_selection`).
+- Replaced the in-play "Isolate object" aid with a post-check learning aid: "Show shift analysis" appears only after pressing Check and explains warm cast -> surface colour -> cool cast.
+- Added `Constancy Chameleon` placeholder art (`public/assets/pets/pet-22.svg`) and wired pet rendering to use it until row-4 sprite-sheet art is added to `assets/pets/pets.png`.
+- Fixed auto-solve assumptions in both browser and CLI flows by iterating registered puzzle IDs instead of generating contiguous `puzzle-01..puzzle-N` IDs.
+
 **22 March 2026**
 - Puzzle 17 (Mud Monster) revised for consistent mud logic across gameplay, UI, and diagnostics: complement touches no longer cause instant failure, but each red touch adds an extra mud penalty to the effective mud bar
 - Puzzle 17 UI updated from verbose action buttons to color swatches with a live effective-mud meter, base-mud vs. complement-penalty readout, monster-state feedback, recipe log, and reset flow
@@ -566,6 +573,9 @@ Identify the true surface colour of an object by comparing it under warm, cool, 
 Mechanic:
 Player studies three synchronized panels for each round and chooses one of four swatches.
 Three rounds increase in subtlety.
+Assist controls:
+- Neutral flash: briefly emphasizes the neutral panel for reference.
+- Show shift analysis (post-check only): reveals a warm -> surface -> cool swatch explanation after the player submits.
 
 Success Conditions:
 All three rounds are answered with the correct surface-colour swatch.
@@ -579,6 +589,7 @@ Failure Feedback:
 
 Reward Pet:
 Constancy Chameleon
+Implementation note: currently rendered from standalone placeholder art (`public/assets/pets/pet-22.svg`) until sprite-sheet row 4 art is added.
 
 ---
 
@@ -1601,6 +1612,7 @@ This section tracks implementation against this story plan and `game-architectur
 - **Pet count HUD overflow:** `updateHud()` hardcoded `/18`; replaced with dynamic `progress.total`.
 - **Chromatic Vibration (puzzle-21) never solved:** Complement-distance formula `Math.abs(((hueB - hueA + 540) % 360) - 180)` yielded 180 (not 0) for true complements (e.g. hueA=0, hueB=180). Replaced with `(((hueB - hueA) % 360) + 360) % 360` giving normalised delta, then `|delta - 180|`.
 - **Practice mode always failing for puzzle-20 and puzzle-21:** `validatePuzzleInput()` switch had no cases for these two puzzles; added correct validators matching their core logic.
+- **Auto-solve skipped non-contiguous puzzle IDs:** browser and CLI auto-solve loops generated puzzle IDs from numeric ranges; updated both flows to iterate actual registered puzzle IDs from station content.
 - All progression values (milestone thresholds, final-canvas unlock, auto-solve loop, HUD total) are now fully dynamic — no hardcoded 18s remain in the codebase.
 - 22/22 unit tests pass; TypeScript build clean after fixes.
 
@@ -1610,7 +1622,7 @@ This section tracks implementation against this story plan and `game-architectur
 
 - Modular architecture scaffold: scene manager, station manager, puzzle manager, pet manager, save system
 - Domain models: player, station, puzzle, pet, puzzle states/types, station types, pet types
-- Story content mapping: 6 main stations + 1 bonus station, 18 core puzzles + 3 bonus puzzles (21 total), 18 core pets + 3 bonus pets (21 total), caretaker intro lines, final canvas requirements
+- Story content mapping: 6 main stations + 1 bonus station, 18 core puzzles + 4 bonus puzzles (22 total), 18 core pets + 4 bonus pets (22 total), caretaker intro lines, final canvas requirements
 - Progression flow:
 	- first station unlocked at start
 	- puzzle chaining inside each station
