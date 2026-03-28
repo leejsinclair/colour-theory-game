@@ -45,9 +45,79 @@ const { openInfoModal, createChromaTreeActionButton } = initInfoModal({
   closeBtn: document.getElementById("info-modal-close") as HTMLButtonElement,
 });
 
-/** Rebuild the 2-row pet sprite grid below the scoreboard. */
+// Art Station colour palette — fixed set, not part of session state.
+const artPalette = ["#0d8db0", "#ec7755", "#2f9e44", "#f0b429", "#6f42c1", "#1f2030"];
+
+// Art Station pixel grid — the reference is const; `pixels` is reset by resetSessionState.
+const artPad: ArtPadState = { cols: 18, rows: 10, pixels: [] };
+
+// Per-puzzle UI and learning state caches — references are const; cleared by resetSessionState.
+const puzzleUiState = new Map<string, unknown>();
+const learningUiState = new Map<string, LearningUiState>();
+
+/**
+ * Mutable session state for the web game shell.
+ *
+ * All variables below are reset together by `resetSessionState()` each time
+ * `initializeGame()` is called.  They are kept as module-level declarations
+ * (rather than a library store) deliberately:
+ *
+ * - The scope is small — only this file reads or writes them.
+ * - The `Game` class already owns the canonical domain state (puzzles, pets,
+ *   score, stations).  These variables cover UI-navigation concerns only.
+ * - A state-management library (Redux, Zustand, Jotai, etc.) for this handful
+ *   of variables would add a dependency with no proportional benefit.
+ *
+ * Future migration path: if the shell is converted to a full React component
+ * tree, move these into React Context or a lightweight Zustand store at that
+ * point — not before.
+ */
+
+/** The active game-engine instance.  Replaced by `resetSessionState()`. */
+let game = new Game();
+
+/** The station whose puzzles are currently displayed (`null` in lobby/canvas view). */
+let activeStationId: string | null = null;
+
+/** Puzzle being replayed in practice mode (`null` when not practising). */
+let practicePuzzleId: string | null = null;
+
+/** Currently selected paint colour for the Art Station mini-game. */
+let selectedArtColor = artPalette[0];
+
+/**
+ * When `true`, the next call to `persistLocalProgress()` is skipped once.
+ * Set before a forced reset so the cleared state is not immediately re-saved.
+ */
+let skipNextPersist = false;
+
+/** Quiz-pass records keyed by puzzle ID, persisted alongside solved state. */
+let learningProgressByPuzzle: LearningProgress = {};
+
+/**
+ * Bit-string snapshot of the last rendered pet collection.
+ * Used to skip expensive DOM rebuilds when the collected set is unchanged.
+ */
 let _lastCollectedSnapshot = "";
 
+/**
+ * Reset every session variable to its initial value and clear the per-puzzle
+ * UI-state caches.  Called at the start of `initializeGame()`.
+ */
+function resetSessionState(): void {
+  game = new Game();
+  activeStationId = null;
+  practicePuzzleId = null;
+  selectedArtColor = artPalette[0];
+  skipNextPersist = false;
+  learningProgressByPuzzle = {};
+  _lastCollectedSnapshot = "";
+  artPad.pixels = new Array(artPad.cols * artPad.rows).fill("#ffffff");
+  puzzleUiState.clear();
+  learningUiState.clear();
+}
+
+/** Rebuild the 2-row pet sprite grid below the scoreboard. */
 function renderPetCollection(): void {
   const collectedIds = new Set(game.petManager.getUnlockedPets().map((p) => p.id));
   const snapshot = ALL_PET_IDS.map((id) => (collectedIds.has(id) ? "1" : "0")).join("");
@@ -71,10 +141,6 @@ function renderPetCollection(): void {
     petCollectionEl.appendChild(wrapper);
   }
 }
-
-let game = new Game();
-let activeStationId: string | null = null;
-let practicePuzzleId: string | null = null;
 
 /** Show a brief floating reward toast message. */
 function showToast(
@@ -123,20 +189,6 @@ function updateHud(): void {
   // Rebuild pet collection sprite grid
   renderPetCollection();
 }
-
-const artPalette = ["#0d8db0", "#ec7755", "#2f9e44", "#f0b429", "#6f42c1", "#1f2030"];
-let selectedArtColor = artPalette[0];
-const artPad: ArtPadState = {
-  cols: 18,
-  rows: 10,
-  pixels: [],
-};
-
-const puzzleUiState = new Map<string, unknown>();
-const learningUiState = new Map<string, LearningUiState>();
-
-let skipNextPersist = false;
-let learningProgressByPuzzle: LearningProgress = {};
 
 /** Collect all solved puzzle IDs in puzzle-number order. */
 function getSolvedPuzzleIds(): string[] {
@@ -215,16 +267,8 @@ function restoreLocalProgress(): void {
  */
 function initializeGame(options: { restoreFromLocal?: boolean } = {}): void {
   const restoreFromLocal = options.restoreFromLocal ?? true;
-  game = new Game();
+  resetSessionState();
   game.initialize();
-  activeStationId = null;
-  practicePuzzleId = null;
-  artPad.pixels = new Array(artPad.cols * artPad.rows).fill("#ffffff");
-  puzzleUiState.clear();
-  learningUiState.clear();
-  learningProgressByPuzzle = {};
-  selectedArtColor = artPalette[0];
-  _lastCollectedSnapshot = "";
 
   if (restoreFromLocal) {
     restoreLocalProgress();
