@@ -53,6 +53,20 @@ Solving all 21 puzzles across the 7 stations unlocks the **Grand Canvas** — th
 - [Node.js](https://nodejs.org/) 18 or later
 - npm (bundled with Node.js)
 
+### Playwright E2E Setup (first run)
+
+Install browser binaries once before running end-to-end tests:
+
+```bash
+npx playwright install
+```
+
+If Playwright reports missing Linux host dependencies, install them:
+
+```bash
+sudo npx playwright install-deps
+```
+
 ### Install
 
 ```bash

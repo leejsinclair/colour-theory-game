@@ -34,6 +34,11 @@ A feature or fix is complete only when all items in [EPCC.md](EPCC.md) pass.
 - `npm run lint`
 - `npm run test:e2e` for UI/flow changes
 
+## E2E Environment Prerequisites
+
+- Before running `npm run test:e2e`, ensure Playwright browsers are installed with `npx playwright install`.
+- If Linux host dependencies are missing, run `sudo npx playwright install-deps`.
+
 ## Essential Agent Files
 
 - [AGENTS.md](AGENTS.md)
