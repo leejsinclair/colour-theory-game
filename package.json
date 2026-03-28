@@ -10,8 +10,8 @@
     "lint:fix": "npm run lint -- --fix",
     "play": "tsx src/cli.ts",
     "play:web": "vite",
-    "test": "vitest run tests/game.test.ts",
-    "test:watch": "vitest tests/game.test.ts",
+    "test": "vitest run tests/*.test.ts",
+    "test:watch": "vitest tests/*.test.ts",
     "test:e2e": "playwright test",
     "test:cloud": "npm run build && npm test && npm run test:e2e",
     "prepare": "husky"

@@ -28,6 +28,9 @@ Run the smallest necessary set of checks for the change type:
 - Style/lint-sensitive edits: `npm run lint`
 - UI flows or user journey changes: `npm run test:e2e`
 
+Before running `npm run test:e2e`, ensure Playwright browsers are installed via `npx playwright install`.
+If Linux host dependencies are missing, run `sudo npx playwright install-deps`.
+
 ## Done Criteria
 
 A task is complete only when [EPCC.md](../EPCC.md) is satisfied.

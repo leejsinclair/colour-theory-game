@@ -13,6 +13,18 @@ While beginners often rely solely on hue, the master artist uses Chroma to estab
 Chroma - distinct from the more casual term saturation—describes the vividness or purity of a colour relative to the physical limits of that hue's gamut.
 A "fire-engine red" sits near maximum chroma; a "dusty rose" has been pulled toward the neutral centre of colour space.
 
+<div style="width: 100%; max-width: 960px; margin: 1rem auto;">
+	<iframe
+		src="https://www.youtube.com/embed/kGiM4VJNQIY?si=ysXVKOryOgwywHCs"
+		title="YouTube video player"
+		frameborder="0"
+		allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+		referrerpolicy="strict-origin-when-cross-origin"
+		allowfullscreen
+		style="display: block; width: 100%; aspect-ratio: 16 / 9; height: auto;"
+	></iframe>
+</div>
+
 Chroma States
 
 ## Chroma States
