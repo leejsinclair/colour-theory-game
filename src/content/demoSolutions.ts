@@ -38,6 +38,7 @@ export const demoSolutions: Record<string, unknown> = {
   "puzzle-19": { primaryPct: 60, secondaryPct: 30, accentPct: 10 },
   "puzzle-20": { mappings: { red: "excitement", blue: "trust", yellow: "optimism", green: "growth" } },
   "puzzle-21": { hueA: 0, hueB: 180, valueBalanced: true },
+  "puzzle-23": { selectedIndices: [1, 3, 0] },
 };
 
 export const moodPaletteSolution = {

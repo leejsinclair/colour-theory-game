@@ -154,6 +154,10 @@ export function validatePuzzleInput(puzzleId: string, input: unknown): boolean {
       const diff = Math.abs(normalizedDelta - 180);
       return diff <= 20 && Boolean(inp.valueBalanced);
     }
+    case "puzzle-23": {
+      const selectedIndices = inp.selectedIndices as number[] | undefined;
+      return Array.isArray(selectedIndices) && selectedIndices.length === 3 && [1, 3, 0].every((expected, index) => selectedIndices[index] === expected);
+    }
     default:
       return false;
   }

@@ -20,6 +20,7 @@ export const puzzleObjectives: Record<string, string> = {
   "puzzle-19": "Allocate 60% to primary, 30% to secondary, and 10% to accent so the proportions sum to 100%.",
   "puzzle-20": "Match each colour swatch to its primary psychological association: red→excitement, blue→trust, yellow→optimism, green→growth.",
   "puzzle-21": "Tune two hues to be complementary and balance their lightness until optical vibration reaches 100%.",
+  "puzzle-23": "Compare warm, cool, and neutral lighting views, then choose the swatch that represents the object's true surface colour.",
 };
 
 export const puzzleConcepts: Record<string, { title: string; body: string }> = {
@@ -106,5 +107,9 @@ export const puzzleConcepts: Record<string, { title: string; body: string }> = {
   "puzzle-21": {
     title: "Chromatic Vibration: Colour Boundaries That Shimmer",
     body: "When two highly saturated complementary colours — colours directly opposite each other on the colour wheel — are placed side by side at the same lightness (value), the boundary between them appears to vibrate or shimmer. This optical effect, studied by Josef Albers and the Op Art movement, occurs because the eye oscillates between the two hues, unable to lock onto either as figure or ground. The vibration is strongest when: (1) the hues are true complements, (2) their lightness is equal, and (3) saturation is high. Reducing any of these factors quiets the effect. Artists use chromatic vibration to create dynamic, energetic compositions that seem to pulse with life.",
+  },
+  "puzzle-23": {
+    title: "Colour Constancy: Recovering Surface Colour Under Changing Light",
+    body: "Colour constancy is the visual system's ability to keep an object's surface colour relatively stable even when illumination changes. A surface under tungsten light reflects warmer wavelengths than the same surface in blue daylight, yet we often still read it as the same material. The brain estimates the light source, compares neighboring cues, and discounts part of the cast. This is useful for everyday vision, but it also means apparent colour and actual reflected light can disagree. Artists, photographers, and interface designers all need to understand this gap between appearance and inferred surface colour.",
   },
 };

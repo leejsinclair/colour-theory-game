@@ -91,10 +91,10 @@ Window Landscape
 Paint Workbench
 Design Studio
 
-Each station contains 3 puzzles.
+Most stations contain 3 puzzles; the Design Studio currently contains 4.
 
-Total puzzles: 21  
-Total pets: 21
+Total puzzles: 22  
+Total pets: 22
 
 ---
 
@@ -482,7 +482,7 @@ Dot Bee
 ---
 
 # 7. Design Studio
-Teaches compositional color balance, color psychology, and chromatic vibration.
+Teaches compositional color balance, color psychology, chromatic vibration, and colour constancy.
 
 ## Puzzle 19: Color Balance 60/30/10
 
@@ -555,6 +555,30 @@ Failure Feedback:
 
 Reward Pet:
 Vibration Hummingbird
+
+---
+
+## Puzzle 23: Colour Constancy
+
+Objective:
+Identify the true surface colour of an object by comparing it under warm, cool, and neutral lighting.
+
+Mechanic:
+Player studies three synchronized panels for each round and chooses one of four swatches.
+Three rounds increase in subtlety.
+
+Success Conditions:
+All three rounds are answered with the correct surface-colour swatch.
+
+Discovery:
+Apparent colour depends on illumination, but the brain often discounts the light source and recovers a stable surface colour.
+
+Failure Feedback:
+- **incorrect_color_temperature** *(selected swatch matches a lighting cast)*: That option matches how the object looks under one specific light source. Compare all three panels and choose the colour that stays most consistent across them.
+- **incorrect_hue_selection** *(selected swatch is the wrong underlying hue or too few rounds were answered)*: The true answer is the object's underlying surface colour, not just the brightest or most striking appearance in one panel.
+
+Reward Pet:
+Constancy Chameleon
 
 ---
 
@@ -637,15 +661,15 @@ This section reflects what is currently implemented in the playable prototypes.
 ## Completed Core Features
 
 - 7 stations are implemented and progression-gated (6 main + 1 bonus Design Studio, unlocks after all main stations complete).
-- 21 puzzles are implemented with per-puzzle validation logic.
-- 21 Chromatic Pets are implemented and collectible.
+- 22 puzzles are implemented with per-puzzle validation logic.
+- 22 Chromatic Pets are implemented and collectible.
 - Puzzle completion unlocks the next puzzle and next station as designed.
-- Final challenge unlock condition is implemented after all 21 pets are collected.
+- Final challenge unlock condition is implemented after all 22 pets are collected.
 - Save/load support is implemented.
 - Score, streak, and pet milestones are implemented.
 - Browser UI includes progress HUD, pet collection display, puzzle concept modal, and reward toasts.
 - Browser UI includes Auto Solve Journey and Reset Run actions.
-- Diagnostic Feedback System: every failed attempt shows a "Result Analysis" panel with 1–3 player-facing explanations from the canonical failure reason taxonomy (`canonical-failure-reasons.md`). Codes and explanations live in `failureReasons.ts`; per-puzzle diagnosis logic lives in `diagnose.ts`. The system covers all 21 puzzles and can be extended by adding a new `case` to `diagnose.ts`.
+- Diagnostic Feedback System: every failed attempt shows a "Result Analysis" panel with 1–3 player-facing explanations from the canonical failure reason taxonomy (`canonical-failure-reasons.md`). Codes and explanations live in `failureReasons.ts`; per-puzzle diagnosis logic lives in `diagnose.ts`. The system covers all 22 implemented puzzles and can be extended by adding a new `case` to `diagnose.ts`.
 
 ## Completed Puzzle Content
 
@@ -690,6 +714,7 @@ This section reflects what is currently implemented in the playable prototypes.
 - [x] Puzzle 19: Color Balance 60/30/10
 - [x] Puzzle 20: Emotional Colour Mapping
 - [x] Puzzle 21: Chromatic Vibration
+- [x] Puzzle 23: Colour Constancy
 
 ## Removed or Changed Elements
 
@@ -700,7 +725,7 @@ This section reflects what is currently implemented in the playable prototypes.
 
 # Puzzle Learning Content — Introductions and Quizzes
 
-Each puzzle shows the player an introduction card (two paragraphs + illustration) before their first attempt. They must pass a two-question quiz before the puzzle unlocks. Below is the complete text for all 21 puzzles, including **How to win**, **Why this fails**, and **Key terms** for each.
+Each puzzle shows the player an introduction card (two paragraphs + illustration) before their first attempt. They must pass a two-question quiz before the puzzle unlocks. Below is the complete text for all 22 implemented puzzles, including **How to win**, **Why this fails**, and **Key terms** for each.
 
 ---
 

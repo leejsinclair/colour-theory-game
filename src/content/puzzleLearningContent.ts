@@ -569,4 +569,30 @@ export const puzzleLearningContent: Record<string, PuzzleLearningContent> = {
       },
     ],
   },
+  "puzzle-23": {
+    title: "Colour Constancy",
+    intro: [
+      "Surface colours do not send the same light to your eyes under every lamp. Warm light pushes surfaces toward orange; cool light pushes them toward blue.",
+      "Your visual system usually compensates for those casts and recovers a stable surface colour. This puzzle trains that comparison step instead of trusting any single view.",
+    ],
+    illustrationSvg: makePuzzleIllustration("Warm, cool, neutral comparison", "#f59e0b", "#94a3b8", "#38bdf8"),
+    howToWin: "Compare the object under warm, cool, and neutral light for each round, then choose the swatch that stays most consistent across all three scenes.",
+    whyFailed: "A swatch can match one lighting condition while still being the wrong surface colour. The answer is the underlying hue that best explains every panel at once.",
+    tooltips: ["colour constancy: the brain's adjustment of perceived colour based on lighting", "surface colour: the intrinsic reflectance of a material", "apparent colour: how a surface looks under a specific light source"],
+    accessibilityNote: "Do not rely on colour alone; keep textual labels for each lighting condition and round state.",
+    quiz: [
+      {
+        prompt: "Why can a white shirt look orange under candlelight yet still be perceived as white?",
+        options: ["The fabric changes pigment", "The brain compensates for the warm light source", "The eye switches to grayscale"],
+        correctIndex: 1,
+        explanation: "Colour constancy helps perception discount the illumination and recover a stable surface interpretation.",
+      },
+      {
+        prompt: "When solving a colour constancy puzzle, what evidence matters most?",
+        options: ["The warm panel only", "The swatch that best explains all lighting views together", "The brightest-looking option"],
+        correctIndex: 1,
+        explanation: "The true surface colour is the one that remains plausible across every lighting condition, not just a single appearance.",
+      },
+    ],
+  },
 };

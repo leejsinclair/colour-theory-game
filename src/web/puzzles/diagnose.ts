@@ -58,6 +58,8 @@ const HIGH_BIAS_PIGMENTS = new Set([
   "french ultramarine",
 ]);
 
+import { PUZZLE23_ROUNDS } from "./puzzle-23-data";
+
 // ---------------------------------------------------------------------------
 // Puzzle-specific diagnosis helpers
 // ---------------------------------------------------------------------------
@@ -335,6 +337,38 @@ function diagnosePuzzle21(input: {
   return reasons.length > 0 ? reasons : ["incorrect_hue_selection"];
 }
 
+// puzzle-23: Colour Constancy (compare warm/cool/neutral views)
+function diagnosePuzzle23(input: {
+  selectedIndices?: number[];
+}): FailureReasonCode[] {
+  if (!Array.isArray(input.selectedIndices) || input.selectedIndices.length < PUZZLE23_ROUNDS.length) {
+    return ["incorrect_hue_selection"];
+  }
+
+  const reasons: FailureReasonCode[] = [];
+
+  input.selectedIndices.forEach((selectedIndex, roundIndex) => {
+    const round = PUZZLE23_ROUNDS[roundIndex];
+    if (!round || selectedIndex === round.correctIndex) {
+      return;
+    }
+
+    const option = round.options[selectedIndex];
+    if (option?.kind === "warm-shifted" || option?.kind === "cool-shifted") {
+      if (!reasons.includes("incorrect_color_temperature")) {
+        reasons.push("incorrect_color_temperature");
+      }
+      return;
+    }
+
+    if (!reasons.includes("incorrect_hue_selection")) {
+      reasons.push("incorrect_hue_selection");
+    }
+  });
+
+  return reasons.length > 0 ? reasons : ["incorrect_hue_selection"];
+}
+
 // ---------------------------------------------------------------------------
 // Public API
 // ---------------------------------------------------------------------------
@@ -374,6 +408,7 @@ export function diagnoseFailure(
     case "puzzle-19": return diagnosePuzzle19(inp);
     case "puzzle-20": return diagnosePuzzle20(inp);
     case "puzzle-21": return diagnosePuzzle21(inp as Parameters<typeof diagnosePuzzle21>[0]);
+    case "puzzle-23": return diagnosePuzzle23(inp as Parameters<typeof diagnosePuzzle23>[0]);
     default:          return [];
   }
 }

@@ -219,7 +219,7 @@ test("HUD shows Score, Pets, Best Streak tiles on load", async ({ page }) => {
   await expect(page.locator("#hud-streak-value")).toBeVisible();
   // Initial values
   await expect(page.locator("#hud-score-value")).toHaveText("0");
-  await expect(page.locator("#hud-pets-value")).toHaveText("0/21");
+  await expect(page.locator("#hud-pets-value")).toHaveText("0/22");
 });
 
 test("HUD score and pets update after auto solve", async ({ page }) => {
@@ -230,8 +230,8 @@ test("HUD score and pets update after auto solve", async ({ page }) => {
   const scoreText = await page.locator("#hud-score-value").textContent();
   expect(Number(scoreText)).toBeGreaterThan(0);
 
-  // Pets should show 21/21
-  await expect(page.locator("#hud-pets-value")).toHaveText("21/21");
+  // Pets should show 22/22
+  await expect(page.locator("#hud-pets-value")).toHaveText("22/22");
 
   // Best streak should be > 0
   const streakText = await page.locator("#hud-streak-value").textContent();

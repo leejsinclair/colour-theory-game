@@ -77,12 +77,12 @@ async function passQuizForPuzzle01(page: Page): Promise<void> {
 
 // ─── Phase 1: Studio Lobby ────────────────────────────────────────────────────
 
-test("fresh game: app loads with title, zero score, and 0/21 pets", async ({ page }) => {
+test("fresh game: app loads with title, zero score, and 0/22 pets", async ({ page }) => {
   await page.goto("/");
 
   await expect(page.getByRole("heading", { name: "Color Studio Prototype" })).toBeVisible();
   await expect(page.locator("#hud-score-value")).toHaveText("0");
-  await expect(page.locator("#hud-pets-value")).toHaveText("0/21");
+  await expect(page.locator("#hud-pets-value")).toHaveText("0/22");
   await expect(page.locator("#hud-streak-value")).toHaveText("0");
 });
 
@@ -248,10 +248,10 @@ test("solving puzzle-01: all beams on + Check → score earned, pet earned, HUD 
   // Score toast must appear
   await expect(page.locator(".toast", { hasText: "+100" })).toBeVisible();
 
-  // HUD: score above zero, pets 1/21
+  // HUD: score above zero, pets 1/22
   const scoreText = await page.locator("#hud-score-value").textContent();
   expect(Number(scoreText)).toBeGreaterThan(0);
-  await expect(page.locator("#hud-pets-value")).toHaveText("1/21");
+  await expect(page.locator("#hud-pets-value")).toHaveText("1/22");
 });
 
 test("solving puzzle-01: card shows Solved pill and Practice button after completion", async ({ page }) => {
@@ -487,7 +487,7 @@ test("reset run: clears all progress and returns to fresh initial state", async 
 
   // HUD is back to zero
   await expect(page.locator("#hud-score-value")).toHaveText("0");
-  await expect(page.locator("#hud-pets-value")).toHaveText("0/21");
+  await expect(page.locator("#hud-pets-value")).toHaveText("0/22");
 
   // Only Light Lab is available
   await expect(
@@ -539,12 +539,12 @@ test("game completion: auto-solving all puzzles unlocks Grand Canvas", async ({ 
   ).toBeVisible();
 });
 
-test("game completion: all 21 pets collected after solving all puzzles", async ({ page }) => {
+test("game completion: all 22 pets collected after solving all puzzles", async ({ page }) => {
   await page.goto("/");
 
   await clickHudOption(page, "auto-solve");
 
-  await expect(page.locator("#hud-pets-value")).toHaveText("21/21");
+  await expect(page.locator("#hud-pets-value")).toHaveText("22/22");
 });
 
 test("game completion: Return from Grand Canvas lets player explore solved stations", async ({ page }) => {

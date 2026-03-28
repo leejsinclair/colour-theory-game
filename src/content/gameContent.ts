@@ -44,6 +44,7 @@ const petDefinitions: Array<{ id: string; name: string; type: PetType }> = [
   { id: "pet-19", name: "Harmony Dove", type: PetType.HarmonyDove },
   { id: "pet-20", name: "Empathy Moth", type: PetType.EmpathyMoth },
   { id: "pet-21", name: "Vibration Hummingbird", type: PetType.VibrationHummingbird },
+  { id: "pet-22", name: "Constancy Chameleon", type: PetType.ConstancyChameleon },
 ];
 
 export function createPets(): Pet[] {
@@ -334,6 +335,18 @@ export function createStationsAndPuzzles(): Station[] {
         const diff = Math.abs(normalizedDelta - 180);
         return diff <= 20 && input.valueBalanced;
       },
+    ),
+    createPuzzle<{ selectedIndices: number[] }>(
+      "puzzle-23",
+      "station-07",
+      "Colour Constancy",
+      "Compare the same object across warm, cool, and neutral light to recover its true surface colour.",
+      PuzzleType.COLOR_CONSTANCY,
+      "pet-22",
+      (input) =>
+        Array.isArray(input.selectedIndices) &&
+        input.selectedIndices.length === 3 &&
+        [1, 3, 0].every((expected, index) => input.selectedIndices[index] === expected),
     ),
   ];
 

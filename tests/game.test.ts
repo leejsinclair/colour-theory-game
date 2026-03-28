@@ -4,11 +4,16 @@ import { puzzleLearningContent } from "../src/content/puzzleLearningContent";
 import { Game } from "../src/game/Game";
 import { SceneType } from "../src/types/gameTypes";
 
+function getPuzzleIds(game: Game): string[] {
+  return game.stationManager
+    .getAllStations()
+    .flatMap((station) => station.puzzles)
+    .map((puzzle) => puzzle.id);
+}
+
 function solveAllPuzzles(game: Game): ReturnType<typeof game.completePuzzle> {
   let finalEvent: ReturnType<typeof game.completePuzzle> = null;
-  const total = game.getProgress().total;
-  for (let i = 1; i <= total; i += 1) {
-    const puzzleId = `puzzle-${String(i).padStart(2, "0")}`;
+  for (const puzzleId of getPuzzleIds(game)) {
     finalEvent = game.completePuzzle(puzzleId, getDemoSolution(puzzleId));
   }
   return finalEvent;
@@ -163,8 +168,7 @@ describe("Gamification scoring", () => {
 
 describe("Pet milestones", () => {
   function solveN(game: Game, n: number): void {
-    for (let i = 1; i <= n; i += 1) {
-      const puzzleId = `puzzle-${String(i).padStart(2, "0")}`;
+    for (const puzzleId of getPuzzleIds(game).slice(0, n)) {
       game.completePuzzle(puzzleId, getDemoSolution(puzzleId));
     }
   }
@@ -252,8 +256,7 @@ describe("Save/load with gamification fields", () => {
 
 describe("Mood Palette puzzle solutions", () => {
   function solveUpToPuzzle09(game: Game): void {
-    for (let i = 1; i <= 8; i += 1) {
-      const puzzleId = `puzzle-${String(i).padStart(2, "0")}`;
+    for (const puzzleId of getPuzzleIds(game).slice(0, 8)) {
       game.completePuzzle(puzzleId, getDemoSolution(puzzleId));
     }
   }
@@ -304,12 +307,14 @@ describe("Mood Palette puzzle solutions", () => {
 });
 
 describe("Learning content metadata", () => {
-  test("includes learning entries for all 21 puzzles", () => {
-    const puzzleIds = Array.from({ length: 21 }, (_, i) => `puzzle-${String(i + 1).padStart(2, "0")}`);
+  test("includes learning entries for all implemented puzzles", () => {
+    const game = new Game();
+    game.initialize();
+    const puzzleIds = getPuzzleIds(game);
     for (const puzzleId of puzzleIds) {
       expect(puzzleLearningContent[puzzleId]).toBeDefined();
     }
-    expect(Object.keys(puzzleLearningContent)).toHaveLength(21);
+    expect(Object.keys(puzzleLearningContent)).toHaveLength(puzzleIds.length);
   });
 
   test("every puzzle has two intro paragraphs and quiz questions with valid answers", () => {
@@ -543,6 +548,16 @@ describe("diagnoseFailure – new puzzles (01, 02, 03, 04, 05, 06, 12, 14, 18, 2
   test("puzzle-21: complementary but unbalanced → low_value_contrast", () => {
     const reasons = diagnoseFailure("puzzle-21", { hueA: 0, hueB: 180, valueBalanced: false });
     expect(reasons).toContain("low_value_contrast");
+  });
+
+  test("puzzle-23: warm/cool cast choice → incorrect_color_temperature", () => {
+    const reasons = diagnoseFailure("puzzle-23", { selectedIndices: [0, 3, 0] });
+    expect(reasons).toContain("incorrect_color_temperature");
+  });
+
+  test("puzzle-23: wrong hue choice → incorrect_hue_selection", () => {
+    const reasons = diagnoseFailure("puzzle-23", { selectedIndices: [3, 2, 0] });
+    expect(reasons).toContain("incorrect_hue_selection");
   });
 });
 
