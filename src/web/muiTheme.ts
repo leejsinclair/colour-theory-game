@@ -51,29 +51,40 @@ export const appTheme = createTheme({
           fontWeight: 700,
           borderWidth: 2,
         },
-        containedPrimary: {
-          backgroundColor: "#3F9AAE",
-          color: "#ffffff",
-          "&:hover": {
-            backgroundColor: "#2d7a8a",
-          },
-        },
-        containedSecondary: {
-          backgroundColor: "#79C9C5",
-          color: "#1f2030",
-          "&:hover": {
-            backgroundColor: "#4fa8a5",
-          },
-        },
-        outlinedPrimary: {
-          borderColor: "#3F9AAE",
-          color: "#3F9AAE",
-          "&:hover": {
-            borderColor: "#2d7a8a",
-            backgroundColor: "rgba(63, 154, 174, 0.06)",
-          },
-        },
       },
+      variants: [
+        {
+          props: { variant: "contained", color: "primary" },
+          style: {
+            backgroundColor: "#3F9AAE",
+            color: "#ffffff",
+            "&:hover": {
+              backgroundColor: "#2d7a8a",
+            },
+          },
+        },
+        {
+          props: { variant: "contained", color: "secondary" },
+          style: {
+            backgroundColor: "#79C9C5",
+            color: "#1f2030",
+            "&:hover": {
+              backgroundColor: "#4fa8a5",
+            },
+          },
+        },
+        {
+          props: { variant: "outlined", color: "primary" },
+          style: {
+            borderColor: "#3F9AAE",
+            color: "#3F9AAE",
+            "&:hover": {
+              borderColor: "#2d7a8a",
+              backgroundColor: "rgba(63, 154, 174, 0.06)",
+            },
+          },
+        },
+      ],
     },
     MuiCard: {
       styleOverrides: {

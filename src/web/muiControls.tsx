@@ -103,7 +103,7 @@ export function renderMuiMilestoneChips(container: HTMLElement, badges: string[]
 
   root.render(
     <ThemeProvider theme={appTheme}>
-      <Stack direction="row" spacing={1} useFlexGap flexWrap="wrap">
+      <Stack direction="row" spacing={1} useFlexGap sx={{ flexWrap: "wrap" }}>
         {badges.map((badge) => {
           const badgeConfig = milestoneBadges[badge] ?? {
             icon: EmojiEventsOutlined,
