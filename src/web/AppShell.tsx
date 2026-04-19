@@ -62,11 +62,11 @@ export function AppShell() {
             <Stack spacing={2}>
               <Card className="panel-card progress-card" variant="outlined">
                 <CardContent>
-                  <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 1 }}>
+                  <Stack direction="row" sx={{ mb: 1, justifyContent: "space-between", alignItems: "center" }}>
                     <Typography variant="h6" component="h2">
                       Progress
                     </Typography>
-                    <Stack direction="row" spacing={0.5} alignItems="center">
+                    <Stack direction="row" spacing={0.5} sx={{ alignItems: "center" }}>
                       <Tooltip title="Send Feedback">
                         <IconButton
                           id="feedback"
@@ -123,7 +123,7 @@ export function AppShell() {
                     </Box>
                   </Box>
 
-                  <Stack direction="row" spacing={1} useFlexGap flexWrap="wrap" className="milestone-badges" id="milestone-badges" sx={{ mt: 1 }} />
+                  <Stack direction="row" spacing={1} useFlexGap className="milestone-badges" id="milestone-badges" sx={{ mt: 1, flexWrap: "wrap" }} />
                   <Box className="pet-collection" id="pet-collection" aria-label="Collected pets" sx={{ mt: 1.5 }} />
 
                   <pre id="progress" style={{ marginTop: "0.8rem" }} />
@@ -135,7 +135,7 @@ export function AppShell() {
           <Grid size={{ xs: 12, md: 7 }}>
             <Card className="panel-card" variant="outlined" sx={{ height: "100%" }}>
               <CardContent>
-                <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 1 }}>
+                <Stack direction="row" sx={{ mb: 1, justifyContent: "space-between", alignItems: "center" }}>
                   <Typography variant="h6" component="h2">Puzzles</Typography>
                 </Stack>
                 <Box id="puzzle-list" className="puzzle-list" />
