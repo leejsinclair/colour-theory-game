@@ -5,6 +5,10 @@ export type LocalProgressSnapshot = {
   activeStationId: string | null;
   practicePuzzleId: string | null;
   learningProgressByPuzzle?: Record<string, { quizPassed: boolean }>;
+  /** NEW (optional) — absent means first run; never affects progression (FR-030a). */
+  introSeen?: boolean;
+  /** NEW (optional) — best-effort deep-link restore hint; ignored if invalid. */
+  lastRoute?: string;
 };
 
 export type LearningProgress = Record<string, { quizPassed: boolean }>;
@@ -33,6 +37,8 @@ export function readLocalProgress(): LocalProgressSnapshot | null {
               .map(([id, value]) => [id, { quizPassed: Boolean((value as { quizPassed?: boolean }).quizPassed) }]),
           )
           : undefined,
+      introSeen: typeof parsed.introSeen === "boolean" ? parsed.introSeen : undefined,
+      lastRoute: typeof parsed.lastRoute === "string" ? parsed.lastRoute : undefined,
     };
   } catch {
     return null;

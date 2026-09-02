@@ -95,6 +95,61 @@ describe("localProgress", () => {
     expect(readLocalProgress()).toBeNull();
   });
 
+  test("readLocalProgress parses new optional introSeen / lastRoute fields", () => {
+    state.set(
+      LOCAL_SAVE_KEY,
+      JSON.stringify({
+        completedPuzzleIds: [],
+        activeStationId: null,
+        practicePuzzleId: null,
+        introSeen: true,
+        lastRoute: "#/station/station-02",
+      }),
+    );
+
+    const snapshot = readLocalProgress();
+    expect(snapshot?.introSeen).toBe(true);
+    expect(snapshot?.lastRoute).toBe("#/station/station-02");
+  });
+
+  test("readLocalProgress drops wrong-typed introSeen / lastRoute and ignores unknown keys", () => {
+    state.set(
+      LOCAL_SAVE_KEY,
+      JSON.stringify({
+        completedPuzzleIds: ["puzzle-01"],
+        activeStationId: "station-01",
+        practicePuzzleId: null,
+        introSeen: "yes",
+        lastRoute: 42,
+        somethingFromTheFuture: { nested: true },
+      }),
+    );
+
+    const snapshot = readLocalProgress();
+    expect(snapshot).toEqual({
+      completedPuzzleIds: ["puzzle-01"],
+      activeStationId: "station-01",
+      practicePuzzleId: null,
+      learningProgressByPuzzle: undefined,
+      introSeen: undefined,
+      lastRoute: undefined,
+    });
+  });
+
+  test("saveLocalProgress round-trips introSeen / lastRoute", () => {
+    saveLocalProgress({
+      completedPuzzleIds: ["puzzle-01"],
+      activeStationId: "station-01",
+      practicePuzzleId: null,
+      introSeen: true,
+      lastRoute: "#/studio",
+    });
+
+    const snapshot = readLocalProgress();
+    expect(snapshot?.introSeen).toBe(true);
+    expect(snapshot?.lastRoute).toBe("#/studio");
+  });
+
   test("saveLocalProgress and clearLocalProgress swallow storage errors", () => {
     const throwingStorage = {
       ...storage,
