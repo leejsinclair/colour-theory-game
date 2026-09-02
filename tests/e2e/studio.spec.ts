@@ -47,6 +47,26 @@ test.describe("studio & shell", () => {
     await expect(page.getByText("Locked — finish previous stations").first()).toBeVisible();
   });
 
+  test("station cards carry identity and a non-colour-only lock state", async ({ page }) => {
+    await page.goto("/");
+    await enterStudio(page);
+
+    const lightLab = page.getByRole("article", { name: "Light Laboratory" });
+    await expect(lightLab.getByRole("heading", { name: "Light Laboratory" })).toBeVisible();
+    await expect(lightLab.getByText("3 puzzles")).toBeVisible();
+    await expect(lightLab.getByText(/0 of 3 solved/)).toBeVisible();
+    await expect(lightLab.getByRole("button", { name: "Enter Light Laboratory" })).toBeVisible();
+
+    // A locked card: icon + text, and no way to enter.
+    const sketchboard = page.getByRole("article", { name: "Value Sketchboard" });
+    await expect(sketchboard.getByText("Locked — finish previous stations")).toBeVisible();
+    await expect(sketchboard.getByText("Locked").first()).toBeVisible();
+    await expect(sketchboard.getByRole("button")).toHaveCount(0);
+
+    // The recommended-next affordance is present on load.
+    await expect(page.getByRole("button", { name: /^Recommended:/ })).toBeVisible();
+  });
+
   test("info modal opens for a puzzle and closes on Escape", async ({ page }) => {
     await page.goto("/");
     await enterStudio(page);

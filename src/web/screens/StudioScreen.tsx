@@ -1,95 +1,57 @@
 import type { ReactElement } from "react";
-import { Badge, Button, Card, Heading, Tag } from "../design-system";
-import { useProgress, useRecommendedNext, useStations, usePets } from "../state/selectors";
+import { Button, Heading, ProgressBar } from "../design-system";
+import { useProgress, useStations, usePets } from "../state/selectors";
 import { useHashRoute } from "../app/useHashRoute";
-import type { Route } from "../app/routes";
-import type { RecommendedNext } from "../state/gameStore";
+import { StationCard } from "../components/StationCard";
+import { RecommendedNext } from "../components/RecommendedNext";
 
 /**
- * The Studio hub — functional in US1 (station list, enter/continue, a
- * recommended-next line, pet summary). The game-world card redesign and
- * `StudioBackdrop` treatment land in US2 (T059–T062).
+ * The Studio hub (US2, FR-028) — a game-world lobby that orients a player in
+ * seconds: premise, overall completion, a recommended next activity, and the
+ * seven stations as distinctive cards. The ambient `StudioBackdrop` is mounted
+ * once at the app shell (T025/T027).
  */
-
-function recommendedRoute(rec: RecommendedNext): Route | null {
-  switch (rec.kind) {
-    case "station":
-      return { view: "station", stationId: rec.stationId };
-    case "puzzle":
-      return { view: "puzzle", stationId: rec.stationId, puzzleId: rec.puzzleId };
-    case "grand-canvas":
-      return { view: "grand-canvas" };
-    default:
-      return null;
-  }
-}
 
 export function StudioScreen(): ReactElement {
   const progress = useProgress();
   const stations = useStations();
   const pets = usePets();
-  const recommended = useRecommendedNext();
   const { navigate } = useHashRoute();
 
-  const recRoute = recommendedRoute(recommended);
+  const petsCollected = pets.filter((pet) => pet.collected).length;
 
   return (
-    <section className="screen">
-      <Heading level={1} size="hero">
-        Chromatic Mastery Studio
-      </Heading>
-      <p className="screen__lede">
-        A midnight studio of colour machines. Solve puzzles to free Chromatic Pets and relight each
-        station.
-      </p>
-      <p>
-        {progress.solved} of {progress.total} puzzles solved · {pets.filter((p) => p.collected).length}{" "}
-        of {pets.length} pets rescued
-      </p>
-
-      {recRoute ? (
-        <p>
-          <Button variant="secondary" onClick={() => navigate(recRoute)}>
-            Recommended: {recommended.label}
-          </Button>
+    <section className="screen studio">
+      <header className="studio__hero">
+        <p className="studio__eyebrow">Magical Artist's Studio · Colour Laboratory</p>
+        <Heading level={1} size="hero">
+          Chromatic Mastery Studio
+        </Heading>
+        <p className="screen__lede">
+          A midnight studio of glowing colour machines. Solve their puzzles to free the
+          Chromatic Pets and relight every station.
         </p>
-      ) : (
-        <p>{recommended.label}</p>
-      )}
+
+        <div className="studio__progress">
+          <ProgressBar label="Overall completion" value={progress.solved} max={progress.total} />
+          <p>
+            {progress.solved} of {progress.total} puzzles solved · {petsCollected} of {pets.length}{" "}
+            pets rescued
+          </p>
+        </div>
+
+        <RecommendedNext />
+      </header>
 
       <div className="station-grid">
-        {stations.map((station) => {
-          const locked = station.status === "locked";
-          const started = station.solvedCount > 0 && !locked;
-          return (
-            <Card key={station.id} interactive={!locked}>
-              <Heading level={2} size="3">
-                {station.name}
-              </Heading>
-              <p>
-                <Tag>
-                  {station.solvedCount}/{station.puzzleCount} solved
-                </Tag>{" "}
-                {station.status === "complete" ? (
-                  <Badge tone="success" icon={<span aria-hidden="true">✓</span>}>
-                    Complete
-                  </Badge>
-                ) : locked ? (
-                  <Badge tone="locked" icon={<span aria-hidden="true">🔒</span>}>
-                    Locked
-                  </Badge>
-                ) : null}
-              </p>
-              {locked ? (
-                <p>Locked — finish previous stations</p>
-              ) : (
-                <Button onClick={() => navigate({ view: "station", stationId: station.id })}>
-                  {started ? `Continue ${station.name}` : `Enter ${station.name}`}
-                </Button>
-              )}
-            </Card>
-          );
-        })}
+        {stations.map((station, index) => (
+          <StationCard
+            key={station.id}
+            station={station}
+            index={index}
+            onEnter={() => navigate({ view: "station", stationId: station.id })}
+          />
+        ))}
       </div>
 
       <p>

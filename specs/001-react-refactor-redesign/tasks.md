@@ -138,17 +138,17 @@ Single repository. Web SPA under `src/web/`, domain core under `src/game/ src/sy
 
 ### Tests for User Story 2
 
-- [ ] T057 [P] [US2] Create `tests/component/StudioScreen.test.tsx` — fresh/mid/complete snapshots: card states distinct, `useRecommendedNext` target correct (earliest unlocked incomplete station or its next unsolved puzzle)
-- [ ] T058 [P] [US2] Extend `tests/e2e/studio.spec.ts` — station-card identity, locked-station treatment communicated by more than colour, recommended-next affordance present on load
+- [X] T057 [P] [US2] Create `tests/component/StudioScreen.test.tsx` — fresh/mid/complete snapshots: card states distinct, `useRecommendedNext` target correct (earliest unlocked incomplete station or its next unsolved puzzle)
+- [X] T058 [P] [US2] Extend `tests/e2e/studio.spec.ts` — station-card identity, locked-station treatment communicated by more than colour, recommended-next affordance present on load
 
 ### Implementation for User Story 2
 
-- [ ] T059 [P] [US2] Build `src/web/components/StationCard.tsx` — title, short description, per-station colour token, puzzle count, `ProgressRing`/`ProgressBar`, `locked | available | in-progress | complete` treatment (icon + text, not colour alone), "Enter <station>" / "Continue <station>" action; locked card states the reason (FR-029, FR-035, US2-3, US2-4)
-- [ ] T060 [P] [US2] Build `src/web/components/RecommendedNext.tsx` — consumes `useRecommendedNext`; links to station / puzzle / Grand Canvas (US2-2, SC-010)
-- [ ] T061 [US2] Redesign `src/web/screens/StudioScreen.tsx` — game title, premise line, overall completion, pet-collection summary, `StationCard` grid (`repeat(auto-fill, minmax(min(100%,16rem),1fr))`, research.md R15), `RecommendedNext`, "View pet collection" link (FR-028)
-- [ ] T062 [US2] Apply `StudioBackdrop` + design tokens to the Studio so it reads unmistakably as a colour game — dark studio ground, custom cards, colourful CTAs (FR-042, FR-043; formal review in Polish)
+- [X] T059 [P] [US2] Build `src/web/components/StationCard.tsx` — title, short description, per-station colour token, puzzle count, `ProgressRing`, `locked | available | in-progress | complete` treatment (icon + text, not colour alone), "Enter <station>" / "Continue <station>" action; locked card states the reason (FR-029, FR-035, US2-3, US2-4). Presentation copy + hue map in `src/web/content/stationPresentation.ts` (no game rules).
+- [X] T060 [P] [US2] Build `src/web/components/RecommendedNext.tsx` — consumes `useRecommendedNext`; links to station / puzzle / Grand Canvas (US2-2, SC-010)
+- [X] T061 [US2] Redesign `src/web/screens/StudioScreen.tsx` — game title, premise line, overall completion `ProgressBar` + pet-rescue summary, `StationCard` grid (`repeat(auto-fill, minmax(min(100%,16rem),1fr))`, research.md R15), `RecommendedNext`, "View pet collection" link (FR-028)
+- [X] T062 [US2] Studio hero treatment + station-card hue accents on the design tokens (`app.css`) so the Studio reads unmistakably as a colour game — dark studio ground (shell `StudioBackdrop`), custom cards, colourful CTAs (FR-042, FR-043; formal review in Polish)
 
-**Checkpoint**: Studio is a proper hub. US1 journey still passes.
+**Checkpoint**: Studio is a proper hub. US1 journey still passes. ✅ — gate green: `npm run build`, `npm run lint`, `npm test` (14 files / 180), `npm run build:web` (JS gzip 208.57 kB vs 219.0 baseline), `npm run test:e2e` (19 passed).
 
 ---
 
