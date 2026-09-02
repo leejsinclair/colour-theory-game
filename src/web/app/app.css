@@ -284,10 +284,18 @@ a.ds-visually-hidden.ds-focusable:focus-visible {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: var(--space-md);
+  gap: var(--space-sm) var(--space-md);
   max-width: var(--layout-max);
   margin: 0 auto;
   padding: var(--space-xs) var(--space-md) var(--space-sm);
+}
+
+.hud__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+  width: 100%;
 }
 
 .hud__brand {
@@ -330,10 +338,6 @@ a.ds-visually-hidden.ds-focusable:focus-visible {
   padding: 0;
   list-style: none;
   max-width: 100%;
-}
-
-.hud__spacer {
-  flex: 1;
 }
 
 /* Simplify (not shrink) the HUD on narrow viewports: the milestone badges

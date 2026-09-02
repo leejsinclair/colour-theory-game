@@ -202,15 +202,13 @@
   font-size: var(--text-scale-h3);
 }
 
-/* Route-change focus is moved to the screen's <h1> for assistive-tech context
-   only — it is not a visual target. Keep the ring for real keyboard focus. */
-.ds-heading:focus {
-  outline: none;
-}
-
+/* Route-change focus is moved to the screen's <h1> (which carries tabindex="-1",
+   so it is never in the keyboard tab order) purely for assistive-tech context —
+   it is not a visual target, so it shows no ring. */
+.ds-heading:focus,
 .ds-heading:focus-visible {
   outline: none;
-  box-shadow: var(--focus-ring);
+  box-shadow: none;
 }
 
 /* ── Badge — milestone / status pill with an icon ──────────────────────── */

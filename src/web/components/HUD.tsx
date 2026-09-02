@@ -4,10 +4,10 @@ import { useProgress, usePets } from "../state/selectors";
 import { AppMenu } from "./AppMenu";
 
 /**
- * The persistent player HUD (FR-015, FR-030, FR-035, SC-002). Score / pets /
- * streak / Grand-Canvas progress at a glance, plus the earned pet-milestone
- * badges (icon + label, never colour alone). Simplifies — not shrinks — on
- * small screens (the streak tile drops out, values step down via CSS).
+ * The persistent player HUD (FR-015, FR-030, FR-035, SC-002). Brand + app menu
+ * on the top line, then puzzles / score / pets / streak at a glance, plus the
+ * earned pet-milestone badges (icon + label, never colour alone). Simplifies —
+ * not shrinks — on small screens (the streak tile drops out, values step down).
  */
 
 const MILESTONE_ICON: Record<string, ReactElement> = {
@@ -23,9 +23,12 @@ function HUDImpl(): ReactElement {
 
   return (
     <div className="hud">
-      <a className="hud__brand" href="#/studio">
-        Chromatic Mastery
-      </a>
+      <div className="hud__top">
+        <a className="hud__brand" href="#/studio">
+          Chromatic Mastery
+        </a>
+        <AppMenu />
+      </div>
 
       <div className="hud__stats">
         <p className="hud__stat" role="status">
@@ -68,10 +71,6 @@ function HUDImpl(): ReactElement {
           ))}
         </ul>
       ) : null}
-
-      <span className="hud__spacer" />
-
-      <AppMenu />
     </div>
   );
 }
