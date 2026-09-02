@@ -25,15 +25,15 @@ function diagnosisFor(puzzleId: string, input: unknown): FailureDiagnosis {
 
 describe("ResultPanel", () => {
   it("shows the specific diagnosis reason and the principle to revisit", () => {
-    // puzzle-01 with no beams → incorrect_hue_selection → "Hue relationships".
+    // puzzle-01 with no beams → missing_primary_beam → "Additive light".
     const diagnosis = diagnosisFor("puzzle-01", {});
     render(<ResultPanel diagnosis={diagnosis} onRetry={vi.fn()} />);
 
     const region = screen.getByRole("alert");
     expect(region).toHaveTextContent("Not quite");
     expect(region).toHaveTextContent("Principle to revisit:");
-    expect(region).toHaveTextContent("Hue relationships");
-    expect(region).toHaveTextContent(FAILURE_EXPLANATIONS.incorrect_hue_selection);
+    expect(region).toHaveTextContent("Additive light");
+    expect(region).toHaveTextContent(FAILURE_EXPLANATIONS.missing_primary_beam);
   });
 
   it("names a different principle for a different failure family", () => {

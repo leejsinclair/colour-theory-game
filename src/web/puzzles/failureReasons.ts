@@ -21,6 +21,8 @@ export type FailureReasonCode =
   // MIXING & PIGMENT LOGIC
   | "overmixing"
   | "unbalanced_mix"
+  // ADDITIVE LIGHT
+  | "missing_primary_beam"
   // LIGHT & ENVIRONMENT
   | "insufficient_atmosphere"
   | "excessive_atmosphere"
@@ -47,6 +49,7 @@ export const FAILURE_PRINCIPLE: Record<FailureReasonCode, string> = {
   incorrect_hue_bias: "Hue relationships",
   overmixing: "Pigment mixing",
   unbalanced_mix: "Pigment mixing",
+  missing_primary_beam: "Additive light",
   insufficient_atmosphere: "Light & atmosphere",
   excessive_atmosphere: "Light & atmosphere",
   incorrect_color_temperature: "Light & atmosphere",
@@ -78,6 +81,8 @@ export const FAILURE_EXPLANATIONS: Record<FailureReasonCode, string> = {
     "Too many components combined have muddied the result — simplify and use fewer, purer ingredients.",
   unbalanced_mix:
     "The ratio of components is off — adjust the proportions until the resulting colour clearly matches the target.",
+  missing_primary_beam:
+    "White light needs all three beams — red, green and blue — switched on and overlapping. Switch on any that are still off, then align them so they meet.",
   insufficient_atmosphere:
     "Distant objects are still too sharp or saturated — raise edge softening, lower saturation, and shift far layers toward a cooler hue.",
   excessive_atmosphere:

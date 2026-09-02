@@ -1,6 +1,6 @@
 import { memo, useEffect, useReducer, useState, type ReactElement } from "react";
 import { Button, Heading, announce } from "../design-system";
-import { usePuzzle } from "../state/selectors";
+import { usePuzzle, useStation, useStations } from "../state/selectors";
 import { useGameActions, useSession } from "../state/contexts";
 import { useHashRoute } from "../app/useHashRoute";
 import { useReducedMotion } from "../state/useReducedMotion";
@@ -55,6 +55,8 @@ function PuzzleScreenImpl({
   puzzleId: string;
 }): ReactElement {
   const puzzle = usePuzzle(puzzleId);
+  const station = useStation(stationId);
+  const stations = useStations();
   const actions = useGameActions();
   const { state: session, dispatch } = useSession();
   const { navigate } = useHashRoute();
@@ -79,31 +81,28 @@ function PuzzleScreenImpl({
 
   const handleSolved = (result: SubmitSuccess): void => {
     if (practice) {
-      dispatch({ type: "PUSH_TOAST", toast: makeToast(result.scoreEvent.reason, "success", { icon: "🎯" }) });
       announce(`Practice solved. ${result.scoreEvent.reason}`);
+      setOutcome({ kind: "solved", result });
       return;
     }
 
-    // One composed live-region message — separate announce() calls would each
-    // overwrite the previous before a screen reader could read it (FR-036, T087).
-    const toasts: Toast[] = [makeToast(result.scoreEvent.reason, "success", { icon: "🏆" })];
+    // One composed live-region message — the full-screen RewardReveal carries
+    // the visual celebration, so no toasts here (they used to stack behind it).
+    // Separate announce() calls would each overwrite the previous before a
+    // screen reader could read it (FR-036, T087).
     const spoken: string[] = ["Correct — puzzle solved."];
 
     if (result.petId) {
       const petName = PET_NAMES[result.petId] ?? "a new pet";
-      toasts.push(makeToast(`Pet freed: ${petName}`, "success", { petId: result.petId }));
       spoken.push(`${petName} freed.`);
     }
     if (result.stationCompleted) {
-      toasts.push(makeToast("Station complete", "success", { icon: "✅" }));
       spoken.push("Station complete.");
     }
     if (result.grandCanvasUnlocked) {
-      toasts.push(makeToast("Grand Canvas unlocked", "success", { icon: "🎨" }));
       spoken.push("The Grand Canvas is now unlocked.");
     }
 
-    dispatch({ type: "SUBMIT_RESULT", toasts });
     announce(spoken.join(" "));
     setOutcome({ kind: "solved", result });
   };
@@ -120,6 +119,16 @@ function PuzzleScreenImpl({
     } else {
       navigate(backRoute);
     }
+  };
+
+  const destinationFor = (result: SubmitSuccess): string => {
+    if (result.grandCanvasUnlocked) {
+      return "the Grand Canvas";
+    }
+    if (result.stationCompleted && result.nextStationId) {
+      return stations.find((s) => s.id === result.nextStationId)?.name ?? "the next station";
+    }
+    return station?.name ?? "the studio";
   };
 
   if (!puzzle) {
@@ -194,9 +203,15 @@ function PuzzleScreenImpl({
         <RewardReveal
           petId={outcome.result.petId}
           petName={outcome.result.petId ? PET_NAMES[outcome.result.petId] ?? "New pet" : null}
+          points={outcome.result.scoreEvent.delta}
           scoreReason={outcome.result.scoreEvent.reason}
           reducedMotion={reducedMotion}
-          onContinue={() => continueAfterSolve(outcome.result)}
+          destinationLabel={practice ? "the puzzle" : destinationFor(outcome.result)}
+          autoReturnSeconds={5}
+          continueLabel={practice ? "Keep practising" : "Continue"}
+          onContinue={() =>
+            practice ? setOutcome({ kind: "idle" }) : continueAfterSolve(outcome.result)
+          }
         />
       ) : null}
     </section>

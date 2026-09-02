@@ -37,7 +37,6 @@ export const initialSessionState: SessionState = {
 };
 
 export type SessionAction =
-  | { type: "SUBMIT_RESULT"; toasts: Toast[]; clearPractice?: boolean }
   | { type: "ENTER_PRACTICE"; puzzleId: string }
   | { type: "EXIT_PRACTICE" }
   | { type: "OPEN_INFO"; puzzleId: string }
@@ -52,13 +51,6 @@ export type SessionAction =
 
 export function sessionReducer(state: SessionState, action: SessionAction): SessionState {
   switch (action.type) {
-    case "SUBMIT_RESULT":
-      return {
-        ...state,
-        toasts: action.toasts.length > 0 ? [...state.toasts, ...action.toasts] : state.toasts,
-        practicePuzzleId: action.clearPractice ? null : state.practicePuzzleId,
-      };
-
     case "ENTER_PRACTICE":
       return { ...state, practicePuzzleId: action.puzzleId };
 

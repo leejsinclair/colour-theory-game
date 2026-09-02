@@ -75,10 +75,10 @@ function diagnosePuzzle01(input: {
   // If the beams are all on but the overlap hasn't been aligned, the player
   // has the right components but hasn't combined them yet.
   if (input.redBeam && input.greenBeam && input.blueBeam && !input.overlap) {
-    return ["unbalanced_mix"];
+    return ["missing_primary_beam"];
   }
   // One or more primary beams are missing.
-  return ["incorrect_hue_selection"];
+  return ["missing_primary_beam"];
 }
 
 // puzzle-02: Printer Pigments (CMY ink sliders)

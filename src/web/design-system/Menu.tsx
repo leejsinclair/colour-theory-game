@@ -14,6 +14,8 @@ export type MenuItemSpec = {
   label: string;
   onSelect: () => void;
   disabled?: boolean;
+  /** Destructive item — rendered with failure colour and a top divider. */
+  tone?: "danger";
 };
 
 export type MenuProps = {
@@ -43,12 +45,15 @@ export function Menu({ triggerLabel, triggerIcon, items }: MenuProps): ReactElem
         anchorEl={anchor}
         open={open}
         onClose={() => setAnchor(null)}
+        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+        transformOrigin={{ vertical: "top", horizontal: "right" }}
         slotProps={{ paper: { className: "ds-menu__paper" } }}
       >
         {items.map((item) => (
           <MuiMenuItem
             key={item.key}
             disabled={item.disabled}
+            className={item.tone === "danger" ? "ds-menu__item--danger" : undefined}
             onClick={() => {
               setAnchor(null);
               item.onSelect();

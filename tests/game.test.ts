@@ -469,16 +469,16 @@ describe("diagnoseFailure – unknown puzzle", () => {
 });
 
 describe("diagnoseFailure – new puzzles (01, 02, 03, 04, 05, 06, 12, 14, 18, 21)", () => {
-  test("puzzle-01: missing beams → incorrect_hue_selection", () => {
+  test("puzzle-01: missing beams → missing_primary_beam (not a hue/wheel reason)", () => {
     expect(diagnoseFailure("puzzle-01", { redBeam: false, greenBeam: false, blueBeam: false }))
-      .toContain("incorrect_hue_selection");
+      .toEqual(["missing_primary_beam"]);
     expect(diagnoseFailure("puzzle-01", { redBeam: true, greenBeam: true, blueBeam: false }))
-      .toContain("incorrect_hue_selection");
+      .toEqual(["missing_primary_beam"]);
   });
 
-  test("puzzle-01: all beams on but overlap missing → unbalanced_mix", () => {
+  test("puzzle-01: all beams on but overlap missing → missing_primary_beam", () => {
     expect(diagnoseFailure("puzzle-01", { redBeam: true, greenBeam: true, blueBeam: true, overlap: false }))
-      .toContain("unbalanced_mix");
+      .toEqual(["missing_primary_beam"]);
   });
 
   test("puzzle-02: always returns unbalanced_mix", () => {

@@ -11,6 +11,15 @@ export async function openMenuItem(page: Page, name: string): Promise<void> {
   await page.getByRole("menuitem", { name }).click();
 }
 
+/** Open the menu, pick "Reset run", then confirm in the dialog. */
+export async function resetRun(page: Page): Promise<void> {
+  await openMenuItem(page, "Reset run");
+  await page
+    .getByRole("dialog", { name: "Reset all progress?" })
+    .getByRole("button", { name: "Reset run" })
+    .click();
+}
+
 /** Auto-solve the whole journey (dev/e2e menu item) and land on the Grand Canvas. */
 export async function autoSolve(page: Page): Promise<void> {
   await openMenuItem(page, "Auto solve journey");

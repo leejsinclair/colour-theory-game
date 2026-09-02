@@ -202,6 +202,17 @@
   font-size: var(--text-scale-h3);
 }
 
+/* Route-change focus is moved to the screen's <h1> for assistive-tech context
+   only — it is not a visual target. Keep the ring for real keyboard focus. */
+.ds-heading:focus {
+  outline: none;
+}
+
+.ds-heading:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
 /* ── Badge — milestone / status pill with an icon ──────────────────────── */
 .ds-badge {
   display: inline-flex;
@@ -390,11 +401,35 @@
   font-family: var(--font-display);
 }
 
-.ds-menu__paper {
+/* MUI's `.MuiPaper-root { background:#fff }` ties on specificity and wins on
+   source order — the `.MuiPaper-root` qualifier here breaks the tie. */
+.ds-menu__paper.MuiPaper-root {
   border: 1px solid var(--surface-border-strong);
   border-radius: var(--radius-md);
   background-color: var(--surface-2);
   color: var(--text-primary);
+}
+
+.ds-menu__paper .MuiMenuItem-root {
+  font: inherit;
+  min-height: var(--touch-min);
+  padding: var(--space-xs) var(--space-md);
+}
+
+.ds-menu__paper .MuiMenuItem-root:hover,
+.ds-menu__paper .MuiMenuItem-root.Mui-focusVisible {
+  background-color: var(--surface-3);
+}
+
+.ds-menu__item--danger.MuiMenuItem-root {
+  margin-top: var(--space-3xs);
+  border-top: 1px solid var(--surface-border);
+  color: var(--state-failure);
+}
+
+.ds-menu__item--danger.MuiMenuItem-root:hover,
+.ds-menu__item--danger.MuiMenuItem-root.Mui-focusVisible {
+  background-color: var(--state-failure-bg);
 }
 
 .ds-slider {

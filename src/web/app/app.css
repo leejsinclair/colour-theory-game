@@ -498,28 +498,138 @@ a.ds-visually-hidden.ds-focusable:focus-visible {
   gap: var(--space-2xs);
 }
 
-/* ── Reward reveal ────────────────────────────────────────────────────── */
-.reward-reveal {
-  position: relative;
-  display: flex;
-  align-items: center;
-  gap: var(--space-md);
-  overflow: hidden;
+/* ── Reward overlay ───────────────────────────────────────────────────── */
+.reward-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: grid;
+  place-items: center;
+  padding: var(--space-lg);
+  background: color-mix(in srgb, var(--bg-deep) 78%, transparent);
+  backdrop-filter: blur(6px);
+  animation: reward-overlay-in var(--motion-fast) var(--ease-standard);
 }
 
-.reward-reveal__body {
+.reward-overlay__card {
+  position: relative;
+  overflow: hidden;
+  width: min(30rem, 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-md);
+  padding: clamp(var(--space-lg), 4vw, var(--space-xl));
+  text-align: center;
+  border: 1px solid color-mix(in srgb, var(--state-success) 45%, var(--surface-border));
+  border-radius: var(--radius-lg);
+  background:
+    radial-gradient(
+      40rem 20rem at 50% -20%,
+      color-mix(in srgb, var(--state-success) 16%, transparent),
+      transparent 70%
+    ),
+    var(--surface-1);
+  box-shadow: var(--shadow-3), var(--glow-gold);
+}
+
+.reward-overlay__status {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.reward-overlay__eyebrow {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--text-scale-small);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--state-success);
+}
+
+.reward-overlay__points {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: var(--line-tight);
+}
+
+.reward-overlay__points-value {
+  font-family: var(--font-display);
+  font-size: var(--text-scale-hero);
+  color: var(--accent-gold);
+  text-shadow: var(--glow-gold);
+}
+
+.reward-overlay__points-label {
+  font-size: var(--text-scale-small);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.reward-overlay__body {
   display: flex;
   flex-direction: column;
   gap: var(--space-2xs);
 }
 
-.reward-reveal__pet-line {
+.reward-overlay__pet-line {
   margin: 0;
   color: var(--text-secondary);
 }
 
-.reward-reveal__pet {
+.reward-overlay__pet {
   flex: none;
+}
+
+.reward-overlay__countdown {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  margin: 0;
+  font-size: var(--text-scale-small);
+  color: var(--text-secondary);
+}
+
+.reward-overlay__countdown-num {
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  flex: none;
+  border-radius: var(--radius-pill);
+  font-family: var(--font-display);
+  color: var(--text-primary);
+  background:
+    radial-gradient(closest-side, var(--surface-1) 68%, transparent 70%),
+    conic-gradient(var(--state-success) var(--reward-ring, 0%), var(--surface-3) 0);
+}
+
+.reward-overlay__actions {
+  margin: 0;
+}
+
+@keyframes reward-overlay-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reward-overlay {
+    animation: none;
+  }
+}
+
+:root[data-reduced-motion="true"] .reward-overlay {
+  animation: none;
 }
 
 /* ── Grand Canvas finale ──────────────────────────────────────────────── */

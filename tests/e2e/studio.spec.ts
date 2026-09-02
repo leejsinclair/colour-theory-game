@@ -3,7 +3,7 @@
  * the accessible UI contract.
  */
 import { expect, test } from "@playwright/test";
-import { autoSolve, enterStudio, injectProgress, openMenuItem } from "./support";
+import { autoSolve, enterStudio, injectProgress, resetRun } from "./support";
 
 test.describe("studio & shell", () => {
   test("HUD shows score, pets and Grand-Canvas progress", async ({ page }) => {
@@ -94,7 +94,7 @@ test.describe("studio & shell", () => {
     await page.goto("/");
     await enterStudio(page);
     await autoSolve(page);
-    await openMenuItem(page, "Reset run");
+    await resetRun(page);
 
     await expect(page.getByRole("heading", { name: "Chromatic Mastery Studio", level: 1 })).toBeVisible();
     await expect(page.getByText("0 of 22 puzzles solved", { exact: false })).toBeVisible();

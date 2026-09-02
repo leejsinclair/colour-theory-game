@@ -37,17 +37,6 @@ describe("sessionReducer", () => {
     expect(expired.toasts.map((t) => t.id)).toEqual(["b"]);
   });
 
-  it("SUBMIT_RESULT appends toasts and can clear practice mode", () => {
-    const inPractice: SessionState = { ...initialSessionState, practicePuzzleId: "puzzle-04" };
-    const next = sessionReducer(inPractice, {
-      type: "SUBMIT_RESULT",
-      toasts: [toast("solve"), toast("pet")],
-      clearPractice: true,
-    });
-    expect(next.toasts.map((t) => t.id)).toEqual(["solve", "pet"]);
-    expect(next.practicePuzzleId).toBeNull();
-  });
-
   it("DISMISS_INTRO / REPLAY_INTRO / RESTORE_INTRO_SEEN drive the intro flags", () => {
     const replay = sessionReducer(initialSessionState, { type: "REPLAY_INTRO" });
     expect(replay.introReplayRequested).toBe(true);

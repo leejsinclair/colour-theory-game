@@ -7,8 +7,8 @@ import {
   activateAllBeams,
   enterStudio,
   injectProgress,
-  openMenuItem,
   passPuzzle01Quiz,
+  resetRun,
 } from "./support";
 
 test("a solved puzzle and quiz pass survive a reload", async ({ page }) => {
@@ -49,7 +49,7 @@ test("reset run clears the save and returns to a fresh game", async ({ page }) =
   await enterStudio(page);
   await expect(page.getByRole("button", { name: "Enter Value Sketchboard" })).toBeVisible();
 
-  await openMenuItem(page, "Reset run");
+  await resetRun(page);
   await expect(page.getByText("0 of 22 puzzles solved", { exact: false })).toBeVisible();
   await expect(page.getByRole("button", { name: "Enter Value Sketchboard" })).toHaveCount(0);
 
