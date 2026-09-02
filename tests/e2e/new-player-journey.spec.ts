@@ -113,4 +113,39 @@ test.describe("new player journey", () => {
     // All stations open for free revisiting.
     await expect(page.getByRole("button", { name: /Design Studio/ })).toBeEnabled();
   });
+
+  test("the finale is distinct, keeps its stats, and its bonus is applied once", async ({ page }) => {
+    await page.goto("/");
+    await enterStudio(page);
+    await autoSolve(page);
+
+    // Reads as a finale, not a puzzle screen: hero heading + preserved stats.
+    await expect(page.getByRole("heading", { name: "Grand Canvas", level: 1 })).toBeVisible();
+    await expect(page.getByText("Puzzles solved: 22")).toBeVisible();
+    await expect(page.getByText("Pets rescued: 22/22")).toBeVisible();
+    await expect(page.getByText(/^Best streak: \d+$/)).toBeVisible();
+
+    const scoreTile = page.getByRole("status").filter({ hasText: "Score" });
+    const scoreAtUnlock = (await scoreTile.textContent())?.replace(/\D/g, "");
+
+    // Leave and re-enter via the nav — the +200 finale bonus is not re-applied.
+    await page.getByRole("button", { name: "Return to Studio" }).click();
+    await expect(
+      page.getByRole("heading", { name: "Chromatic Mastery Studio", level: 1 }),
+    ).toBeVisible();
+    await page
+      .getByRole("navigation", { name: "Game navigation" })
+      .getByRole("link", { name: "Grand Canvas" })
+      .click();
+    await expect(page.getByRole("heading", { name: "Grand Canvas", level: 1 })).toBeVisible();
+    expect((await scoreTile.textContent())?.replace(/\D/g, "")).toBe(scoreAtUnlock);
+
+    // Every station is unlocked for free revisiting / practice.
+    await page.getByRole("button", { name: "Return to Studio" }).click();
+    for (const station of ["Light Laboratory", "Value Sketchboard", "Design Studio"]) {
+      await expect(
+        page.getByRole("button", { name: new RegExp(`(Enter|Continue) ${station}`) }),
+      ).toBeEnabled();
+    }
+  });
 });

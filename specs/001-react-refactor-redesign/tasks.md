@@ -261,15 +261,12 @@ Single repository. Web SPA under `src/web/`, domain core under `src/game/ src/sy
 
 ### Tests for User Story 6
 
-- [ ] T100 [P] [US6] Create `tests/component/GrandCanvasScreen.test.tsx` — stats (puzzles solved / pets rescued / best streak) + full pet roll via `PetBadge`; "Return to Studio" and "Review & practise puzzles" present; reduced-motion static branch
-- [ ] T101 [P] [US6] Add Grand Canvas coverage to `tests/e2e/new-player-journey.spec.ts` — unlock on final solve, +200 once, Return lands in an all-unlocked Studio (US6-2, Edge Cases)
+- [X] T100 [P] [US6] Created `tests/component/GrandCanvasScreen.test.tsx` — 3 tests: preserved stats ("Puzzles solved: 22" / "Pets rescued: 22/22" / `/^Best streak: \d+$/`) + full 22-pet roll via `PetBadge` (`role="img"`) + both actions; hero `<h1>` + "your progress is saved" reassurance = reads as a finale; `.ds-celebration` animated by default, `.ds-celebration--static` under emulated reduced motion.
+- [X] T101 [P] [US6] Added `tests/e2e/new-player-journey.spec.ts` › "the finale is distinct, keeps its stats, and its bonus is applied once" — auto-solve → hero heading + stats; capture the HUD Score tile, Return to Studio, re-enter via the "Grand Canvas" nav link, assert the Score is unchanged (the +200 is applied once at unlock); every station enterable for free revisit.
+- [X] T102 [US6] Redesigned `src/web/screens/GrandCanvasScreen.tsx` — a certificate-style `<Panel tone="success">` award card (gold border + `--glow-gold`, centred, one-shot `CelebrationBurst`), display-font stat tiles with `role="status"` captions, a titled pet roll via `PetGallery`, an explicit saved-progress / everything-unlocked reassurance line, and the "Return to Studio" + "Review & practise puzzles" actions. New `.grand-canvas__*` rules in `app.css` on design tokens. Both stat text strings the contract/e2e assert are preserved.
+- [X] T103 [US6] `GrandCanvasScreen` now calls `useReducedMotion()` and passes it to `CelebrationBurst`, which renders a static cluster (`ds-celebration--static`, no burst travel) under reduced motion — covered by the component test and the existing `feedback.spec.ts` reduced-motion path. Return/Review both navigate to `{ view: "studio" }`; the "every station enterable" assertion in the new e2e confirms the domain leaves all stations unlocked after completion.
 
-### Implementation for User Story 6
-
-- [ ] T102 [US6] Redesign `src/web/screens/GrandCanvasScreen.tsx` — distinctive finale layout on the shared design system: certificate treatment, stats, full pet roll, saved-progress reassurance, "Return to Studio" + "Review & practise puzzles" (FR-020, FR-040)
-- [ ] T103 [US6] Reduced-motion static treatment for the finale celebration (FR-047, SC-009, US6-3); confirm Return unlocks all stations for free revisit/practice
-
-**Checkpoint**: All user stories complete.
+**Checkpoint**: All user stories complete. ✅ — gate green: `npm run build` (tsc, incl. e2e specs), `npm run lint`, `npm test` (21 files / 246 tests, +3), `npm run build:web` (JS gzip 170.27 kB vs 219.0 baseline; CSS 6.87 kB gzip), `npm run test:e2e` (38 passed, +1 finale). No `src/` domain or CLI changes.
 
 ---
 

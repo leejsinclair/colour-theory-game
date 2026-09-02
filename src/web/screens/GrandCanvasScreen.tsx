@@ -1,19 +1,26 @@
 import { useMemo, type ReactElement } from "react";
-import { Button, Card, Heading } from "../design-system";
+import { Button, CelebrationBurst, Heading, Panel } from "../design-system";
 import { useProgress, usePets, useStations } from "../state/selectors";
 import { useHashRoute } from "../app/useHashRoute";
+import { useReducedMotion } from "../state/useReducedMotion";
 import { PetGallery, type GalleryPet } from "../components/PetGallery";
 
 /**
- * The finale (US1 functional). Preserved stats, the full pet roll, and the
- * return / review-practice actions. The +200 bonus is applied once by the
- * domain at unlock time. The distinctive certificate layout lands in US6 (T102).
+ * The finale (US1 functional, US6 visual). A certificate-style reward that reads
+ * as clearly distinct from a puzzle screen while staying on the shared design
+ * system: an award panel with a one-shot colour burst, the preserved stats, the
+ * full pet roll through the shared `PetBadge`, saved-progress reassurance, and
+ * the return / review-practise actions. The +200 bonus is applied once by the
+ * domain at unlock time. Under reduced motion `CelebrationBurst` renders a
+ * static cluster instead of the burst (FR-020, FR-040, FR-047, SC-009).
  */
+
 export function GrandCanvasScreen(): ReactElement {
   const progress = useProgress();
   const pets = usePets();
   const stations = useStations();
   const { navigate } = useHashRoute();
+  const reducedMotion = useReducedMotion();
 
   const toStudio = (): void => navigate({ view: "studio" });
 
@@ -28,26 +35,55 @@ export function GrandCanvasScreen(): ReactElement {
     }));
   }, [pets, stations]);
 
+  const stats: ReadonlyArray<{ key: string; value: string; caption: string }> = [
+    { key: "solved", value: `${progress.solved}`, caption: `Puzzles solved: ${progress.solved}` },
+    {
+      key: "pets",
+      value: `${progress.petsCollected}/${pets.length}`,
+      caption: `Pets rescued: ${progress.petsCollected}/${pets.length}`,
+    },
+    { key: "streak", value: `${progress.bestStreak}`, caption: `Best streak: ${progress.bestStreak}` },
+  ];
+
   return (
-    <section className="screen">
-      <Heading level={1} size="hero">
-        Grand Canvas
-      </Heading>
-      <p className="screen__lede">
-        Every puzzle solved, every Chromatic Pet freed. Your progress is saved — revisit any station
-        to review a lesson or practise.
+    <section className="screen grand-canvas">
+      <Panel tone="success" className="grand-canvas__award">
+        <CelebrationBurst reducedMotion={reducedMotion} playKey="grand-canvas" />
+        <div className="grand-canvas__award-body">
+          <p className="grand-canvas__eyebrow">Chromatic Mastery — complete</p>
+          <Heading level={1} size="hero" className="grand-canvas__title">
+            Grand Canvas
+          </Heading>
+          <p className="grand-canvas__lede">
+            Every puzzle solved, every Chromatic Pet freed. The studio is yours.
+          </p>
+
+          <ul className="grand-canvas__stats">
+            {stats.map((stat) => (
+              <li key={stat.key} className="grand-canvas__stat">
+                <span className="grand-canvas__stat-value" aria-hidden="true">
+                  {stat.value}
+                </span>
+                <span className="grand-canvas__stat-caption" role="status">
+                  {stat.caption}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </Panel>
+
+      <div className="grand-canvas__roll">
+        <Heading level={2} size="2">
+          The Chromatic Pets
+        </Heading>
+        <PetGallery pets={rollPets} label="Pet rescue roll" />
+      </div>
+
+      <p className="grand-canvas__saved">
+        Your progress is saved — every station is open now, so revisit any of them to review a lesson
+        or practise a puzzle.
       </p>
-
-      <Card as="div">
-        <p role="status">Puzzles solved: {progress.solved}</p>
-        <p role="status">
-          Pets rescued: {progress.petsCollected}/{pets.length}
-        </p>
-        <p role="status">Best streak: {progress.bestStreak}</p>
-      </Card>
-
-      <PetGallery pets={rollPets} label="Pet rescue roll" />
-
 
       <div className="screen__actions">
         <Button onClick={toStudio}>Return to Studio</Button>
