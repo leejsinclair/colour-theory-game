@@ -26,7 +26,7 @@ export const PET_SPRITE_CENTRES: Record<string, { cx: number; cy: number }> = {
   "pet-20": { cx: 535, cy: 302 },
   "pet-21": { cx: 632, cy: 302 },
   // pet-22 coordinates are reserved for when the sprite is added to pets.png (row 4, col 1).
-  // Until then, createPetSpriteDiv uses the standalone pet-22.svg placeholder.
+  // Until then, getPetSprite uses the standalone pet-22.svg placeholder.
   "pet-22": { cx: 48, cy: 422 },
 };
 
@@ -77,9 +77,9 @@ export type PetSpriteDescriptor = {
 };
 
 /**
- * React-friendly counterpart to `createPetSpriteDiv` — returns the same sprite
- * crop as inline style props for `<PetBadge>` (T030). The DOM builder stays for
- * the legacy shell until it is retired.
+ * Returns a pet's sprite crop as inline style props for `<PetBadge>` (T030).
+ * The imperative DOM builder that this replaced was retired with the legacy
+ * shell in US5 (T099).
  */
 export function getPetSprite(
   petId: string,
@@ -126,51 +126,4 @@ export function getPetSprite(
       backgroundPosition: `${posX}% ${posY}%`,
     },
   };
-}
-
-/** Build a CSS-sprite div for one pet slot. */
-export function createPetSpriteDiv(
-  petId: string,
-  collected: boolean,
-  options: { includeLabel?: boolean } = {},
-): HTMLDivElement {
-  const sprite = document.createElement("div");
-  const centre = PET_SPRITE_CENTRES[petId] ?? { cx: 48, cy: 62 };
-  const includeLabel = options.includeLabel ?? true;
-  const cropHalf = PET_SPRITE_LARGE_CROP.has(petId) ? 44 : 40;
-  const cropWidth = cropHalf * 2;
-  const cropHeight = cropWidth + (includeLabel ? 24 : 0);
-
-  sprite.className = "pet-sprite";
-  if (!collected) {
-    sprite.classList.add("pet-sprite--locked");
-  }
-  sprite.setAttribute("role", "img");
-  sprite.setAttribute("aria-label", `${PET_NAMES[petId] ?? petId}${collected ? " (collected)" : ""}`);
-  sprite.style.backgroundColor = collected ? "#ffffff" : "#d8dbe3";
-
-  // pet-22 uses a standalone SVG placeholder until its sprite is added to pets.png.
-  if (petId === "pet-22") {
-    sprite.style.backgroundImage = "url(assets/pets/pet-22.svg)";
-    sprite.style.backgroundRepeat = "no-repeat";
-    sprite.style.backgroundSize = "contain";
-    sprite.style.backgroundPosition = `center ${includeLabel ? "4px" : "center"}`;
-    return sprite;
-  }
-
-  const cropX = centre.cx - cropHalf;
-  const cropY = centre.cy - cropHalf;
-  const scaleX = PET_SPRITE_NATURAL_WIDTH / cropWidth;
-  const scaleY = PET_SPRITE_NATURAL_HEIGHT / cropHeight;
-  // Position based on crop rectangle origin so labels remain in frame.
-  const posX = ((-cropX / cropWidth) / (1 - scaleX)) * 100;
-  const posY = ((-cropY / cropHeight) / (1 - scaleY)) * 100;
-
-  sprite.style.backgroundImage = `url(${PET_SPRITE_HREF})`;
-  sprite.style.backgroundRepeat = "no-repeat";
-  sprite.style.backgroundSize = `${scaleX * 100}% ${scaleY * 100}%`;
-  sprite.style.backgroundPosition = `${posX}% ${posY}%`;
-  sprite.style.backgroundColor = collected ? "#ffffff" : "#d8dbe3";
-
-  return sprite;
 }

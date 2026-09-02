@@ -519,11 +519,7 @@ a.ds-visually-hidden.ds-focusable:focus-visible {
 }
 
 .reward-reveal__pet {
-  width: 72px;
-  height: 72px;
   flex: none;
-  border-radius: var(--radius-md);
-  background-color: #fff;
 }
 
 /* ── Toast host ───────────────────────────────────────────────────────── */
@@ -554,37 +550,131 @@ a.ds-visually-hidden.ds-focusable:focus-visible {
   border-color: var(--state-success);
 }
 
-/* ── Pet grid ─────────────────────────────────────────────────────────── */
-.pet-grid {
+/* ── Pet badge + gallery ──────────────────────────────────────────────── */
+.pet-gallery {
   display: grid;
-  gap: var(--space-md);
-  grid-template-columns: repeat(auto-fill, minmax(6rem, 1fr));
+  gap: var(--space-lg) var(--space-md);
+  grid-template-columns: repeat(auto-fill, minmax(6.5rem, 1fr));
   list-style: none;
   padding: 0;
-  margin: 0;
+  margin: var(--space-lg) 0 0;
 }
 
-.pet-grid__cell {
+.pet-gallery__cell {
+  display: flex;
+  justify-content: center;
+}
+
+.collection__progress {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2xs);
+  max-width: 24rem;
+  margin-top: var(--space-md);
+}
+
+.collection__count {
+  margin: 0;
+  font-size: var(--text-scale-small);
+  color: var(--text-secondary);
+}
+
+.pet-badge {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--space-2xs);
+  gap: var(--space-xs);
+  margin: 0;
   text-align: center;
 }
 
-.pet-grid__sprite {
+.pet-badge__frame {
+  position: relative;
+  display: grid;
+  place-items: center;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--surface-border);
+  background-color: var(--surface-2);
+  overflow: hidden;
+  transition: transform var(--motion-fast) var(--ease-standard),
+    box-shadow var(--motion-fast) var(--ease-standard);
+}
+
+.pet-badge--sm .pet-badge__frame {
+  width: 44px;
+  height: 44px;
+}
+
+.pet-badge--md .pet-badge__frame {
   width: 72px;
   height: 72px;
-  border-radius: var(--radius-md);
-  background-color: var(--surface-2);
 }
 
-.pet-grid__sprite--locked {
-  filter: grayscale(1) brightness(0.4);
+.pet-badge--lg .pet-badge__frame {
+  width: 112px;
+  height: 112px;
 }
 
-.pet-grid__name {
+.pet-badge__sprite {
+  width: 100%;
+  height: 100%;
+}
+
+.pet-badge__frame:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.pet-badge--collected .pet-badge__frame:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--glow-secondary);
+}
+
+.pet-badge--locked .pet-badge__frame {
+  border-style: dashed;
+  border-color: var(--surface-border-strong);
+}
+
+/* Locked pets read as a pure silhouette — the design is not revealed. */
+.pet-badge--locked .pet-badge__sprite {
+  filter: brightness(0) opacity(0.55);
+}
+
+.pet-badge__lock {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  color: var(--text-secondary);
+}
+
+.pet-badge__caption {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3xs);
+  max-width: 8rem;
+}
+
+.pet-badge__name {
   font-size: var(--text-scale-small);
+  color: var(--text-primary);
+}
+
+.pet-badge--locked .pet-badge__name {
+  color: var(--text-muted);
+}
+
+.pet-badge__origin {
+  font-size: var(--text-scale-small);
+  color: var(--text-muted);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pet-badge--collected .pet-badge__frame:hover {
+    transform: none;
+  }
 }
 
 /* ── Info modal body ──────────────────────────────────────────────────── */

@@ -240,16 +240,16 @@ Single repository. Web SPA under `src/web/`, domain core under `src/game/ src/sy
 
 ### Tests for User Story 5
 
-- [ ] T095 [P] [US5] Create `tests/component/PetBadge.test.tsx` — locked silhouette vs unlocked (name + origin), visible focus state, accessible label per `contracts/ui-contract.md` §Collection
-- [ ] T096 [P] [US5] Add `tests/e2e/collection.spec.ts` — collection at fresh / partial / complete progress; locked vs unlocked treatment
+- [X] T095 [P] [US5] Create `tests/component/PetBadge.test.tsx` — locked silhouette vs unlocked (name + origin), visible focus state, accessible label per `contracts/ui-contract.md` §Collection. 3 tests: unlocked art + `tabindex="0"` + name/origin caption; locked silhouette with `?` glyph + `???` (name hidden); `focusable={false}` drops the tab stop and honours a `label` override.
+- [X] T096 [P] [US5] Add `tests/e2e/collection.spec.ts` — 4 tests: fresh (22 locked silhouettes, "0 of 22 freed"), partial (puzzle-01 → exactly Glow Sprite freed, 21 locked), keyboard-focus a freed tile, complete (22/22, 0 locked — reached via the finale's nav since a done game boots to Grand Canvas).
 
 ### Implementation for User Story 5
 
-- [ ] T097 [P] [US5] Build `src/web/components/PetBadge.tsx` — THE reusable pet component: locked silhouette / unlocked art (via `getPetSprite`), hover/focus, name, origin puzzle+station, `size` + `showLabel` props (FR-038)
-- [ ] T098 [US5] Build `src/web/components/PetGallery.tsx` and redesign `src/web/screens/CollectionScreen.tsx` — game-like gallery, silhouettes that don't reveal the full design, "<pet> — from <station>" labels (FR-039, US5-1, US5-2)
-- [ ] T099 [US5] Replace ad-hoc pet rendering in `HUD.tsx`, `RewardReveal.tsx` and `GrandCanvasScreen.tsx` with `PetBadge`; remove the legacy DOM builder from `src/web/petSprites.ts` if now unused (FR-038, US5-4)
+- [X] T097 [P] [US5] Build `src/web/components/PetBadge.tsx` — THE reusable pet component: `<figure>` + `role="img"` frame (keyboard tab stop unless `focusable={false}`), unlocked art via `getPetSprite`, locked = pure silhouette (`filter: brightness(0)`) + `?` glyph so the design isn't revealed, `size` (`sm`/`md`/`lg`) + `showLabel` + `origin` + `label` props, focus ring + hover glow, reduced-motion branch (FR-038)
+- [X] T098 [US5] Build `src/web/components/PetGallery.tsx` (grid of `PetBadge`, caller resolves origin) and redesign `src/web/screens/CollectionScreen.tsx` — lede + `ProgressBar` ("N of 22 freed") + gallery with "<pet> — from <station>" / "Locked pet — solve a puzzle in <station> to reveal" labels; new `.pet-badge` / `.pet-gallery` / `.collection__*` tokens replace the old `.pet-grid*` rules in `app.css` (FR-039, US5-1, US5-2)
+- [X] T099 [US5] `RewardReveal.tsx` and `GrandCanvasScreen.tsx` now render pets via `PetBadge`/`PetGallery`; `HUD.tsx` shows only a count (no sprite) so it was already clean. Removed the legacy DOM builder `createPetSpriteDiv` from `src/web/petSprites.ts` and its only (dead, unreferenced) consumer `src/web/CompletionCertificate.tsx` (FR-038, US5-4)
 
-**Checkpoint**: Pets are a cohesive collectible surface everywhere.
+**Checkpoint**: Pets are a cohesive collectible surface everywhere. ✅ — gate green: `npm run build` (tsc), `npm run lint`, `npm test` (20 files / 243 tests, +3), `npm run build:web` (JS gzip 170.08 kB vs 219.0 baseline; CSS 6.67 kB gzip), `npm run test:e2e` (37 passed, +4 collection). One dead file removed (`CompletionCertificate.tsx`); no `src/` domain or CLI changes.
 
 ---
 

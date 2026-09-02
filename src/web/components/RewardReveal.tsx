@@ -1,6 +1,6 @@
 import { useMemo, type ReactElement } from "react";
 import { Button, CelebrationBurst, Panel } from "../design-system";
-import { getPetSprite } from "../petSprites";
+import { PetBadge } from "./PetBadge";
 
 /**
  * Brief, non-blocking success celebration (FR-033, FR-047, US4-1, US4-2).
@@ -47,7 +47,6 @@ export function RewardReveal({
   continueLabel = "Continue",
   message,
 }: RewardRevealProps): ReactElement {
-  const sprite = petId ? getPetSprite(petId, true) : null;
   const headline = useMemo(
     () => message ?? pickEncouragement(petId ?? scoreReason),
     [message, petId, scoreReason],
@@ -57,12 +56,15 @@ export function RewardReveal({
     <Panel tone="success" className="reward-reveal" role="status">
       <CelebrationBurst reducedMotion={reducedMotion} playKey={petId ?? scoreReason} />
 
-      {sprite && petName ? (
-        <span
+      {petId && petName ? (
+        <PetBadge
+          petId={petId}
+          name={petName}
+          collected
+          size="md"
+          focusable={false}
+          label={`${petName} collected`}
           className="reward-reveal__pet"
-          role="img"
-          aria-label={`${petName} collected`}
-          style={sprite.style}
         />
       ) : null}
 

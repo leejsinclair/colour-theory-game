@@ -1,8 +1,8 @@
-import type { ReactElement } from "react";
+import { useMemo, type ReactElement } from "react";
 import { Button, Card, Heading } from "../design-system";
-import { useProgress, usePets } from "../state/selectors";
+import { useProgress, usePets, useStations } from "../state/selectors";
 import { useHashRoute } from "../app/useHashRoute";
-import { getPetSprite } from "../petSprites";
+import { PetGallery, type GalleryPet } from "../components/PetGallery";
 
 /**
  * The finale (US1 functional). Preserved stats, the full pet roll, and the
@@ -12,9 +12,21 @@ import { getPetSprite } from "../petSprites";
 export function GrandCanvasScreen(): ReactElement {
   const progress = useProgress();
   const pets = usePets();
+  const stations = useStations();
   const { navigate } = useHashRoute();
 
   const toStudio = (): void => navigate({ view: "studio" });
+
+  const rollPets = useMemo<GalleryPet[]>(() => {
+    const stationName = (id: string): string =>
+      stations.find((station) => station.id === id)?.name ?? "the studio";
+    return pets.map((pet) => ({
+      id: pet.id,
+      name: pet.name,
+      collected: pet.collected,
+      origin: stationName(pet.originStationId),
+    }));
+  }, [pets, stations]);
 
   return (
     <section className="screen">
@@ -34,22 +46,8 @@ export function GrandCanvasScreen(): ReactElement {
         <p role="status">Best streak: {progress.bestStreak}</p>
       </Card>
 
-      <ul className="pet-grid" aria-label="Pet rescue roll">
-        {pets.map((pet) => {
-          const sprite = getPetSprite(pet.id, pet.collected);
-          return (
-            <li key={pet.id} className="pet-grid__cell">
-              <span
-                className={`pet-grid__sprite${pet.collected ? "" : " pet-grid__sprite--locked"}`}
-                role="img"
-                aria-label={pet.collected ? `${pet.name} rescued` : `${pet.name} not rescued`}
-                style={sprite.style}
-              />
-              <span className="pet-grid__name">{pet.name}</span>
-            </li>
-          );
-        })}
-      </ul>
+      <PetGallery pets={rollPets} label="Pet rescue roll" />
+
 
       <div className="screen__actions">
         <Button onClick={toStudio}>Return to Studio</Button>
