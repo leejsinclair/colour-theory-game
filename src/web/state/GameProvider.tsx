@@ -1,4 +1,4 @@
-import { useMemo, useReducer, useRef, type ReactElement, type ReactNode } from "react";
+import { useMemo, useReducer, useState, type ReactElement, type ReactNode } from "react";
 import { createGameStore } from "./gameStore";
 import { createGameActions } from "./actions";
 import { initialSessionState, sessionReducer } from "./sessionReducer";
@@ -17,8 +17,7 @@ function PersistenceBridge(): null {
 }
 
 export function GameProvider({ children }: { children: ReactNode }): ReactElement {
-  const storeRef = useRef(createGameStore());
-  const store = storeRef.current;
+  const [store] = useState(createGameStore);
 
   const [sessionState, dispatch] = useReducer(sessionReducer, initialSessionState);
 

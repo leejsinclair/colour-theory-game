@@ -60,11 +60,9 @@ function nextUnlockedStationAfter(store: GameStore, stationId: string): string |
 export type GameActionsDeps = {
   store: GameStore;
   dispatchSession: Dispatch<SessionAction>;
-  /** Told when the domain has advanced far enough that persistence should run. */
-  onProgressed?: () => void;
 };
 
-export function createGameActions({ store, dispatchSession, onProgressed }: GameActionsDeps): GameActions {
+export function createGameActions({ store, dispatchSession }: GameActionsDeps): GameActions {
   const submitPuzzle = (puzzleId: string, input: unknown): SubmitResult => {
     const game = store.getGame();
     const puzzle = game.puzzleManager.getPuzzle(puzzleId);
@@ -88,14 +86,13 @@ export function createGameActions({ store, dispatchSession, onProgressed }: Game
       return { ok: false, diagnosis: buildDiagnosis(puzzleId, input) };
     }
 
-    const stationCompleted = scoreEvent.reason.includes("Station Complete");
+    const stationCompleted = scoreEvent.stationCompleted === true;
     const grandCanvasUnlocked = game.getProgress().finalCanvasUnlocked;
-    const petId = scoreEvent.reason.includes("Pet Rescued") && puzzle ? puzzle.rewardPetId : null;
+    const petId = scoreEvent.petRescued && puzzle ? puzzle.rewardPetId : null;
     const nextStationId =
       stationCompleted && puzzle ? nextUnlockedStationAfter(store, puzzle.stationId) : null;
 
     store.notify();
-    onProgressed?.();
 
     return {
       ok: true,
@@ -114,10 +111,10 @@ export function createGameActions({ store, dispatchSession, onProgressed }: Game
       return { ok: false, diagnosis: buildDiagnosis(puzzleId, input) };
     }
 
-    const scoreEvent = game.practiceComplete(puzzleId, true) ?? {
-      delta: 0,
-      reason: "Practice cap reached for this puzzle",
-    };
+    const scoreEvent = game.practiceComplete(puzzleId, true);
+    if (!scoreEvent) {
+      return { ok: false, diagnosis: buildDiagnosis(puzzleId, input) };
+    }
     store.notify();
 
     return {
@@ -136,7 +133,6 @@ export function createGameActions({ store, dispatchSession, onProgressed }: Game
       return;
     }
     store.setLearning({ ...current, [puzzleId]: { quizPassed: true } });
-    onProgressed?.();
   };
 
   const reset = (): void => {
@@ -147,7 +143,6 @@ export function createGameActions({ store, dispatchSession, onProgressed }: Game
 
   const markIntroSeen = (): void => {
     dispatchSession({ type: "DISMISS_INTRO" });
-    onProgressed?.();
   };
 
   const autoSolveJourney = async (): Promise<void> => {
@@ -161,7 +156,6 @@ export function createGameActions({ store, dispatchSession, onProgressed }: Game
       submitPuzzle(puzzleId, getDemoSolution(puzzleId));
       recordQuizPass(puzzleId);
     }
-    await Promise.resolve();
   };
 
   return { submitPuzzle, practiceSubmit, recordQuizPass, reset, markIntroSeen, autoSolveJourney };

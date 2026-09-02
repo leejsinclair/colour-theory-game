@@ -81,6 +81,20 @@ describe("persistenceSync", () => {
     });
   });
 
+  it("reset does not let a trailing debounced save re-create an empty blob", async () => {
+    window.localStorage.setItem(LOCAL_SAVE_KEY, JSON.stringify(legacySave));
+    mount();
+    await waitFor(() => expect(screen.getByTestId("solved").textContent).toBe("10"));
+
+    screen.getByRole("button", { name: "reset" }).click();
+    await waitFor(() => expect(screen.getByTestId("solved").textContent).toBe("0"));
+
+    // Let every debounced save settle while still mounted — storage must stay clear
+    // so the next load treats this as a first run, not a returning player.
+    await new Promise((resolve) => setTimeout(resolve, 800));
+    expect(window.localStorage.getItem(LOCAL_SAVE_KEY)).toBeNull();
+  });
+
   it("reset then remount returns to a fresh state", async () => {
     window.localStorage.setItem(LOCAL_SAVE_KEY, JSON.stringify(legacySave));
     const view = mount();

@@ -58,6 +58,9 @@ export function usePersistenceSync(): void {
   const hadStoredSnapshot = useRef(false);
   const restored = useRef(false);
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const sessionRef = useRef(session);
+  sessionRef.current = session;
+  const scheduleSaveRef = useRef<() => void>(() => {});
 
   // ── Load / restore (once) ────────────────────────────────────────────────
   useEffect(() => {
@@ -117,32 +120,26 @@ export function usePersistenceSync(): void {
     }
   }, [store, dispatch]);
 
-  // ── Debounced save on snapshot / session change ─────────────────────────
+  // ── Debounced save ─────────────────────────────────────────────────────
+  // Subscribed once. `store.subscribe` covers every domain mutation; the
+  // effect below adds the persisted session fields that don't notify the store.
   useEffect(() => {
-    const unsubscribe = store.subscribe(scheduleSave);
-    scheduleSave();
-    return () => {
-      unsubscribe();
-      if (saveTimer.current) {
-        clearTimeout(saveTimer.current);
-      }
-    };
+    const runSave = (): void => {
+      saveTimer.current = null;
+      const currentSession = sessionRef.current;
 
-    function scheduleSave(): void {
-      if (saveTimer.current) {
-        clearTimeout(saveTimer.current);
-      }
-      saveTimer.current = setTimeout(runSave, SAVE_DEBOUNCE_MS);
-    }
-
-    function runSave(): void {
-      if (session.skipNextPersist) {
+      if (currentSession.skipNextPersist) {
+        // A forced reset already cleared storage. Swallow this write and re-arm
+        // the "nothing worth saving" guard so a trailing save can't re-create an
+        // empty blob and make the reset user look like a returning one (bug: a
+        // reactive re-render used to schedule exactly that second save).
+        hadStoredSnapshot.current = false;
         dispatch({ type: "CONSUME_SKIP_PERSIST" });
         return;
       }
 
       const progress = store.getSnapshot().progress;
-      const introDone = session.introDismissedThisSession || progress.solved > 0;
+      const introDone = currentSession.introDismissedThisSession || progress.solved > 0;
 
       // Don't clobber a corrupt-but-present (or absent) blob until there is
       // something worth saving (Edge Cases).
@@ -153,7 +150,7 @@ export function usePersistenceSync(): void {
       const payload: LocalProgressSnapshot = {
         completedPuzzleIds: solvedPuzzleIds(store),
         activeStationId: stationIdFromHash(),
-        practicePuzzleId: session.practicePuzzleId,
+        practicePuzzleId: currentSession.practicePuzzleId,
         learningProgressByPuzzle: store.getLearning(),
         introSeen: introDone ? true : undefined,
         lastRoute:
@@ -163,6 +160,44 @@ export function usePersistenceSync(): void {
       };
       saveLocalProgress(payload);
       hadStoredSnapshot.current = true;
-    }
-  }, [store, session, dispatch]);
+    };
+
+    const scheduleSave = (): void => {
+      if (saveTimer.current) {
+        clearTimeout(saveTimer.current);
+      }
+      saveTimer.current = setTimeout(runSave, SAVE_DEBOUNCE_MS);
+    };
+
+    scheduleSaveRef.current = scheduleSave;
+    const unsubscribe = store.subscribe(scheduleSave);
+    scheduleSave();
+
+    const flush = (): void => {
+      if (saveTimer.current) {
+        clearTimeout(saveTimer.current);
+        runSave();
+      }
+    };
+    window.addEventListener("hashchange", scheduleSave);
+    window.addEventListener("pagehide", flush);
+    document.addEventListener("visibilitychange", flush);
+
+    return () => {
+      unsubscribe();
+      window.removeEventListener("hashchange", scheduleSave);
+      window.removeEventListener("pagehide", flush);
+      document.removeEventListener("visibilitychange", flush);
+      scheduleSaveRef.current = () => {};
+      if (saveTimer.current) {
+        clearTimeout(saveTimer.current);
+        saveTimer.current = null;
+      }
+    };
+  }, [store, dispatch]);
+
+  // Persisted session fields that `store.subscribe` doesn't cover.
+  useEffect(() => {
+    scheduleSaveRef.current();
+  }, [session.practicePuzzleId, session.introDismissedThisSession]);
 }

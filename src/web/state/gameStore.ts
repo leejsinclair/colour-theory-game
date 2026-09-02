@@ -96,7 +96,61 @@ function toPuzzleUiState(state: PuzzleState): PuzzleUiState {
   return "available";
 }
 
-function buildSnapshot(game: Game, learning: LearningProgress): GameSnapshot {
+/**
+ * Deep-compare `next` against `prev` and return `prev`'s subtree wherever the
+ * two are structurally equal, so unchanged slices (and their nested objects)
+ * keep their identity across a rebuild. This is what makes the field-slice
+ * selectors in `selectors.ts` skip re-renders when an unrelated field changed.
+ */
+function reconcile<T>(prev: T, next: T): T {
+  if (Object.is(prev, next)) {
+    return prev;
+  }
+  if (Array.isArray(prev) && Array.isArray(next)) {
+    if (prev.length !== next.length) {
+      return next;
+    }
+    let changed = false;
+    const merged = next.map((item, index) => {
+      const reconciled = reconcile(prev[index], item);
+      changed ||= !Object.is(reconciled, prev[index]);
+      return reconciled;
+    });
+    return (changed ? merged : prev) as T;
+  }
+  if (
+    prev === null ||
+    next === null ||
+    typeof prev !== "object" ||
+    typeof next !== "object" ||
+    Array.isArray(prev) ||
+    Array.isArray(next)
+  ) {
+    return next;
+  }
+
+  const prevRecord = prev as Record<string, unknown>;
+  const nextRecord = next as Record<string, unknown>;
+  const nextKeys = Object.keys(nextRecord);
+  if (nextKeys.length !== Object.keys(prevRecord).length) {
+    return next;
+  }
+
+  let changed = false;
+  const merged: Record<string, unknown> = {};
+  for (const key of nextKeys) {
+    const reconciled = reconcile(prevRecord[key], nextRecord[key]);
+    merged[key] = reconciled;
+    changed ||= !Object.is(reconciled, prevRecord[key]);
+  }
+  return (changed ? merged : prev) as T;
+}
+
+function buildSnapshot(
+  game: Game,
+  learning: LearningProgress,
+  prev?: GameSnapshot,
+): GameSnapshot {
   const domainProgress = game.getProgress();
   const stationEntities = game.stationManager.getAllStations();
   const collectedPetIds = new Set(game.petManager.getUnlockedPets().map((pet) => pet.id));
@@ -164,13 +218,15 @@ function buildSnapshot(game: Game, learning: LearningProgress): GameSnapshot {
     petMilestonesUnlocked: domainProgress.petMilestonesUnlocked,
   };
 
-  return {
+  const next: GameSnapshot = {
     progress,
     stations,
     pets,
     learning,
     recommendedNext: computeRecommendedNext(stations, progress),
   };
+
+  return prev ? reconcile(prev, next) : next;
 }
 
 /**
@@ -214,7 +270,7 @@ export function createGameStore(): GameStore {
   let snapshot: GameSnapshot = buildSnapshot(game, learning);
 
   const notify = (): void => {
-    snapshot = buildSnapshot(game, learning);
+    snapshot = buildSnapshot(game, learning, snapshot);
     for (const listener of listeners) {
       listener();
     }

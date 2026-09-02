@@ -124,6 +124,28 @@ describe("Gamification scoring", () => {
     expect(game.getProgress().score).toBeGreaterThanOrEqual(125 * 3 + 50);
   });
 
+  test("completePuzzle reports structured milestone flags", () => {
+    const game = new Game();
+    game.initialize();
+
+    const first = game.completePuzzle("puzzle-01", getDemoSolution("puzzle-01"));
+    expect(first).toMatchObject({ petRescued: true, stationCompleted: false });
+
+    game.completePuzzle("puzzle-02", getDemoSolution("puzzle-02"));
+    const closing = game.completePuzzle("puzzle-03", getDemoSolution("puzzle-03"));
+    expect(closing).toMatchObject({ petRescued: true, stationCompleted: true });
+
+    let sawGrandCanvasFlag = false;
+    for (const puzzleId of getPuzzleIds(game)) {
+      const event = game.completePuzzle(puzzleId, getDemoSolution(puzzleId));
+      if (event?.grandCanvasUnlocked) {
+        sawGrandCanvasFlag = true;
+      }
+    }
+    expect(sawGrandCanvasFlag).toBe(true);
+    expect(game.getProgress().finalCanvasUnlocked).toBe(true);
+  });
+
   test("final canvas unlock awards +200 bonus", () => {
     const game = new Game();
     game.initialize();

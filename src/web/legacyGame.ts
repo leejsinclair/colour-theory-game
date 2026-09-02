@@ -491,12 +491,12 @@ function addCheckButton(wrapper: HTMLDivElement, puzzleId: string, inputFactory:
 
     showToast(scoreEvent.reason, { kind: "success", icon: "🏆" });
 
-    if (scoreEvent.reason.includes("Pet Rescued") && puzzleMeta) {
+    if (scoreEvent.petRescued && puzzleMeta) {
       const petName = PET_NAMES[puzzleMeta.rewardPetId] ?? "New Pet";
       showToast(`Pet unlocked: ${petName}`, { kind: "success", petId: puzzleMeta.rewardPetId });
     }
 
-    if (scoreEvent.reason.includes("Station Complete") && puzzleMeta) {
+    if (scoreEvent.stationCompleted && puzzleMeta) {
       const stationName = game.stationManager.getStation(puzzleMeta.stationId)?.name ?? "Station";
       showToast(`Level complete: ${stationName}`, { kind: "success", icon: "✅" });
     }
