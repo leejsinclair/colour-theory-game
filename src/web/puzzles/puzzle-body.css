@@ -121,6 +121,8 @@
 /* ── Colour preview strip ────────────────────────────────────────────────── */
 .color-preview-row {
   display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
   align-items: center;
   gap: var(--space-sm);
   margin-top: var(--space-2xs);
@@ -135,8 +137,8 @@
 }
 
 .color-preview-swatch {
-  width: 40px;
-  height: 40px;
+  width: clamp(112px, 34vw, 160px);
+  height: clamp(112px, 34vw, 160px);
 }
 
 .accent-chip {
@@ -160,6 +162,10 @@
 }
 
 /* ── Puzzle-01 beams ─────────────────────────────────────────────────────── */
+.beam-btns {
+  justify-content: center;
+}
+
 .beam-btn {
   min-height: var(--touch-min);
   padding: var(--space-xs) var(--space-md);

@@ -410,6 +410,26 @@ a.ds-visually-hidden.ds-focusable:focus-visible {
 
 .puzzle-stage__play {
   position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-md);
+  width: 100%;
+  max-width: 42rem;
+  margin: 0 auto;
+  padding: clamp(var(--space-md), 4vw, var(--space-xl));
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-lg);
+  background-color: var(--surface-inset);
+}
+
+/* Centre each puzzle's own control group within the framed stage. */
+.puzzle-stage__play > * {
+  width: 100%;
+}
+
+.puzzle-stage__play .check-row {
+  justify-content: center;
 }
 
 .learning-card {
@@ -418,10 +438,70 @@ a.ds-visually-hidden.ds-focusable:focus-visible {
   gap: var(--space-md);
 }
 
+.learning-card__illustration {
+  padding: var(--space-sm);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-lg);
+  background-color: var(--surface-inset);
+}
+
 .learning-card__illustration svg {
+  display: block;
   max-width: 100%;
   height: auto;
   border-radius: var(--radius-md);
+}
+
+.learning-card__lede {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.learning-card__goal {
+  margin: 0;
+  padding: var(--space-xs) var(--space-md);
+  border-left: 3px solid var(--accent-secondary);
+  border-radius: var(--radius-sm);
+  background-color: var(--surface-2);
+}
+
+.learning-card__goal-label {
+  font-weight: 700;
+  color: var(--accent-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: var(--text-scale-small);
+}
+
+.learning-card__terms {
+  display: grid;
+  gap: var(--space-2xs) var(--space-md);
+  margin: 0;
+}
+
+.learning-card__terms div {
+  display: grid;
+  grid-template-columns: minmax(6rem, max-content) 1fr;
+  gap: var(--space-sm);
+}
+
+.learning-card__terms dt {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.learning-card__terms dd {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: var(--text-scale-small);
+}
+
+@media (max-width: 30rem) {
+  .learning-card__terms div {
+    grid-template-columns: 1fr;
+    gap: var(--space-3xs);
+  }
 }
 
 .learning-quiz__question {

@@ -3,11 +3,11 @@ import { Button, Card, Heading } from "../design-system";
 import { puzzleLearningContent } from "../../content/puzzleLearningContent";
 
 /**
- * Stage 1 of the learning gate (FR-016). Ports the intro card from the retired
- * `src/web/legacy/learningFlow.ts` into the React tree: title, illustration,
- * the two intro paragraphs, and the how-to-win / why-this-fails / key-terms
- * meta rows. "Start quiz" advances; the puzzle-screen nav row owns the single
- * "How this works" affordance.
+ * Stage 1 of the learning gate (FR-016). The intro card: title, illustration,
+ * a short "what you'll learn" lede, a compact goal line, and the key terms as a
+ * definition list. "Why this fails" lives in the failure panel now — it is not
+ * shown before the player has attempted anything. "Start quiz" advances; the
+ * puzzle-screen nav row owns the single "How this works" affordance.
  */
 
 export type LearningIntroProps = {
@@ -15,11 +15,21 @@ export type LearningIntroProps = {
   onStartQuiz: () => void;
 };
 
+function splitTerm(entry: string): [string, string] {
+  const idx = entry.indexOf(":");
+  if (idx === -1) {
+    return [entry, ""];
+  }
+  return [entry.slice(0, idx).trim(), entry.slice(idx + 1).trim()];
+}
+
 export function LearningIntro({ puzzleId, onStartQuiz }: LearningIntroProps): ReactElement | null {
   const learning = puzzleLearningContent[puzzleId];
   if (!learning) {
     return null;
   }
+
+  const terms = (learning.tooltips ?? []).map(splitTerm).filter(([, def]) => def.length > 0);
 
   return (
     <Card className="learning-card" aria-label={`Introduction: ${learning.title}`}>
@@ -33,24 +43,27 @@ export function LearningIntro({ puzzleId, onStartQuiz }: LearningIntroProps): Re
         dangerouslySetInnerHTML={{ __html: learning.illustrationSvg }}
       />
 
-      {learning.intro.map((paragraph, index) => (
-        <p key={index}>{paragraph}</p>
-      ))}
+      <div className="learning-card__lede">
+        {learning.intro.map((paragraph, index) => (
+          <p key={index}>{paragraph}</p>
+        ))}
+      </div>
 
       {learning.howToWin ? (
-        <p>
-          <strong>How to win:</strong> {learning.howToWin}
+        <p className="learning-card__goal">
+          <span className="learning-card__goal-label">Goal</span> {learning.howToWin}
         </p>
       ) : null}
-      {learning.whyFailed ? (
-        <p>
-          <strong>Why this fails:</strong> {learning.whyFailed}
-        </p>
-      ) : null}
-      {learning.tooltips && learning.tooltips.length > 0 ? (
-        <p>
-          <strong>Key terms:</strong> {learning.tooltips.join(" · ")}
-        </p>
+
+      {terms.length > 0 ? (
+        <dl className="learning-card__terms">
+          {terms.map(([term, def]) => (
+            <div key={term}>
+              <dt>{term}</dt>
+              <dd>{def}</dd>
+            </div>
+          ))}
+        </dl>
       ) : null}
 
       <div className="check-row">

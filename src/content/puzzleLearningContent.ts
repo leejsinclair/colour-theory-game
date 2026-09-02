@@ -20,8 +20,8 @@ function makePuzzleIllustration(label: string, c1: string, c2: string, c3: strin
   return `<svg viewBox="0 0 340 170" role="img" aria-label="${label} illustration" xmlns="http://www.w3.org/2000/svg">
     <defs>
       <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-        <stop offset="0%" stop-color="#ffffff"/>
-        <stop offset="100%" stop-color="#f3f6fa"/>
+        <stop offset="0%" stop-color="#1d1840"/>
+        <stop offset="100%" stop-color="#141031"/>
       </linearGradient>
       <linearGradient id="band" x1="0" y1="0" x2="1" y2="0">
         <stop offset="0%" stop-color="${c1}"/>
@@ -29,12 +29,12 @@ function makePuzzleIllustration(label: string, c1: string, c2: string, c3: strin
         <stop offset="100%" stop-color="${c3}"/>
       </linearGradient>
     </defs>
-    <rect x="2" y="2" width="336" height="166" rx="16" fill="url(#bg)" stroke="rgba(31,32,48,0.2)"/>
+    <rect x="2" y="2" width="336" height="166" rx="16" fill="url(#bg)" stroke="rgba(244,241,255,0.14)"/>
     <rect x="18" y="22" width="304" height="30" rx="10" fill="url(#band)" opacity="0.9"/>
     <circle cx="90" cy="102" r="28" fill="${c1}" opacity="0.85"/>
     <circle cx="170" cy="102" r="28" fill="${c2}" opacity="0.85"/>
     <circle cx="250" cy="102" r="28" fill="${c3}" opacity="0.85"/>
-    <text x="170" y="150" text-anchor="middle" font-size="15" font-family="Space Grotesk, sans-serif" fill="#1f2030">${label}</text>
+    <text x="170" y="150" text-anchor="middle" font-size="15" font-family="Space Grotesk, sans-serif" fill="#cfc7f0">${label}</text>
   </svg>`;
 }
 
