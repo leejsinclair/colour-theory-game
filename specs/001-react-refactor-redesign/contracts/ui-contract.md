@@ -105,14 +105,24 @@ Collection"; Grand Canvas → "Grand Canvas".
 - **Reduced motion**: with `prefers-reduced-motion: reduce` emulated, no screen
   has a looping animation and the celebration is a static state (SC-009).
 
-## Contrast matrix (WCAG AA — filled during design-system work)
+## Contrast matrix (WCAG AA — verified T093, 2026-09-02)
 
-| Token pair | Usage | Ratio | Pass |
-|---|---|---|---|
-| `--text-primary` on `--bg-base` | body text | ≥ 4.5 | ☐ |
-| `--text-muted` on `--surface-1` | secondary text | ≥ 4.5 | ☐ |
-| `--accent-*` on `--bg-base` | CTA text / large | ≥ 3.0 (large) / 4.5 | ☐ |
-| `--state-failure` text/icon | error panel | ≥ 4.5 | ☐ |
-| `--state-success` text/icon | reward panel | ≥ 4.5 | ☐ |
-| focus ring vs adjacent | `:focus-visible` | ≥ 3.0 | ☐ |
-| each `--station-0N` label | station card | ≥ 4.5 | ☐ |
+Ratios computed from `design-system/tokens.css` with the WCAG 2.1 relative-luminance
+formula. Two provisional values were adjusted to pass: `--state-locked`
+`#7a719f → #a99fce` and `--station-04` `#7c5cff → #977dff`.
+
+| Token pair | Usage | Required | Ratio | Pass |
+|---|---|---|---|---|
+| `--text-primary` on `--bg-base` | body text | ≥ 4.5 | 17.45 | ✅ |
+| `--text-secondary` on `--surface-1` | secondary text | ≥ 4.5 | 10.41 | ✅ |
+| `--text-muted` on `--surface-1` | muted text (min surface) | ≥ 4.5 | 5.70 | ✅ |
+| `--text-muted` on `--bg-base` | muted text | ≥ 4.5 | 6.62 | ✅ |
+| `--accent-primary` on `--bg-base` | primary CTA / large text | ≥ 3.0 | 6.82 | ✅ |
+| `--accent-secondary` on `--bg-base` | links / large text | ≥ 3.0 | 11.87 | ✅ |
+| `--accent-gold` on `--bg-base` | reward / large text | ≥ 3.0 | 13.25 | ✅ |
+| `--state-failure` text/icon on `--state-failure-bg` | error panel | ≥ 4.5 | 6.93 | ✅ |
+| `--state-success` text/icon on `--state-success-bg` | reward panel | ≥ 4.5 | 6.98 | ✅ |
+| `--state-locked` on `--state-locked-bg` | locked text | ≥ 4.5 | 7.10 | ✅ |
+| `--state-locked` on `--surface-2` | locked badge (badge bg) | ≥ 4.5 | 6.00 | ✅ |
+| `--accent-secondary` focus ring vs `--surface-2` | `:focus-visible` (graphical) | ≥ 3.0 | 9.02 | ✅ |
+| each `--station-0N` accent on `--surface-1` | station card strip / label | ≥ 4.5 | 5.33–11.59 | ✅ |

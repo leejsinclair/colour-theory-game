@@ -2,6 +2,7 @@ import { useEffect, useRef, type ReactElement } from "react";
 // The design-system barrel also imports styles.css → design tokens + fonts.
 import { LiveRegion, StudioBackdrop } from "../design-system";
 import "./app.css";
+import "../puzzles/puzzle-body.css";
 import { useHashRoute } from "./useHashRoute";
 import { useProgress } from "../state/selectors";
 import { HUD } from "../components/HUD";

@@ -56,11 +56,7 @@ export function HUD(): ReactElement {
       </div>
 
       {progress.petMilestonesUnlocked.length > 0 ? (
-        <ul
-          className="hud__milestones"
-          aria-label="Milestones unlocked"
-          style={{ listStyle: "none", margin: 0, padding: 0, display: "flex", gap: "var(--space-2xs)", flexWrap: "wrap" }}
-        >
+        <ul className="hud__milestones" aria-label="Milestones unlocked">
           {progress.petMilestonesUnlocked.map((badge) => (
             <li key={badge}>
               <Badge tone="gold" icon={MILESTONE_ICON[badge]}>

@@ -2,10 +2,10 @@
  * Chromatic Mastery — design tokens (FR-041, research.md R8)
  * Identity: "Magical Artist's Studio + Colour Laboratory + Indie Game Arcade".
  *
- * All values are provisional until the WCAG AA contrast matrix in
- * contracts/ui-contract.md is filled during US7 (T093). Every colour that
- * carries meaning is also paired with an icon + label in the components — never
- * colour alone (FR-035, SC-008).
+ * The WCAG AA contrast matrix in contracts/ui-contract.md was verified against
+ * these values in US7 (T093) — every pair passes. Every colour that carries
+ * meaning is also paired with an icon + label in the components — never colour
+ * alone (FR-035, SC-008).
  */
 
 :root {
@@ -43,7 +43,7 @@
   --station-01: #ffd24a;  /* Light Laboratory     — warm beam yellow */
   --station-02: #8ea0b8;  /* Value Sketchboard    — graphite */
   --station-03: #ff6f61;  /* Color Wheel Table    — coral */
-  --station-04: #7c5cff;  /* Optical Illusion Wall — violet */
+  --station-04: #977dff;  /* Optical Illusion Wall — violet (AA on surfaces, T093) */
   --station-05: #4bb8ff;  /* Window Landscape     — sky */
   --station-06: #43d17a;  /* Paint Workbench      — viridian */
   --station-07: #ff8ad8;  /* Design Studio        — rose */
@@ -53,7 +53,7 @@
   --state-success-bg: #12341f;
   --state-failure: #ff8f6b;
   --state-failure-bg: #3a1c14;
-  --state-locked: #7a719f;
+  --state-locked: #a99fce;    /* AA (≥4.5) on --state-locked-bg / --surface-* (T093) */
   --state-locked-bg: #191536;
   --state-info: #6cc8ff;
 

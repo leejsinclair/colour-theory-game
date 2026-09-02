@@ -10,8 +10,17 @@
   color-scheme: dark;
 }
 
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
 body {
   margin: 0;
+  /* Guard against a stray wide child forcing the page sideways — wide puzzle
+     strips scroll inside their own container instead (FR-054, SC-007). */
+  overflow-x: hidden;
   background-color: var(--bg-base);
   color: var(--text-primary);
   font-family: var(--font-body);
@@ -22,10 +31,36 @@ a {
   color: var(--accent-secondary);
 }
 
+a:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+  border-radius: var(--radius-xs);
+}
+
 .app-shell {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+}
+
+/* Skip link — clipped until focused, then a real on-screen target (T092). */
+a.ds-visually-hidden.ds-focusable:focus-visible {
+  position: fixed;
+  top: var(--space-xs);
+  left: var(--space-xs);
+  z-index: 100;
+  width: auto;
+  height: auto;
+  margin: 0;
+  padding: var(--space-xs) var(--space-md);
+  clip: auto;
+  clip-path: none;
+  overflow: visible;
+  border-radius: var(--radius-pill);
+  background-color: var(--surface-2);
+  color: var(--text-primary);
+  box-shadow: var(--focus-ring);
+  text-decoration: none;
 }
 
 .app-shell__banner {
@@ -48,12 +83,19 @@ a {
 }
 
 .app-shell__nav-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--touch-min);
   padding: var(--space-2xs) var(--space-sm);
   border-radius: var(--radius-pill);
   color: var(--text-secondary);
   font-size: var(--text-scale-small);
   font-weight: 600;
   text-decoration: none;
+}
+
+.app-shell__nav-link:hover {
+  color: var(--text-primary);
 }
 
 .app-shell__nav-link[aria-current="page"] {
@@ -70,7 +112,7 @@ a {
   width: 100%;
   max-width: var(--layout-max);
   margin: 0 auto;
-  padding: var(--space-lg) var(--space-md) var(--space-2xl);
+  padding: var(--space-lg) clamp(var(--space-sm), 3vw, var(--space-lg)) var(--space-2xl);
 }
 
 .screen {
@@ -284,19 +326,47 @@ a {
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-2xs);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  max-width: 100%;
 }
 
 .hud__spacer {
   flex: 1;
 }
 
+/* Simplify (not shrink) the HUD on narrow viewports: the milestone badges
+   scroll in their own strip, stat values step down. The HUD stays a sticky top
+   rail so the skip-link → banner → nav → main tab order and focus-to-h1
+   behaviour the a11y contract depends on are unchanged (research.md R15). */
 @media (max-width: 640px) {
+  .hud__milestones {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    -webkit-overflow-scrolling: touch;
+  }
+
   .hud {
     gap: var(--space-sm);
+    padding: var(--space-2xs) var(--space-sm) var(--space-xs);
+  }
+
+  .hud__brand {
+    font-size: var(--text-scale-body);
+  }
+
+  .hud__stats {
+    gap: var(--space-sm);
+    width: 100%;
   }
 
   .hud__stat-value {
     font-size: var(--text-scale-body);
+  }
+
+  .app-shell__nav {
+    padding: var(--space-2xs) var(--space-sm);
   }
 }
 

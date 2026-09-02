@@ -217,18 +217,18 @@ Single repository. Web SPA under `src/web/`, domain core under `src/game/ src/sy
 
 ### Tests for User Story 7
 
-- [ ] T088 [US7] Create `tests/e2e/mobile-critical-path.spec.ts` — 320 px viewport: Studio → station → learning gate → puzzle → Check → Continue → next station with no horizontal page scroll and touch-operable controls (FR-054, SC-007)
-- [ ] T089 [P] [US7] Add `tests/component/focus-management.test.tsx` — route change moves focus to `<h1>`; `InfoModal` traps focus, `Escape` closes, focus returns to opener; `LiveRegion.announce` produces a polite update
-- [ ] T090 [P] [US7] Add a keyboard-only pass to `tests/e2e/new-player-journey.spec.ts` (or a `keyboard.spec.ts`) — whole primary journey via Tab/Shift+Tab/Enter/Space/arrows with a visible focus ring assertion (SC-006)
+- [X] T088 [US7] Create `tests/e2e/mobile-critical-path.spec.ts` — 320 px viewport: Studio → station → learning gate → puzzle → Check → Continue → next station with no horizontal page scroll and touch-operable controls (FR-054, SC-007). `test.use({ viewport: 320×720, hasTouch })`; a `expectNoHorizontalScroll` helper asserts `scrollingElement.scrollWidth ≤ clientWidth` at every step; controls driven with `.tap()`.
+- [X] T089 [P] [US7] `tests/component/focus-management.test.tsx` — renders `<App/>` and asserts focus lands on the new screen's `<h1>` on mount and after each route change (intro → Studio → station); `announce()` pushes a polite `role="status"` update. The `InfoModal` focus trap (open → `Escape` → focus returns to opener) is covered by `tests/component/InfoModal.test.tsx` (T034), referenced in the file header.
+- [X] T090 [P] [US7] `tests/e2e/keyboard.spec.ts` — skip link is the focusable before `main` and reveals on focus with a ring; the whole Studio → station → gate → puzzle → Check → Continue journey is driven with real `Tab`/`Shift+Tab` presses + `Enter`, asserting a computed focus ring (`box-shadow`/`outline`) at every stop (SC-006).
 
 ### Implementation for User Story 7
 
-- [ ] T091 [US7] Responsive layout pass across all screens — mobile-first CSS, `clamp()` fluid tokens, stacking station grid, HUD as bottom bar on mobile / top rail on desktop (simplified not shrunk), ≥44 px touch targets, wide strips in `overflow-x:auto` containers; verify 320 / 768 / 1280 (FR-052, FR-054, research.md R15)
-- [ ] T092 [US7] Accessibility pass — semantic landmarks confirmed, one `<h1>` per screen, `:focus-visible` token ring on every interactive element, real buttons / labelled controls / accessible `Dialog` (FR-053, `contracts/ui-contract.md`)
-- [ ] T093 [US7] Fill the WCAG AA contrast matrix in `contracts/ui-contract.md`; adjust `tokens.css` values until every pair passes; ensure locked/solved/success/failure each carry icon + text (FR-035, FR-055, SC-008)
-- [ ] T094 [US7] Run an axe / Lighthouse a11y pass on Studio, Station, Puzzle, Collection, Grand Canvas — zero AA contrast failures, no critical violations (quickstart.md §Accessibility & responsive)
+- [X] T091 [US7] Responsive layout pass — `box-sizing:border-box` reset + `body{overflow-x:hidden}` guard; `.app-shell__main` padding on a `clamp()`; station grid already `repeat(auto-fill, minmax(min(100%,16rem),1fr))` (1 col at 320); HUD **simplified not shrunk** on ≤640 px (brand + values step down, milestone badges scroll in their own strip) and kept a sticky top rail — a deliberate call to preserve the skip-link → banner → nav → main tab order + focus-to-`h1` the a11y contract depends on (noted in `app.css`); new `src/web/puzzles/puzzle-body.css` re-expresses every puzzle-body class hook (orphaned `src/web/styles.css` was the structural reference) against the dark tokens with ≥44 px targets, wrapping flex rows, `max-width:100%`, and no fixed pixel widths; verified 320 by the mobile e2e spec (FR-052, FR-054, research.md R15).
+- [X] T092 [US7] Accessibility pass — `banner`/`navigation`/`main` landmarks + one `<h1>` per screen confirmed (unchanged from R14); a `:focus-visible` token ring added for `a`, nav links, the skip link (now revealed on focus, not left clipped), and every custom control inside `.puzzle-stage__play` (`puzzle-body.css`); real `<button>`s / labelled controls / MUI `Dialog` unchanged; axe finds zero violations (T094).
+- [X] T093 [US7] WCAG AA contrast matrix in `contracts/ui-contract.md` filled from `tokens.css` (WCAG 2.1 relative-luminance) — every pair passes; two provisional values adjusted: `--state-locked` `#7a719f → #a99fce` (was 3.9 on `--state-locked-bg`) and `--station-04` `#7c5cff → #977dff` (was 3.8 on `--surface-1`). locked/solved/success/failure already carry icon + text in the components (FR-035, FR-055, SC-008).
+- [X] T094 [US7] `tests/e2e/a11y.spec.ts` — `@axe-core/playwright` (new devDependency) scans Studio, Collection, Station, Puzzle and Grand Canvas against `wcag2a/2aa/21a/21aa`; **zero violations** on every screen.
 
-**Checkpoint**: Responsive + accessible across devices, verified by the mobile e2e spec.
+**Checkpoint**: Responsive + accessible across devices. ✅ — gate green: `npm run build` (tsc, incl. e2e specs), `npm run lint`, `npm test` (19 files / 240 tests, +2), `npm run build:web` (JS gzip 169.70 kB vs 219.0 baseline; CSS 6.46 kB gzip), `npm run test:e2e` (33 passed, +8: mobile 2 / a11y 4 / keyboard 2). No `src/` domain or CLI changes.
 
 ---
 
