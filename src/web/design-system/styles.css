@@ -329,6 +329,21 @@
   animation: ds-burst var(--motion-slow) var(--ease-emphasised) forwards;
 }
 
+.ds-celebration__particle--dot {
+  border-radius: 50%;
+}
+
+.ds-celebration__particle--fleck {
+  border-radius: 1px;
+  transform: rotate(45deg);
+}
+
+.ds-celebration__particle--spark {
+  width: 0.35rem;
+  height: 0.7rem;
+  border-radius: 50%;
+}
+
 @keyframes ds-burst {
   from {
     transform: translate3d(0, 0, 0) scale(0.4);

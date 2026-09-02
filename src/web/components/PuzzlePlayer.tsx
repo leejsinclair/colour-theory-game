@@ -67,9 +67,7 @@ export function PuzzlePlayer({
       : actions.submitPuzzle(puzzleId, valueRef.current);
 
     if (result.ok) {
-      if (practice) {
-        announce(result.scoreEvent.reason);
-      }
+      // Live-region announcements are composed by the host screen (T087).
       onSolved(result);
     } else {
       onFailed(result.diagnosis);

@@ -30,6 +30,31 @@ export type FailureReasonCode =
   | "competing_focal_points"
   | "weak_accent_isolation";
 
+/**
+ * The colour-theory principle each failure code belongs to. Surfaced in the
+ * Result Analysis panel as the single idea to revisit before the next attempt
+ * (FR-034) — grouped to match the canonical failure-reason families.
+ */
+export const FAILURE_PRINCIPLE: Record<FailureReasonCode, string> = {
+  low_value_contrast: "Value structure",
+  incorrect_value_structure: "Value structure",
+  chroma_collapsed: "Chroma & saturation",
+  insufficient_chroma: "Chroma & saturation",
+  excessive_chroma: "Chroma & saturation",
+  insufficient_luminosity: "Chroma & saturation",
+  complement_conflict: "Hue relationships",
+  incorrect_hue_selection: "Hue relationships",
+  incorrect_hue_bias: "Hue relationships",
+  overmixing: "Pigment mixing",
+  unbalanced_mix: "Pigment mixing",
+  insufficient_atmosphere: "Light & atmosphere",
+  excessive_atmosphere: "Light & atmosphere",
+  incorrect_color_temperature: "Light & atmosphere",
+  weak_simultaneous_contrast: "Colour relativity",
+  competing_focal_points: "Colour relativity",
+  weak_accent_isolation: "Colour relativity",
+};
+
 export const FAILURE_EXPLANATIONS: Record<FailureReasonCode, string> = {
   low_value_contrast:
     "Light and dark areas are too similar — increase the difference between your lightest and darkest regions so forms stay readable.",

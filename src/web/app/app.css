@@ -402,6 +402,24 @@ a {
   font-size: var(--text-scale-h3);
 }
 
+.result-panel__principle {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2xs);
+  margin: 0;
+  font-size: var(--text-scale-small);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.result-panel__principle strong {
+  color: var(--text-primary);
+  text-transform: none;
+  letter-spacing: normal;
+  font-size: var(--text-scale-body);
+}
+
 .result-panel__list {
   margin: 0;
   padding-left: 1.1rem;
@@ -417,6 +435,17 @@ a {
   align-items: center;
   gap: var(--space-md);
   overflow: hidden;
+}
+
+.reward-reveal__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2xs);
+}
+
+.reward-reveal__pet-line {
+  margin: 0;
+  color: var(--text-secondary);
 }
 
 .reward-reveal__pet {

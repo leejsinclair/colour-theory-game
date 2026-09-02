@@ -1,7 +1,11 @@
 import type { Dispatch } from "react";
 import { getDemoSolution } from "../../content/demoSolutions";
 import { diagnoseFailure } from "../puzzles/diagnose";
-import { FAILURE_EXPLANATIONS, type FailureReasonCode } from "../puzzles/failureReasons";
+import {
+  FAILURE_EXPLANATIONS,
+  FAILURE_PRINCIPLE,
+  type FailureReasonCode,
+} from "../puzzles/failureReasons";
 import { validatePuzzleInput } from "../puzzleValidation";
 import { clearLocalProgress } from "../localProgress";
 import type { GameStore } from "./gameStore";
@@ -10,6 +14,8 @@ import type { SessionAction } from "./sessionReducer";
 export type FailureDiagnosis = {
   codes: FailureReasonCode[];
   primaryCode: FailureReasonCode | null;
+  /** The colour-theory principle to revisit, from the primary reason. */
+  principle: string | null;
   explanations: string[];
 };
 
@@ -40,9 +46,11 @@ export type GameActions = {
 
 function buildDiagnosis(puzzleId: string, input: unknown): FailureDiagnosis {
   const codes = diagnoseFailure(puzzleId, input);
+  const primaryCode = codes[0] ?? null;
   return {
     codes,
-    primaryCode: codes[0] ?? null,
+    primaryCode,
+    principle: primaryCode ? FAILURE_PRINCIPLE[primaryCode] : null,
     explanations: codes.map((code) => FAILURE_EXPLANATIONS[code]).filter(Boolean),
   };
 }

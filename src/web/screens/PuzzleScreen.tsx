@@ -80,21 +80,31 @@ export function PuzzleScreen({
   const handleSolved = (result: SubmitSuccess): void => {
     if (practice) {
       dispatch({ type: "PUSH_TOAST", toast: makeToast(result.scoreEvent.reason, "success", { icon: "🎯" }) });
+      announce(`Practice solved. ${result.scoreEvent.reason}`);
       return;
     }
 
+    // One composed live-region message — separate announce() calls would each
+    // overwrite the previous before a screen reader could read it (FR-036, T087).
     const toasts: Toast[] = [makeToast(result.scoreEvent.reason, "success", { icon: "🏆" })];
+    const spoken: string[] = ["Correct — puzzle solved."];
+
     if (result.petId) {
       const petName = PET_NAMES[result.petId] ?? "a new pet";
       toasts.push(makeToast(`Pet freed: ${petName}`, "success", { petId: result.petId }));
-      announce(`${petName} collected`);
+      spoken.push(`${petName} freed.`);
     }
     if (result.stationCompleted) {
       toasts.push(makeToast("Station complete", "success", { icon: "✅" }));
-      announce("Station complete");
+      spoken.push("Station complete.");
     }
+    if (result.grandCanvasUnlocked) {
+      toasts.push(makeToast("Grand Canvas unlocked", "success", { icon: "🎨" }));
+      spoken.push("The Grand Canvas is now unlocked.");
+    }
+
     dispatch({ type: "SUBMIT_RESULT", toasts });
-    announce("Correct. Puzzle solved.");
+    announce(spoken.join(" "));
     setOutcome({ kind: "solved", result });
   };
 
@@ -185,7 +195,6 @@ export function PuzzleScreen({
           petId={outcome.result.petId}
           petName={outcome.result.petId ? PET_NAMES[outcome.result.petId] ?? "New pet" : null}
           scoreReason={outcome.result.scoreEvent.reason}
-          message="Correct!"
           reducedMotion={reducedMotion}
           onContinue={() => continueAfterSolve(outcome.result)}
         />

@@ -195,17 +195,17 @@ Single repository. Web SPA under `src/web/`, domain core under `src/game/ src/sy
 
 ### Tests for User Story 4
 
-- [ ] T082 [P] [US4] Create `tests/component/ResultPanel.test.tsx` — renders the specific `diagnose.ts` reason + principle; state exposed by role/text not colour; retry works
-- [ ] T083 [P] [US4] Create `tests/component/RewardReveal.test.tsx` — with `prefers-reduced-motion` mocked, no looping animation; static success treatment present
-- [ ] T084 [P] [US4] Add `tests/e2e/feedback.spec.ts` — success celebration non-blocking; failure explanation specific; reduced-motion emulation → static
+- [X] T082 [P] [US4] Create `tests/component/ResultPanel.test.tsx` — renders the specific `diagnose.ts` reason + principle; state exposed by role/text not colour; retry works. 5 tests, builds each `FailureDiagnosis` from the real `diagnoseFailure` + `FAILURE_PRINCIPLE`/`FAILURE_EXPLANATIONS`.
+- [X] T083 [P] [US4] Create `tests/component/RewardReveal.test.tsx` — `reducedMotion` prop → burst carries `ds-celebration--static` (no travelling animation); animated variant otherwise; static success treatment (status role + ✓ + encouragement + pet + score); encouragement stable across re-renders. 6 tests.
+- [X] T084 [P] [US4] Add `tests/e2e/feedback.spec.ts` — 3 tests: correct solve shows a polite `status` reward and Continue is immediately clickable (celebration never intercepts the click); wrong answer names "Principle to revisit: Hue relationships" + the specific explanation; `page.emulateMedia({ reducedMotion: "reduce" })` → `.ds-celebration--static`.
 
 ### Implementation for User Story 4
 
-- [ ] T085 [US4] Polish `src/web/components/RewardReveal.tsx` + `src/web/design-system/CelebrationBurst.tsx` — colour burst / sparkle via CSS/SVG, encouraging copy, pet reveal, HUD update; interaction unblocked within a moment; static branch under reduced motion (FR-033, FR-047, US4-1, US4-2)
-- [ ] T086 [US4] Polish `src/web/components/ResultPanel.tsx` — surface the colour-theory principle to reconsider from the existing diagnostic content; icon + text + shape for every state (FR-034, FR-035, US4-3, US4-4)
-- [ ] T087 [US4] Route live-region announcements for solve, failure (with reason), station unlock and pet collection through the app `LiveRegion` (FR-036, `contracts/ui-contract.md` §Live region)
+- [X] T085 [US4] Polished `src/web/components/RewardReveal.tsx` + `src/web/design-system/CelebrationBurst.tsx` — rotating encouragement (deterministic per solve, override via `message`), explicit "&lt;pet&gt; freed — added to your collection" line, dot/fleck/spark particle shapes via CSS; Continue operable at once (`pointer-events: none` burst); static branch delegated to `<CelebrationBurst reducedMotion>` (FR-033, FR-047, US4-1, US4-2)
+- [X] T086 [US4] Polished `src/web/components/ResultPanel.tsx` — new `FAILURE_PRINCIPLE` map (failureReasons.ts) grouped by canonical family; `FailureDiagnosis.principle` built in `actions.ts`; panel names "Principle to revisit: &lt;principle&gt;" above the explanations; every state carries ✗ glyph + leading word + the bordered failure panel shape, not colour alone (FR-034, FR-035, US4-3, US4-4)
+- [X] T087 [US4] Live-region announcements centralised in `PuzzleScreen.handleSolved` — one composed message ("Correct — puzzle solved. &lt;pet&gt; freed. Station complete. The Grand Canvas is now unlocked.") instead of sequential `announce()` calls that overwrote each other; Grand Canvas unlock now announced + toasted; failure announcement includes the principle; practice-solve announcement moved out of `PuzzlePlayer` (FR-036, `contracts/ui-contract.md` §Live region)
 
-**Checkpoint**: Feedback loop is polished. Journey + puzzle tests still pass.
+**Checkpoint**: Feedback loop is polished. ✅ — gate green: `npm run build` (tsc), `npm run lint`, `npm test` (18 files / 238 tests, +11), `npm run build:web` (JS gzip 169.76 kB vs 219.0 baseline), `npm run test:e2e` (25 passed, +3 feedback).
 
 ---
 

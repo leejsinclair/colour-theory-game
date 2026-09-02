@@ -6,8 +6,10 @@ import type { FailureDiagnosis } from "../state/actions";
 /**
  * The Result Analysis surface (FR-017, FR-034, FR-036). Consumes the ordered
  * `diagnose.ts` / `failureReasons.ts` output already built into the
- * `FailureDiagnosis`. State is carried by an icon + the leading word, never
- * colour alone (FR-035). Announced through the app live region.
+ * `FailureDiagnosis`. Every state carries an icon + a leading word + its own
+ * shape (a bordered failure panel), never colour alone (FR-035). The specific
+ * colour-theory principle to revisit is named at the top, and the whole result
+ * is pushed through the app live region.
  */
 
 export type ResultPanelProps = {
@@ -22,19 +24,36 @@ export function ResultPanel({ diagnosis, onRetry }: ResultPanelProps): ReactElem
       : ["That's not quite right yet — adjust your answer and try again."];
 
   useEffect(() => {
-    announce(`Not quite. ${explanations[0]}`);
-  }, [explanations]);
+    const lead = diagnosis.explanations[0] ?? "Adjust your answer and try again.";
+    announce(
+      diagnosis.principle
+        ? `Not quite. Principle to revisit: ${diagnosis.principle}. ${lead}`
+        : `Not quite. ${lead}`,
+    );
+  }, [diagnosis]);
 
   return (
     <Panel tone="failure" className="result-panel" role="alert">
       <p className="result-panel__heading">
-        <span aria-hidden="true">✗</span> Not quite
+        <span className="result-panel__icon" aria-hidden="true">
+          ✗
+        </span>{" "}
+        Not quite
       </p>
+
+      {diagnosis.principle ? (
+        <p className="result-panel__principle">
+          <span aria-hidden="true">🎯</span> Principle to revisit:{" "}
+          <strong>{diagnosis.principle}</strong>
+        </p>
+      ) : null}
+
       <ul className="result-panel__list">
         {explanations.map((text, index) => (
           <li key={index}>{text}</li>
         ))}
       </ul>
+
       <div className="check-row">
         <Button variant="secondary" onClick={onRetry}>
           Try again

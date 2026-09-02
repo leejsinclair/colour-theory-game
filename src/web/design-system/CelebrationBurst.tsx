@@ -31,6 +31,8 @@ export function CelebrationBurst({ reducedMotion, playKey = 0 }: CelebrationBurs
         return {
           key: `${playKey}-${i}`,
           color: PALETTE[i % PALETTE.length],
+          // Alternate dots and diamonds for a hand-made "paint fleck" burst.
+          shape: i % 3 === 0 ? "spark" : i % 2 === 0 ? "dot" : "fleck",
           x: `${Math.cos(angle) * distance}px`,
           y: `${Math.sin(angle) * distance}px`,
           delay: reducedMotion ? "0ms" : `${(i % 4) * 30}ms`,
@@ -47,7 +49,7 @@ export function CelebrationBurst({ reducedMotion, playKey = 0 }: CelebrationBurs
       {particles.map((p) => (
         <span
           key={p.key}
-          className="ds-celebration__particle"
+          className={`ds-celebration__particle ds-celebration__particle--${p.shape}`}
           style={
             {
               background: p.color,
