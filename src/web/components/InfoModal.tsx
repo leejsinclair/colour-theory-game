@@ -1,11 +1,11 @@
-import { useEffect, useRef, useState, type ReactElement } from "react";
+import { useEffect, useState, type ReactElement } from "react";
 import { marked } from "marked";
 import { Button, Dialog } from "../design-system";
 import { useSession } from "../state/contexts";
 import { usePuzzle } from "../state/selectors";
 import { puzzleLearningContent } from "../../content/puzzleLearningContent";
 import { puzzleConcepts } from "../puzzleContent";
-import { mountChromaTreeExplorer } from "../puzzles/ChromaTreeExplorer";
+import { ChromaTreeExplorer } from "../puzzles/ChromaTreeExplorer";
 
 /**
  * "How this works" learning card (FR-018), rendered in the design-system
@@ -68,7 +68,6 @@ export function InfoModal(): ReactElement | null {
 
   const [content, setContent] = useState<Content | null>(null);
   const [explorerOpen, setExplorerOpen] = useState(false);
-  const explorerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!modal) {
@@ -88,13 +87,6 @@ export function InfoModal(): ReactElement | null {
     };
   }, [modal]);
 
-  useEffect(() => {
-    if (!explorerOpen || !explorerRef.current) {
-      return;
-    }
-    return mountChromaTreeExplorer(explorerRef.current);
-  }, [explorerOpen]);
-
   if (!modal) {
     return null;
   }
@@ -105,7 +97,7 @@ export function InfoModal(): ReactElement | null {
   return (
     <Dialog open onClose={close} title={title}>
       {explorerOpen ? (
-        <div ref={explorerRef} />
+        <ChromaTreeExplorer />
       ) : (
         <>
           {content ? (

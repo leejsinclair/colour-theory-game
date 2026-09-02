@@ -1,4 +1,4 @@
-import type { ReactElement } from "react";
+import { memo, type ReactElement } from "react";
 import { Badge, Button, Card, Heading } from "../design-system";
 import { useStation, useStations } from "../state/selectors";
 import { useSession } from "../state/contexts";
@@ -10,7 +10,7 @@ import { useHashRoute } from "../app/useHashRoute";
  * puzzle here is solved (FR-024, FR-027). Distinctive station art lands in US2.
  */
 
-export function StationScreen({ stationId }: { stationId: string }): ReactElement {
+function StationScreenImpl({ stationId }: { stationId: string }): ReactElement {
   const station = useStation(stationId);
   const stations = useStations();
   const { dispatch } = useSession();
@@ -86,3 +86,6 @@ export function StationScreen({ stationId }: { stationId: string }): ReactElemen
     </section>
   );
 }
+
+/** Memoised: the app shell re-renders on every HUD/progress change (T106). */
+export const StationScreen = memo(StationScreenImpl);

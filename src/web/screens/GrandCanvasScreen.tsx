@@ -1,4 +1,4 @@
-import { useMemo, type ReactElement } from "react";
+import { memo, useMemo, type ReactElement } from "react";
 import { Button, CelebrationBurst, Heading, Panel } from "../design-system";
 import { useProgress, usePets, useStations } from "../state/selectors";
 import { useHashRoute } from "../app/useHashRoute";
@@ -15,7 +15,7 @@ import { PetGallery, type GalleryPet } from "../components/PetGallery";
  * static cluster instead of the burst (FR-020, FR-040, FR-047, SC-009).
  */
 
-export function GrandCanvasScreen(): ReactElement {
+function GrandCanvasScreenImpl(): ReactElement {
   const progress = useProgress();
   const pets = usePets();
   const stations = useStations();
@@ -94,3 +94,6 @@ export function GrandCanvasScreen(): ReactElement {
     </section>
   );
 }
+
+/** Memoised: the app shell re-renders on every HUD/progress change (T106). */
+export const GrandCanvasScreen = memo(GrandCanvasScreenImpl);

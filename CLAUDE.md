@@ -15,7 +15,8 @@ npm run play          # CLI prototype (src/cli.ts): help / status / list / solve
 npm run build         # tsc typecheck gate (CommonJS, emits dist/) — required before "done"
 npm run build:web     # Vite production build → dist/ (this is what Pages deploys)
 
-npm test              # Vitest, runs tests/*.test.ts (unit only, not tests/e2e)
+npm test              # Vitest — unit (tests/*.test.ts) + component (tests/component/**); not tests/e2e
+npm run test:component # Vitest, component project only (jsdom)
 npm run test:watch
 npm run test:e2e      # Playwright; auto-starts a Vite server on 127.0.0.1:4173
 npm run test:cloud    # build + test + test:e2e (mirrors CI)
@@ -25,10 +26,11 @@ npm run lint:fix
 ```
 
 - **Run one unit test:** `npx vitest run tests/game.test.ts` or add `-t "test name substring"`.
+- **Run one component test:** `npx vitest run tests/component/StudioScreen.test.tsx`.
 - **Run one e2e spec:** `npx playwright test tests/e2e/studio.spec.ts` or `--grep "title"`.
 - **First e2e run:** `npx playwright install` (and `sudo npx playwright install-deps` if Linux host deps are missing).
 - Node version is pinned by `.nvmrc` (24.x) and used by CI via `node-version-file`; the README's "Node 18+" is stale.
-- Husky: `pre-commit` runs lint + unit tests; `pre-push` runs e2e.
+- Husky: `pre-commit` runs lint + `npm test` (unit + component); `pre-push` runs e2e.
 
 ## Definition of done
 
@@ -42,29 +44,49 @@ npm run lint:fix
 - `src/game/Game.ts` is the single source of truth for progression (puzzles solved, pets, score, streaks, station unlocks). Systems: `PuzzleManager`, `PetManager`, `StationManager`, `ColorEngine`, `SaveSystem`.
 - Keep game-rule decisions in the domain/systems layer, never in UI components.
 
-### Web shell is intentionally *not* a React tree
+### The web app is a React tree (see `game-architecture.md`)
 
-`index.html` ships a static DOM skeleton. `src/web/main.tsx` mounts `AppShell.tsx` (React, layout/chrome only), then dynamically imports `src/web/legacyGame.ts` — an imperative DOM orchestrator (~800 lines) that wires gameplay, progression, HUD, modals, and the learning gate. Extracted sub-modules live in `src/web/legacy/` (`infoModal`, `learningFlow`, `resultFeedback`, `artStationMiniGame`); prefer adding to those over growing `legacyGame.ts`.
+`index.html` is just `<div id="root">`. `src/web/main.tsx` mounts
+`<GameProvider><App /></GameProvider>` and React owns everything from there —
+shell, nav, screens, HUD, puzzle lifecycle, feedback, collection. No static DOM
+skeleton, no imperative orchestrator, no `createRoot`-per-puzzle.
 
-`game-architecture.md` documents the deliberate two-layer state model and why no state library is used. `legacyGame.ts` module-level `let` variables are the transient UI-navigation state and are all reset by `resetSessionState()` in `initializeGame()`.
+- `src/web/app/App.tsx` — the shell (banner/nav, `main`, overlays, focus-to-`<h1>` on route change).
+- `src/web/screens/*` — one `React.memo` component per view (`IntroScreen`, `StudioScreen`, `StationScreen`, `PuzzleScreen`, `CollectionScreen`, `GrandCanvasScreen`).
+- `src/web/components/*` — shared feature components; `src/web/design-system/*` — reusable primitives + tokens (`tokens.css`, pulled in via the barrel's `styles.css`). A few primitives wrap MUI (`Dialog`, `Menu`, `Slider`, `Tooltip`) for a11y only; MUI does not theme the app.
 
-### Per-puzzle module pairs
+**State** — three layers, no state library:
+1. Domain: the mutable `Game` instance (shared with the CLI).
+2. `src/web/state/gameStore.ts` — external store over `Game`; `getSnapshot()` is structurally shared, read via `useSyncExternalStore`. Field-slice hooks in `state/selectors.ts` (`useProgress`, `useStation(id)`, …) re-render per slice.
+3. `src/web/state/sessionReducer.ts` — pure reducer for transient UI state (practice puzzle, open modal, toasts, intro-seen).
 
-Each puzzle N has a pair in `src/web/puzzles/`:
-- `puzzle-NN.ts` — entry (often just re-exports the view; some hold logic)
-- `puzzle-NN-view.tsx` — the React mini-game component, mounted into a DOM zone via `createRoot`
+`src/web/state/actions.ts` is the only UI writer of domain state (`submitPuzzle` → `validatePuzzleInput` + `Game` → `notify()` once; idempotent re-submit). Exposed via three split contexts (`contexts.ts`), mounted by `GameProvider.tsx`. Persistence load/save is the single `state/persistenceSync.ts` bridge (key `ctg:web-progress:v1`).
 
-All renderers are registered in `src/web/puzzles/index.ts` (`puzzleRenderers` map, keyed `"puzzle-NN"`, zero-padded). A renderer receives a `PuzzleRenderDeps` helper bag (`src/web/puzzles/types.ts`): sliders/selects/checkboxes, `ensureState`, `addCheckButton`, hue helpers, etc.
+**Navigation** — hash-based, `src/web/app/routes.ts` + `useHashRoute.ts`. `parseHash`/`serialiseRoute` pure; `resolveRoute` guards (unknown/locked → `studio`, `grand-canvas` before unlock → `studio`). No routing library.
 
-**persistedState bridge:** the Check button lives outside the React tree, so a puzzle view keeps a local `useState` copy for rendering and mirrors it into a shared plain object that the button reads via an `inputFactory` callback. This is the main seam to fix if the shell is ever ported to React.
+### Per-puzzle views
 
-**Adding a puzzle:** create the `puzzle-NN.ts` / `puzzle-NN-view.tsx` pair, register in `puzzles/index.ts`, add a demo solution (`src/content/demoSolutions.ts`), learning content + quiz (`src/content/puzzleLearningContent.ts`), and a `public/puzzle-info/puzzle-NN.md` card. Note: puzzle-22/23 exist as extras beyond the core 21 (23 is wired; 22 is sprite-only).
+Each playable puzzle N is one component: `src/web/puzzles/puzzle-NN-view.tsx`
+(some have a companion `*-data.ts`). Registered in `src/web/puzzles/index.ts` as
+**code-split `React.lazy`** chunks in the `puzzleComponents` map, keyed
+`"puzzle-NN"` (zero-padded).
+
+A puzzle view is a controlled component: `value` + `onChange` props from
+`<PuzzlePlayer>`, which hosts it behind `<Suspense>` and owns the Check button
+**inside the React tree**. No `persistedState`, no `inputFactory`, no external
+button. Completion flows through the `submitPuzzle` action's typed `SubmitResult`.
+
+**Adding a puzzle:** create `puzzle-NN-view.tsx`, register in `puzzles/index.ts`,
+add a demo solution (`src/content/demoSolutions.ts`), learning content + quiz
+(`src/content/puzzleLearningContent.ts`), a validation branch in
+`src/web/puzzleValidation.ts`, and a `public/puzzle-info/puzzle-NN.md` card.
+`puzzle-01`…`puzzle-21` are the core set; `puzzle-23` is a wired extra, `puzzle-22` is sprite-only.
 
 ### Validation, feedback, learning gate
 
 - `src/web/puzzleValidation.ts` — `validatePuzzleInput`, `circularHueDistance`, `shuffleArray`, `isTriadValid` (unit-tested).
-- `src/web/puzzles/diagnose.ts` + `failureReasons.ts` — turn a wrong answer into a specific explanation shown in the Result Analysis panel.
-- `src/web/legacy/learningFlow.ts` — intro card + quiz that must pass before a puzzle is playable.
+- `src/web/puzzles/diagnose.ts` + `failureReasons.ts` — turn a wrong answer into a specific explanation shown in `ResultPanel`.
+- `src/web/components/LearningIntro.tsx` + `LearningQuiz.tsx` + `src/web/learning/evaluateLearningQuiz.ts` — intro card + quiz that must pass at 100% before a puzzle is playable.
 - Demo solutions (`getDemoSolution`) back both the CLI `solve`/`auto` commands and the web "Auto Solve Journey".
 
 ### Persistence

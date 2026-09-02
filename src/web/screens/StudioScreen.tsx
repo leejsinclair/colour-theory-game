@@ -1,4 +1,4 @@
-import type { ReactElement } from "react";
+import { memo, useCallback, type ReactElement } from "react";
 import { Button, Heading, ProgressBar } from "../design-system";
 import { useProgress, useStations, usePets } from "../state/selectors";
 import { useHashRoute } from "../app/useHashRoute";
@@ -12,13 +12,17 @@ import { RecommendedNext } from "../components/RecommendedNext";
  * once at the app shell (T025/T027).
  */
 
-export function StudioScreen(): ReactElement {
+function StudioScreenImpl(): ReactElement {
   const progress = useProgress();
   const stations = useStations();
   const pets = usePets();
   const { navigate } = useHashRoute();
 
   const petsCollected = pets.filter((pet) => pet.collected).length;
+  const enterStation = useCallback(
+    (stationId: string) => navigate({ view: "station", stationId }),
+    [navigate],
+  );
 
   return (
     <section className="screen studio">
@@ -49,7 +53,7 @@ export function StudioScreen(): ReactElement {
             key={station.id}
             station={station}
             index={index}
-            onEnter={() => navigate({ view: "station", stationId: station.id })}
+            onEnter={enterStation}
           />
         ))}
       </div>
@@ -62,3 +66,6 @@ export function StudioScreen(): ReactElement {
     </section>
   );
 }
+
+/** Memoised: the app shell re-renders on every HUD/progress change (T106). */
+export const StudioScreen = memo(StudioScreenImpl);

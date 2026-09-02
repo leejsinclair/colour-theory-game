@@ -1,4 +1,4 @@
-import { useEffect, useReducer, useState, type ReactElement } from "react";
+import { memo, useEffect, useReducer, useState, type ReactElement } from "react";
 import { Button, Heading, announce } from "../design-system";
 import { usePuzzle } from "../state/selectors";
 import { useGameActions, useSession } from "../state/contexts";
@@ -47,7 +47,7 @@ function makeToast(message: string, kind: Toast["kind"], extra: Partial<Toast> =
   return { id, message, kind, ...extra };
 }
 
-export function PuzzleScreen({
+function PuzzleScreenImpl({
   stationId,
   puzzleId,
 }: {
@@ -202,3 +202,6 @@ export function PuzzleScreen({
     </section>
   );
 }
+
+/** Memoised: the app shell re-renders on every HUD/progress change (T106). */
+export const PuzzleScreen = memo(PuzzleScreenImpl);

@@ -5,9 +5,9 @@
 Explore a magical artist's studio where the fundamental forces of colour have been captured inside puzzle machines. Solve each puzzle to free a Chromatic Pet and relight the studio.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-teal.svg)](LICENSE)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.8-blue.svg)](https://www.typescriptlang.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-strict-blue.svg)](https://www.typescriptlang.org/)
 [![React](https://img.shields.io/badge/React-19-61dafb.svg)](https://react.dev/)
-[![Vite](https://img.shields.io/badge/Vite-6-646cff.svg)](https://vitejs.dev/)
+[![Vite](https://img.shields.io/badge/Vite-8-646cff.svg)](https://vitejs.dev/)
 [![Play on GitHub Pages](https://img.shields.io/badge/Play%20Now-GitHub%20Pages-brightgreen?logo=github)](https://leejsinclair.github.io/colour-theory-game/)
 
 > 🎮 **[Play Chromatic Mastery now →](https://leejsinclair.github.io/colour-theory-game/)**
@@ -50,7 +50,7 @@ Solving all 21 puzzles across the 7 stations unlocks the **Grand Canvas** — th
 
 ### Prerequisites
 
-- [Node.js](https://nodejs.org/) 18 or later
+- [Node.js](https://nodejs.org/) 24.x (pinned in `.nvmrc`)
 - npm (bundled with Node.js)
 
 ### Playwright E2E Setup (first run)
@@ -114,11 +114,11 @@ npm run play
 
 | Layer | Technology |
 |---|---|
-| Language | TypeScript 5.8 (strict) |
+| Language | TypeScript (strict) |
 | UI framework | React 19 + Emotion |
-| Component library | MUI 7 |
-| Build tool | Vite 6 |
-| Unit tests | Vitest |
+| Component library | MUI (a few primitives, for accessibility only) |
+| Build tool | Vite |
+| Unit & component tests | Vitest (jsdom + React Testing Library) |
 | End-to-end tests | Playwright |
 | Linting | ESLint + @typescript-eslint |
 | Git hooks | Husky |
@@ -131,7 +131,7 @@ npm run play
 npm run play:web      # Launch browser game (Vite dev server)
 npm run play          # Launch CLI prototype
 
-npm test              # Run unit tests
+npm test              # Run unit + component tests
 npm run test:e2e      # Run Playwright end-to-end tests
 npm run test:cloud    # Full CI pipeline: build → unit → e2e
 
@@ -154,9 +154,10 @@ colour-theory-game/
 │   ├── game/           # Core game loop (Game, SceneManager, PlayerController)
 │   ├── systems/        # PuzzleManager, PetManager, ColorEngine, SaveSystem
 │   ├── types/          # Shared TypeScript enums and interfaces
-│   └── web/            # React components and per-puzzle mini-game UIs
+│   └── web/            # React app: shell, state adapter, screens, components, puzzle views
 ├── tests/
-│   ├── game.test.ts    # Unit tests
+│   ├── *.test.ts       # Vitest unit tests
+│   ├── component/      # Vitest component/interaction tests (jsdom)
 │   └── e2e/            # Playwright end-to-end tests
 ├── public/
 │   └── puzzle-info/    # Per-puzzle markdown learning cards (puzzle-01.md … puzzle-21.md)

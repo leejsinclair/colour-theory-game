@@ -1,4 +1,4 @@
-import { useMemo, type ReactElement } from "react";
+import { memo, useMemo, type ReactElement } from "react";
 import { Heading, ProgressBar } from "../design-system";
 import { usePets, useStations } from "../state/selectors";
 import { PetGallery, type GalleryPet } from "../components/PetGallery";
@@ -9,7 +9,7 @@ import { PetGallery, type GalleryPet } from "../components/PetGallery";
  * reveal the design. Every tile is keyboard-focusable with an accessible label
  * (`contracts/ui-contract.md` §Collection).
  */
-export function CollectionScreen(): ReactElement {
+function CollectionScreenImpl(): ReactElement {
   const pets = usePets();
   const stations = useStations();
   const collected = pets.filter((pet) => pet.collected).length;
@@ -48,3 +48,6 @@ export function CollectionScreen(): ReactElement {
     </section>
   );
 }
+
+/** Memoised: the app shell re-renders on every HUD/progress change (T106). */
+export const CollectionScreen = memo(CollectionScreenImpl);

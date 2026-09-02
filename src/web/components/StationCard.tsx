@@ -1,4 +1,4 @@
-import type { CSSProperties, ReactElement } from "react";
+import { memo, type CSSProperties, type ReactElement } from "react";
 import { Badge, Button, Card, Heading, ProgressRing, Tag } from "../design-system";
 import type { BadgeTone } from "../design-system";
 import type { StationSnapshot, StationStatus } from "../state/gameStore";
@@ -15,7 +15,8 @@ export type StationCardProps = {
   station: StationSnapshot;
   /** 0-based position in the station list, for the fallback hue. */
   index: number;
-  onEnter: () => void;
+  /** Passed the station id so the parent can hold one stable callback (T106). */
+  onEnter: (stationId: string) => void;
 };
 
 const STATE_META: Record<
@@ -28,7 +29,7 @@ const STATE_META: Record<
   complete: { icon: "✓", label: "Complete", tone: "success" },
 };
 
-export function StationCard({ station, index, onEnter }: StationCardProps): ReactElement {
+function StationCardImpl({ station, index, onEnter }: StationCardProps): ReactElement {
   const { blurb, accentVar } = stationPresentation(station.id, index);
   const meta = STATE_META[station.status];
   const locked = station.status === "locked";
@@ -73,10 +74,13 @@ export function StationCard({ station, index, onEnter }: StationCardProps): Reac
           <span aria-hidden="true">🔒</span> Locked — finish previous stations
         </p>
       ) : (
-        <Button onClick={onEnter} block>
+        <Button onClick={() => onEnter(station.id)} block>
           {started ? `Continue ${station.name}` : `Enter ${station.name}`}
         </Button>
       )}
     </Card>
   );
 }
+
+/** Memoised: the station list re-renders on every progress change (T106). */
+export const StationCard = memo(StationCardImpl);

@@ -1,4 +1,4 @@
-import type { ReactElement } from "react";
+import { memo, type ReactElement } from "react";
 import { Button, Heading } from "../design-system";
 import { useGameActions } from "../state/contexts";
 import { useHashRoute } from "../app/useHashRoute";
@@ -15,7 +15,7 @@ const LINES = [
   "Rescue every pet and the Grand Canvas opens.",
 ];
 
-export function IntroScreen(): ReactElement {
+function IntroScreenImpl(): ReactElement {
   const actions = useGameActions();
   const { navigate } = useHashRoute();
 
@@ -43,3 +43,6 @@ export function IntroScreen(): ReactElement {
     </section>
   );
 }
+
+/** Memoised: the app shell re-renders on every HUD/progress change (T106). */
+export const IntroScreen = memo(IntroScreenImpl);

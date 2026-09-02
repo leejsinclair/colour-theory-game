@@ -1,4 +1,4 @@
-import type { CSSProperties, ReactElement } from "react";
+import { memo, type CSSProperties, type ReactElement } from "react";
 import { getPetSprite } from "../petSprites";
 
 /**
@@ -43,7 +43,7 @@ function accessibleLabel({ name, collected, origin, label }: PetBadgeProps): str
     : "Locked pet — solve its puzzle to reveal";
 }
 
-export function PetBadge(props: PetBadgeProps): ReactElement {
+function PetBadgeImpl(props: PetBadgeProps): ReactElement {
   const {
     petId,
     name,
@@ -95,3 +95,6 @@ export function PetBadge(props: PetBadgeProps): ReactElement {
     </figure>
   );
 }
+
+/** Memoised: gallery/roll lists re-render on every progress change; props are all primitives (T106). */
+export const PetBadge = memo(PetBadgeImpl);

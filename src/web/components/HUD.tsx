@@ -1,4 +1,4 @@
-import type { ReactElement } from "react";
+import { memo, type ReactElement } from "react";
 import { Badge, ProgressRing, TrophyIcon, PetsIcon, AutoAwesomeIcon } from "../design-system";
 import { useProgress, usePets } from "../state/selectors";
 import { AppMenu } from "./AppMenu";
@@ -16,7 +16,7 @@ const MILESTONE_ICON: Record<string, ReactElement> = {
   "Chromatic Master": <TrophyIcon size={14} />,
 };
 
-export function HUD(): ReactElement {
+function HUDImpl(): ReactElement {
   const progress = useProgress();
   const pets = usePets();
   const petsTotal = pets.length;
@@ -73,3 +73,6 @@ export function HUD(): ReactElement {
     </div>
   );
 }
+
+/** Memoised: subscribes to its own progress slice, so route changes alone don't re-render it (T106). */
+export const HUD = memo(HUDImpl);
