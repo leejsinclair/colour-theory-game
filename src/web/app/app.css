@@ -1,0 +1,359 @@
+/*
+ * Chromatic Mastery — application shell + screen layout.
+ *
+ * Design-system primitives own their own look (design-system/styles.css). This
+ * file is layout only: the banner / nav / main landmarks and the per-screen
+ * composition. Tokens come from the design-system barrel import in App.tsx.
+ */
+
+:root {
+  color-scheme: dark;
+}
+
+body {
+  margin: 0;
+  background-color: var(--bg-base);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  line-height: var(--line-body);
+}
+
+a {
+  color: var(--accent-secondary);
+}
+
+.app-shell {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.app-shell__banner {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  border-bottom: 1px solid var(--surface-border);
+  background-color: color-mix(in srgb, var(--bg-deep) 88%, transparent);
+  backdrop-filter: blur(8px);
+}
+
+.app-shell__nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+  align-items: center;
+  max-width: var(--layout-max);
+  margin: 0 auto;
+  padding: var(--space-xs) var(--space-md);
+}
+
+.app-shell__nav-link {
+  padding: var(--space-2xs) var(--space-sm);
+  border-radius: var(--radius-pill);
+  color: var(--text-secondary);
+  font-size: var(--text-scale-small);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.app-shell__nav-link[aria-current="page"] {
+  background-color: var(--surface-2);
+  color: var(--text-primary);
+}
+
+.app-shell__nav-spacer {
+  flex: 1;
+}
+
+.app-shell__main {
+  flex: 1;
+  width: 100%;
+  max-width: var(--layout-max);
+  margin: 0 auto;
+  padding: var(--space-lg) var(--space-md) var(--space-2xl);
+}
+
+.screen {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+.screen__lede {
+  max-width: 60ch;
+  color: var(--text-secondary);
+}
+
+.screen__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+}
+
+/* ── HUD ────────────────────────────────────────────────────────────────── */
+.hud {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-md);
+  max-width: var(--layout-max);
+  margin: 0 auto;
+  padding: var(--space-xs) var(--space-md) var(--space-sm);
+}
+
+.hud__brand {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: var(--text-scale-h3);
+  color: var(--text-primary);
+  text-decoration: none;
+}
+
+.hud__stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-md);
+  align-items: center;
+}
+
+.hud__stat {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+}
+
+.hud__stat-value {
+  font-family: var(--font-display);
+  font-size: var(--text-scale-h3);
+  color: var(--text-primary);
+}
+
+.hud__stat-label {
+  font-size: var(--text-scale-small);
+  color: var(--text-muted);
+}
+
+.hud__milestones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2xs);
+}
+
+.hud__spacer {
+  flex: 1;
+}
+
+@media (max-width: 640px) {
+  .hud {
+    gap: var(--space-sm);
+  }
+
+  .hud__stat-value {
+    font-size: var(--text-scale-body);
+  }
+}
+
+/* ── Station / puzzle grids ─────────────────────────────────────────────── */
+.station-grid {
+  display: grid;
+  gap: var(--space-lg);
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 16rem), 1fr));
+}
+
+.puzzle-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.puzzle-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-sm) var(--space-md);
+  justify-content: space-between;
+}
+
+.puzzle-row__title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  font-weight: 600;
+}
+
+/* ── Puzzle screen ─────────────────────────────────────────────────────── */
+.puzzle-stage {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+.puzzle-stage__play {
+  position: relative;
+}
+
+.learning-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.learning-card__illustration svg {
+  max-width: 100%;
+  height: auto;
+  border-radius: var(--radius-md);
+}
+
+.learning-quiz__question {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2xs);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-md);
+  margin: 0;
+}
+
+.learning-quiz__option {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-xs);
+  padding: var(--space-2xs) 0;
+}
+
+.learning-quiz__feedback {
+  color: var(--text-secondary);
+}
+
+.learning-quiz__explanation {
+  color: var(--text-muted);
+  font-size: var(--text-scale-small);
+}
+
+.check-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+  align-items: center;
+}
+
+/* ── Result panel ─────────────────────────────────────────────────────── */
+.result-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.result-panel__heading {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  font-family: var(--font-display);
+  font-size: var(--text-scale-h3);
+}
+
+.result-panel__list {
+  margin: 0;
+  padding-left: 1.1rem;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2xs);
+}
+
+/* ── Reward reveal ────────────────────────────────────────────────────── */
+.reward-reveal {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  overflow: hidden;
+}
+
+.reward-reveal__pet {
+  width: 72px;
+  height: 72px;
+  flex: none;
+  border-radius: var(--radius-md);
+  background-color: #fff;
+}
+
+/* ── Toast host ───────────────────────────────────────────────────────── */
+.toast-host {
+  position: fixed;
+  right: var(--space-md);
+  bottom: var(--space-md);
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  max-width: min(92vw, 22rem);
+}
+
+.toast {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: var(--space-xs) var(--space-md);
+  border: 1px solid var(--surface-border-strong);
+  border-radius: var(--radius-md);
+  background-color: var(--surface-2);
+  color: var(--text-primary);
+  box-shadow: var(--shadow-2);
+}
+
+.toast--success {
+  border-color: var(--state-success);
+}
+
+/* ── Pet grid ─────────────────────────────────────────────────────────── */
+.pet-grid {
+  display: grid;
+  gap: var(--space-md);
+  grid-template-columns: repeat(auto-fill, minmax(6rem, 1fr));
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.pet-grid__cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2xs);
+  text-align: center;
+}
+
+.pet-grid__sprite {
+  width: 72px;
+  height: 72px;
+  border-radius: var(--radius-md);
+  background-color: var(--surface-2);
+}
+
+.pet-grid__sprite--locked {
+  filter: grayscale(1) brightness(0.4);
+}
+
+.pet-grid__name {
+  font-size: var(--text-scale-small);
+}
+
+/* ── Info modal body ──────────────────────────────────────────────────── */
+.info-modal-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.info-modal-body :is(h1, h2, h3) {
+  font-family: var(--font-display);
+  margin: var(--space-sm) 0 0;
+}
+
+.info-modal-body img {
+  max-width: 100%;
+  height: auto;
+}

@@ -1,17 +1,20 @@
-import React from "react";
 import ReactDOM from "react-dom/client";
-import { flushSync } from "react-dom";
-import { AppShell } from "./AppShell";
+import { GameProvider } from "./state/GameProvider";
+import { App } from "./app/App";
 
-const rootEl = document.getElementById("app");
+/**
+ * The single entry point (T052 — the shell flip). React now owns the entire
+ * browser UI: no `legacyGame.ts`, no static gameplay DOM skeleton, no
+ * `ctg:ready` event.
+ */
 
+const rootEl = document.getElementById("root");
 if (!rootEl) {
-  throw new Error("App root element #app not found");
+  throw new Error("App root element #root not found");
 }
 
-const root = ReactDOM.createRoot(rootEl);
-flushSync(() => {
-  root.render(<AppShell />);
-});
-
-void import("./legacyGame");
+ReactDOM.createRoot(rootEl).render(
+  <GameProvider>
+    <App />
+  </GameProvider>,
+);

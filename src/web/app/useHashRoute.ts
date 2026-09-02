@@ -53,12 +53,20 @@ export function useHashRoute(): { route: Route; navigate: (route: Route) => void
   }, []);
 
   // Keep the address bar consistent when a guard rewrote the requested route.
+  // Only correct the URL while it still matches the hash `route` was derived
+  // from — otherwise another effect changed the hash this commit (e.g. the
+  // first-run intro redirect in persistenceSync) and a re-render with the new
+  // value is already queued; rewriting here would clobber it.
   useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+    const currentHash = window.location.hash || "";
     const resolvedHash = serialiseRoute(route);
-    if (typeof window !== "undefined" && window.location.hash !== resolvedHash) {
+    if (currentHash === (rawHash || "") && currentHash !== resolvedHash) {
       window.history.replaceState(null, "", resolvedHash);
     }
-  }, [route]);
+  }, [route, rawHash]);
 
   return { route, navigate };
 }

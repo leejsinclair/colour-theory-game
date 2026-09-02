@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { evaluateLearningQuiz } from "../src/web/legacy/learningFlow";
+import { evaluateLearningQuiz } from "../src/web/learning/evaluateLearningQuiz";
 
 describe("evaluateLearningQuiz", () => {
   test("returns passed with perfect score", () => {

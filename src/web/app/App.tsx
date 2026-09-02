@@ -1,7 +1,12 @@
 import { useEffect, useRef, type ReactElement } from "react";
 // The design-system barrel also imports styles.css → design tokens + fonts.
 import { LiveRegion, StudioBackdrop } from "../design-system";
+import "./app.css";
 import { useHashRoute } from "./useHashRoute";
+import { useProgress } from "../state/selectors";
+import { HUD } from "../components/HUD";
+import { ToastHost } from "../components/ToastHost";
+import { InfoModal } from "../components/InfoModal";
 import { IntroScreen } from "../screens/IntroScreen";
 import { StudioScreen } from "../screens/StudioScreen";
 import { StationScreen } from "../screens/StationScreen";
@@ -11,13 +16,12 @@ import { GrandCanvasScreen } from "../screens/GrandCanvasScreen";
 import type { Route } from "./routes";
 
 /**
- * The React application shell (T027, research.md R14, contracts/ui-contract.md
- * §Landmarks). Rendered inside `<GameProvider>` by `main.tsx` (from T052).
+ * The React application shell (research.md R14, contracts/ui-contract.md
+ * §Landmarks). Rendered inside `<GameProvider>` by `main.tsx`.
  *
- * Responsibilities: the `banner` / `navigation` / `main` landmarks, the screen
- * switch on `useHashRoute().route`, exactly one `LiveRegion`, and moving focus
- * to the new screen's `<h1>` on every route change. The HUD (T038), `AppMenu`
- * (T039) and `ToastHost` (T047a) land in US1.
+ * Owns the `banner` (HUD) / `navigation` / `main` landmarks, the screen switch
+ * on `useHashRoute().route`, one `LiveRegion`, the `ToastHost`, the `InfoModal`,
+ * and moving focus to the new screen's `<h1>` on every route change.
  */
 
 function screenFor(route: Route): ReactElement {
@@ -50,6 +54,7 @@ function routeKey(route: Route): string {
 
 export function App(): ReactElement {
   const { route } = useHashRoute();
+  const progress = useProgress();
   const mainRef = useRef<HTMLElement>(null);
   const key = routeKey(route);
 
@@ -62,26 +67,53 @@ export function App(): ReactElement {
     }
   }, [key]);
 
+  const isIntro = route.view === "intro";
+
   return (
-    <>
+    <div className="app-shell">
       <StudioBackdrop />
       <a className="ds-visually-hidden ds-focusable" href="#main-content">
         Skip to main content
       </a>
 
-      <header>
-        {/* HUD lands in T038 (US1). */}
-      </header>
+      {!isIntro ? (
+        <header className="app-shell__banner">
+          <HUD />
+          <nav className="app-shell__nav" aria-label="Game navigation">
+            <a
+              className="app-shell__nav-link"
+              href="#/studio"
+              aria-current={route.view === "studio" ? "page" : undefined}
+            >
+              Studio
+            </a>
+            <a
+              className="app-shell__nav-link"
+              href="#/collection"
+              aria-current={route.view === "collection" ? "page" : undefined}
+            >
+              Collection
+            </a>
+            {progress.finalCanvasUnlocked ? (
+              <a
+                className="app-shell__nav-link"
+                href="#/grand-canvas"
+                aria-current={route.view === "grand-canvas" ? "page" : undefined}
+              >
+                Grand Canvas
+              </a>
+            ) : null}
+          </nav>
+        </header>
+      ) : null}
 
-      <nav aria-label="Game navigation">
-        {/* Studio / station / collection navigation lands in US1–US2. */}
-      </nav>
-
-      <main id="main-content" ref={mainRef}>
+      <main id="main-content" className="app-shell__main" ref={mainRef}>
         {screenFor(route)}
       </main>
 
+      <ToastHost />
+      <InfoModal />
       <LiveRegion />
-    </>
+    </div>
   );
 }

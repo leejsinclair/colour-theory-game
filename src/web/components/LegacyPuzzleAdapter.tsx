@@ -126,8 +126,13 @@ export function LegacyPuzzleAdapter({
 
     const result = renderPuzzleById(puzzleId, deps);
     if (!result) {
-      // The renderer didn't append itself — mirror the legacy fallback.
+      // No renderer for this id — mirror the legacy fallback.
       registerInputFactory(wrapper, puzzleId, () => getDemoSolution(puzzleId));
+    }
+    // The renderer appends the wrapper itself only when it returns
+    // `{ appended: true }` (via `appendWrapper`); otherwise we append it here,
+    // mirroring `legacyGame.renderPuzzleMiniGame`.
+    if (!result || !result.appended) {
       host.appendChild(wrapper);
     }
 

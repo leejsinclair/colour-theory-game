@@ -73,7 +73,19 @@ export function usePersistenceSync(): void {
     hadStoredSnapshot.current = snapshot !== null;
 
     if (!snapshot) {
-      return; // fresh run — App routes to intro; nothing to restore
+      // Fresh run, no progress — the caretaker intro is the only valid
+      // destination (any deep link would be guard-rejected to studio anyway),
+      // unless the intro was already dismissed this session
+      // (contracts/persistence.md §4).
+      if (
+        typeof window !== "undefined" &&
+        !sessionRef.current.introDismissedThisSession &&
+        window.location.hash !== "#/intro"
+      ) {
+        window.history.replaceState(null, "", "#/intro");
+        window.dispatchEvent(new Event("hashchange"));
+      }
+      return;
     }
 
     const game = store.getGame();
