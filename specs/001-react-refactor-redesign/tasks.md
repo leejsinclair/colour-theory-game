@@ -68,18 +68,18 @@ Single repository. Web SPA under `src/web/`, domain core under `src/game/ src/sy
 
 ### Design-system primitives
 
-- [ ] T022 [P] Create `src/web/design-system/` core primitives: `Button.tsx`, `IconButton.tsx`, `Card.tsx`, `Panel.tsx`, `Heading.tsx`, `Badge.tsx`, `Tag.tsx` — custom-styled from tokens, semantic HTML, `:focus-visible` ring (FR-048, FR-053)
-- [ ] T023 [P] Create `src/web/design-system/` MUI-backed primitives: `Dialog.tsx`, `Menu.tsx`, `Slider.tsx`, `Tooltip.tsx` — thin custom-skinned wrappers over `@mui/material` (the only four MUI components retained, research.md R7)
-- [ ] T024 [P] Create `src/web/design-system/` a11y + progress primitives: `LiveRegion.tsx` (single app-level polite `aria-live` with an `announce()` API, research.md R14), `VisuallyHidden.tsx`, `ProgressRing.tsx`, `ProgressBar.tsx`
-- [ ] T025 [P] Create `src/web/design-system/CelebrationBurst.tsx` and `src/web/design-system/StudioBackdrop.tsx` — CSS/SVG only, reduced-motion aware (FR-045, FR-047)
-- [ ] T026 [P] Replace the 5 `@mui/icons-material` icons with inline SVG components in `src/web/design-system/icons.tsx`; remove `@mui/icons-material` from `package.json` (research.md R7)
+- [X] T022 [P] Create `src/web/design-system/` core primitives: `Button.tsx`, `IconButton.tsx`, `Card.tsx`, `Panel.tsx`, `Heading.tsx`, `Badge.tsx`, `Tag.tsx` — custom-styled from tokens, semantic HTML, `:focus-visible` ring (FR-048, FR-053). Shared class styles in `design-system/styles.css`; barrel `design-system/index.ts` (imports `styles.css` → `tokens.css` + `fonts.css`).
+- [X] T023 [P] Create `src/web/design-system/` MUI-backed primitives: `Dialog.tsx`, `Menu.tsx`, `Slider.tsx`, `Tooltip.tsx` — thin custom-skinned wrappers over `@mui/material` (the only four MUI components retained, research.md R7)
+- [X] T024 [P] Create `src/web/design-system/` a11y + progress primitives: `LiveRegion.tsx` (single app-level polite `aria-live` with an `announce()` API, research.md R14), `VisuallyHidden.tsx`, `ProgressRing.tsx`, `ProgressBar.tsx`
+- [X] T025 [P] Create `src/web/design-system/CelebrationBurst.tsx` and `src/web/design-system/StudioBackdrop.tsx` — CSS/SVG only, reduced-motion aware (FR-045, FR-047)
+- [X] T026 [P] Replace the 5 `@mui/icons-material` icons with inline SVG components in `src/web/design-system/icons.tsx`; remove `@mui/icons-material` from `package.json` (research.md R7). The 5 legacy call sites (`AppShell.tsx`, `muiControls.tsx`) re-aliased to the new icons so `main` stays green until they are deleted in Phase 3.
 
 ### Shell + adapter
 
-- [ ] T027 Create `src/web/app/App.tsx` — `<GameProvider>` consumer that renders `banner` (HUD), `navigation`, and `main` landmarks, switches on `useHashRoute().route`, mounts one `LiveRegion` and one `ToastHost`, and moves focus to the new screen's `<h1>` on every route change (FR-009, FR-053, research.md R14, `contracts/ui-contract.md` §Landmarks)
-- [ ] T028 Create screen shells under `src/web/screens/` — `IntroScreen.tsx`, `StudioScreen.tsx`, `StationScreen.tsx`, `PuzzleScreen.tsx`, `CollectionScreen.tsx`, `GrandCanvasScreen.tsx` — each renders its landmark `<h1>` (names per `contracts/ui-contract.md`) and is wired to selector hooks; content filled in later phases
-- [ ] T029 [P] Create `src/web/components/LegacyPuzzleAdapter.tsx` — TEMPORARY: hosts the existing `renderPuzzleById(puzzleId, deps)` inside a React container with a synthetic `PuzzleRenderDeps`, surfacing the current answer to the host and rendering a real design-system `<CheckButton>` in-subtree (research.md R5). Deleted in Phase 5.
-- [ ] T030 [P] Add a React-friendly `getPetSprite(id)` descriptor export to `src/web/petSprites.ts` (style props for `<PetBadge>`) without removing the existing DOM builder yet (data-model.md §1)
+- [X] T027 Create `src/web/app/App.tsx` — renders `banner` / `navigation` / `main` landmarks, switches on `useHashRoute().route`, mounts one `LiveRegion`, and moves focus to the new screen's `<h1>` on every route change (FR-009, FR-053, research.md R14, `contracts/ui-contract.md` §Landmarks). HUD (T038), `AppMenu` (T039) and `ToastHost` (T047a) are placeholders until US1; not yet wired into `main.tsx` (that is the T052 shell flip).
+- [X] T028 Create screen shells under `src/web/screens/` — `IntroScreen.tsx`, `StudioScreen.tsx`, `StationScreen.tsx`, `PuzzleScreen.tsx`, `CollectionScreen.tsx`, `GrandCanvasScreen.tsx` — each renders its landmark `<h1>` (names per `contracts/ui-contract.md`) and is wired to selector hooks; content filled in later phases
+- [X] T029 [P] Create `src/web/components/LegacyPuzzleAdapter.tsx` — TEMPORARY: hosts the existing `renderPuzzleById(puzzleId, deps)` inside a React container with a synthetic `PuzzleRenderDeps`; the legacy `addCheckButton` no longer builds a DOM button — its `inputFactory` is forwarded up via `onInputFactory` so `<PuzzlePlayer>` (T045) renders the real design-system Check button in the React tree (research.md R5). Deleted in Phase 5 (T080).
+- [X] T030 [P] Add a React-friendly `getPetSprite(id, collected)` descriptor export to `src/web/petSprites.ts` (background style props + `ariaLabel` for `<PetBadge>`) without removing the existing DOM builder yet (data-model.md §1)
 
 **Checkpoint**: State, navigation, persistence, design-system primitives, and an empty routed shell all build and unit-test green. `legacyGame.ts` still active — not yet wired in.
 

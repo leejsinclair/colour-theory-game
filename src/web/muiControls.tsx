@@ -1,8 +1,10 @@
 import React from "react";
-import PetsOutlined from "@mui/icons-material/PetsOutlined";
-import AutoAwesomeOutlined from "@mui/icons-material/AutoAwesomeOutlined";
-import EmojiEventsOutlined from "@mui/icons-material/EmojiEventsOutlined";
 import { createRoot } from "react-dom/client";
+import {
+  AutoAwesomeIcon as AutoAwesomeOutlined,
+  PetsIcon as PetsOutlined,
+  TrophyIcon as EmojiEventsOutlined,
+} from "./design-system/icons";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Checkbox from "@mui/material/Checkbox";

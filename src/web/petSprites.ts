@@ -62,6 +62,72 @@ export const PET_NAMES: Record<string, string> = {
   "pet-22": "Constancy Chameleon",
 };
 
+export type PetSpriteDescriptor = {
+  id: string;
+  name: string;
+  /** Inline style props for a `<div>`/`<span>` sprite tile — the React path (T030, data-model §1). */
+  style: {
+    backgroundImage: string;
+    backgroundRepeat: "no-repeat";
+    backgroundSize: string;
+    backgroundPosition: string;
+  };
+  /** Accessible label for the sprite element (`role="img"`). */
+  ariaLabel: string;
+};
+
+/**
+ * React-friendly counterpart to `createPetSpriteDiv` — returns the same sprite
+ * crop as inline style props for `<PetBadge>` (T030). The DOM builder stays for
+ * the legacy shell until it is retired.
+ */
+export function getPetSprite(
+  petId: string,
+  collected: boolean,
+  options: { includeLabel?: boolean } = {},
+): PetSpriteDescriptor {
+  const name = PET_NAMES[petId] ?? petId;
+  const ariaLabel = `${name}${collected ? " (collected)" : ""}`;
+  const includeLabel = options.includeLabel ?? false;
+
+  if (petId === "pet-22") {
+    return {
+      id: petId,
+      name,
+      ariaLabel,
+      style: {
+        backgroundImage: "url(assets/pets/pet-22.svg)",
+        backgroundRepeat: "no-repeat",
+        backgroundSize: "contain",
+        backgroundPosition: `center ${includeLabel ? "4px" : "center"}`,
+      },
+    };
+  }
+
+  const centre = PET_SPRITE_CENTRES[petId] ?? { cx: 48, cy: 62 };
+  const cropHalf = PET_SPRITE_LARGE_CROP.has(petId) ? 44 : 40;
+  const cropWidth = cropHalf * 2;
+  const cropHeight = cropWidth + (includeLabel ? 24 : 0);
+  const cropX = centre.cx - cropHalf;
+  const cropY = centre.cy - cropHalf;
+  const scaleX = PET_SPRITE_NATURAL_WIDTH / cropWidth;
+  const scaleY = PET_SPRITE_NATURAL_HEIGHT / cropHeight;
+  const posX = ((-cropX / cropWidth) / (1 - scaleX)) * 100;
+  const posY = ((-cropY / cropHeight) / (1 - scaleY)) * 100;
+
+  return {
+    id: petId,
+    name,
+    ariaLabel,
+    style: {
+      backgroundImage: `url(${PET_SPRITE_HREF})`,
+      backgroundRepeat: "no-repeat",
+      backgroundSize: `${scaleX * 100}% ${scaleY * 100}%`,
+      backgroundPosition: `${posX}% ${posY}%`,
+    },
+  };
+}
+
 /** Build a CSS-sprite div for one pet slot. */
 export function createPetSpriteDiv(
   petId: string,

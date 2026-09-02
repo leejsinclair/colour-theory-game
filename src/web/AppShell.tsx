@@ -10,9 +10,8 @@ import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import Stack from "@mui/material/Stack";
 import Tooltip from "@mui/material/Tooltip";
-import FeedbackOutlinedIcon from "@mui/icons-material/FeedbackOutlined";
-import MoreVertIcon from "@mui/icons-material/MoreVert";
 import Typography from "@mui/material/Typography";
+import { FeedbackIcon as FeedbackOutlinedIcon, MoreVertIcon } from "./design-system/icons";
 import { appTheme } from "./muiTheme";
 
 const feedbackFormUrl = "https://form.jotform.com/260802651069052";
