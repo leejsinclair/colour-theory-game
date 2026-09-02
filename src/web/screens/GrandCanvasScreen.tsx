@@ -1,14 +1,13 @@
 import type { ReactElement } from "react";
-import { Heading } from "../design-system";
+import { Button, Card, Heading } from "../design-system";
 import { useProgress, usePets } from "../state/selectors";
 import { useHashRoute } from "../app/useHashRoute";
-import { CompletionCertificate } from "../CompletionCertificate";
+import { getPetSprite } from "../petSprites";
 
 /**
- * The finale (US1 functional). Preserved stats, full pet roll, and the
- * return / review-practice actions via the existing `CompletionCertificate`.
- * The distinctive finale layout redesign lands in US6 (T102). The +200 bonus
- * is applied once by the domain at unlock time.
+ * The finale (US1 functional). Preserved stats, the full pet roll, and the
+ * return / review-practice actions. The +200 bonus is applied once by the
+ * domain at unlock time. The distinctive certificate layout lands in US6 (T102).
  */
 export function GrandCanvasScreen(): ReactElement {
   const progress = useProgress();
@@ -22,15 +21,42 @@ export function GrandCanvasScreen(): ReactElement {
       <Heading level={1} size="hero">
         Grand Canvas
       </Heading>
-      <CompletionCertificate
-        solvedPuzzleCount={progress.solved}
-        petsCollected={progress.petsCollected}
-        totalPets={pets.length}
-        bestStreak={progress.bestStreak}
-        unlockedPetIds={pets.filter((pet) => pet.collected).map((pet) => pet.id)}
-        onReturn={toStudio}
-        onReviewPractice={toStudio}
-      />
+      <p className="screen__lede">
+        Every puzzle solved, every Chromatic Pet freed. Your progress is saved — revisit any station
+        to review a lesson or practise.
+      </p>
+
+      <Card as="div">
+        <p role="status">Puzzles solved: {progress.solved}</p>
+        <p role="status">
+          Pets rescued: {progress.petsCollected}/{pets.length}
+        </p>
+        <p role="status">Best streak: {progress.bestStreak}</p>
+      </Card>
+
+      <ul className="pet-grid" aria-label="Pet rescue roll">
+        {pets.map((pet) => {
+          const sprite = getPetSprite(pet.id, pet.collected);
+          return (
+            <li key={pet.id} className="pet-grid__cell">
+              <span
+                className={`pet-grid__sprite${pet.collected ? "" : " pet-grid__sprite--locked"}`}
+                role="img"
+                aria-label={pet.collected ? `${pet.name} rescued` : `${pet.name} not rescued`}
+                style={sprite.style}
+              />
+              <span className="pet-grid__name">{pet.name}</span>
+            </li>
+          );
+        })}
+      </ul>
+
+      <div className="screen__actions">
+        <Button onClick={toStudio}>Return to Studio</Button>
+        <Button variant="ghost" onClick={toStudio}>
+          Review &amp; practise puzzles
+        </Button>
+      </div>
     </section>
   );
 }

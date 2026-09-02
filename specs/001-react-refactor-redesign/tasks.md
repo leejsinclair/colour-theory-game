@@ -93,13 +93,13 @@ Single repository. Web SPA under `src/web/`, domain core under `src/game/ src/sy
 
 ### Tests for User Story 1
 
-- [ ] T031 [P] [US1] Create `tests/component/HUD.test.tsx` — renders score/pets/streak/Grand-Canvas progress + unlocked pet-milestone badges from a stub snapshot; simplifies (role/text) at narrow width
-- [ ] T032 [P] [US1] Create `tests/component/LearningGate.test.tsx` — controls + Check absent until quiz passes at 100%; pass records the quiz and reveals the solve stage (FR-016)
-- [ ] T033 [P] [US1] Create `tests/component/PuzzlePlayer.test.tsx` — hosts a fake puzzle, real Check button in-subtree, `submitPuzzle` routed to `onSolved`/`onFailed`, double-submit guarded (Edge Cases)
-- [ ] T034 [P] [US1] Create `tests/component/InfoModal.test.tsx` — opens focus-trapped, `Escape` closes, focus returns to opener (US7-3, FR-018)
-- [ ] T035 [US1] Rewrite `tests/e2e/new-player-journey.spec.ts` against `contracts/ui-contract.md` roles/names — fresh load, learning gate, wrong then correct solve, pet reveal, station unlock, progression
-- [ ] T036 [P] [US1] Rewrite `tests/e2e/studio.spec.ts` and `tests/e2e/design-studio-check.spec.ts` to role/name selectors; update `tests/e2e/screenshot.spec.ts` capture targets
-- [ ] T037 [P] [US1] Add persistence + reset e2e coverage (reload mid-game restores solved set/quiz passes/active station; menu → Reset run → fresh state) — in `new-player-journey.spec.ts` or a `persistence.spec.ts`
+- [X] T031 [P] [US1] Create `tests/component/HUD.test.tsx` — fresh readouts, score/pets/streak update after a solve, milestone badge (icon + label) after 6 pets. Narrow-width simplification is CSS-only (verified in the mobile e2e spec, US7).
+- [X] T032 [P] [US1] Create `tests/component/LearningGate.test.tsx` — `<PuzzleScreen>`: Check absent through intro + a failed quiz (tips shown), appears once the quiz passes at 100%.
+- [X] T033 [P] [US1] Create `tests/component/PuzzlePlayer.test.tsx` — real Check button in `.puzzle-stage__play`, wrong → `onFailed` w/ diagnosis, correct (via legacy beam buttons) → `onSolved`, second click idempotent, no submit while `disabled`.
+- [X] T034 [P] [US1] Create `tests/component/InfoModal.test.tsx` — opens as a `dialog`, focus moves inside, `Escape` closes and restores focus to the opener (`fetch` stubbed → inline learning-content fallback).
+- [X] T035 [US1] Rewrite `tests/e2e/new-player-journey.spec.ts` against `contracts/ui-contract.md` roles/names — intro, studio, learning gate, wrong then correct solve, pet reveal, station unlock, progression to Grand Canvas.
+- [X] T036 [P] [US1] Rewrite `tests/e2e/studio.spec.ts` + `tests/e2e/design-studio-check.spec.ts` to role/name selectors; `tests/e2e/screenshot.spec.ts` retargeted to the `ResultPanel` alert.
+- [X] T037 [US1] Persistence + reset e2e coverage in `tests/e2e/persistence.spec.ts` — reload mid-game restores solved set / quiz pass / route; menu → Reset run → fresh Studio + intro again.
 
 ### Implementation for User Story 1
 
@@ -122,9 +122,11 @@ Single repository. Web SPA under `src/web/`, domain core under `src/game/ src/sy
 - [X] T053 [US1] `index.html` reduced to `<div id="root"></div>` + the module script; static gameplay skeleton, `#auto-solve`/`#reset` hooks and `ctg:ready` gone.
 - [X] T054 [US1] Deleted `src/web/legacyGame.ts`, `AppShell.tsx`, `legacy/{infoModal,learningFlow,resultFeedback}.ts`; `legacy/artStationMiniGame.ts` kept for Phase 5; `tests/learningFlow.test.ts` import repointed. `muiTheme.ts` now orphaned (T105).
 - [X] T055 [US1] CLI regression — `git diff` confirms `src/game` / `src/systems` / `src/entities` / `src/cli.ts` / `src/content` untouched; `list` shows 22 puzzles, `solve puzzle-01` → "Solved puzzle-01."; 168 domain unit tests green.
-- [ ] T056 [US1] Run the checkpoint gate — `npm run build`, `npm test`, `npm run test:component`, `npm run lint`, `npm run build:web`, `npm run test:e2e` all green; grep confirms no browser-flow reference to `legacyGame`/`src/web/legacy/{infoModal,learningFlow,resultFeedback}` (SC-004, FR-063, FR-064)
+- [X] T056 [US1] Checkpoint gate green — `npm run build` (tsc), `npm test` (177 unit + component), `npm run lint`, `npm run build:web` (JS gzip 207.7 kB vs 219.0 baseline; SC-013 OK), `npm run test:e2e` (18 passed). Grep: only comment references to `legacyGame` remain (in the temporary `LegacyPuzzleAdapter`, deleted T080); zero to `AppShell` / retired `legacy/*` modules.
 
-**Checkpoint**: MVP — the full game is playable end to end in React, `legacyGame.ts` is retired, persistence and reset verified. Deployable.
+**Checkpoint**: MVP — the full game is playable end to end in React, `legacyGame.ts` is retired, persistence and reset verified. Deployable. ✅
+
+**Navigation fixes made in this phase** (Phase 2 `useHashRoute` / `persistenceSync` had a first-paint race): `src/web/app/navReady.ts` one-shot flag; `useHashRoute`'s URL-reconciliation effect is gated on it and re-resolves from the live store snapshot (not the stale `route` memo) so `persistenceSync`'s restore can set `#/station/...` / `#/intro` without being clobbered.
 
 ---
 

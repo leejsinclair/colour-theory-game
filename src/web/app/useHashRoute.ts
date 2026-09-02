@@ -6,6 +6,7 @@ import {
   serialiseRoute,
   type Route,
 } from "./routes";
+import { isNavReady } from "./navReady";
 
 /**
  * Hash <-> Route mapping with guard resolution (research.md R2,
@@ -53,20 +54,26 @@ export function useHashRoute(): { route: Route; navigate: (route: Route) => void
   }, []);
 
   // Keep the address bar consistent when a guard rewrote the requested route.
-  // Only correct the URL while it still matches the hash `route` was derived
-  // from — otherwise another effect changed the hash this commit (e.g. the
-  // first-run intro redirect in persistenceSync) and a re-render with the new
-  // value is already queued; rewriting here would clobber it.
+  // Resolve fresh from the *live* hash and store snapshot inside the effect —
+  // the `route` memo can be a commit behind while another effect (persistenceSync's
+  // restore) both mutates game state and changes the hash in the same commit,
+  // and acting on the stale value would clobber the restored route. Gated on
+  // `isNavReady()` so the pre-restore first render can't rewrite a deep link.
   useEffect(() => {
-    if (typeof window === "undefined") {
+    if (typeof window === "undefined" || !isNavReady()) {
       return;
     }
     const currentHash = window.location.hash || "";
-    const resolvedHash = serialiseRoute(route);
-    if (currentHash === (rawHash || "") && currentHash !== resolvedHash) {
+    const live = resolveRoute(parseHash(currentHash), {
+      snapshot: store.getSnapshot(),
+      introSeen: session.introDismissedThisSession,
+      introReplayRequested: session.introReplayRequested,
+    });
+    const resolvedHash = serialiseRoute(live);
+    if (currentHash !== resolvedHash) {
       window.history.replaceState(null, "", resolvedHash);
     }
-  }, [route, rawHash]);
+  }, [route, rawHash, snapshot, store, session.introDismissedThisSession, session.introReplayRequested]);
 
   return { route, navigate };
 }

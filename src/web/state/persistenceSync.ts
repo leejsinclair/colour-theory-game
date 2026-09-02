@@ -12,6 +12,7 @@ import {
   type Route,
 } from "../app/routes";
 import { useGameStore, useSession } from "./contexts";
+import { markNavReady } from "../app/navReady";
 
 const SAVE_DEBOUNCE_MS = 250;
 
@@ -85,6 +86,7 @@ export function usePersistenceSync(): void {
         window.history.replaceState(null, "", "#/intro");
         window.dispatchEvent(new Event("hashchange"));
       }
+      markNavReady();
       return;
     }
 
@@ -130,6 +132,7 @@ export function usePersistenceSync(): void {
       window.history.replaceState(null, "", serialiseRoute(target));
       window.dispatchEvent(new Event("hashchange"));
     }
+    markNavReady();
   }, [store, dispatch]);
 
   // ── Debounced save ─────────────────────────────────────────────────────
