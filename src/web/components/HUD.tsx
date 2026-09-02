@@ -1,5 +1,5 @@
 import { memo, type ReactElement } from "react";
-import { Badge, ProgressRing, TrophyIcon, PetsIcon, AutoAwesomeIcon } from "../design-system";
+import { Badge, TrophyIcon, PetsIcon, AutoAwesomeIcon } from "../design-system";
 import { useProgress, usePets } from "../state/selectors";
 import { AppMenu } from "./AppMenu";
 
@@ -28,12 +28,14 @@ function HUDImpl(): ReactElement {
       </a>
 
       <div className="hud__stats">
-        <ProgressRing
-          label={`Grand Canvas progress: ${progress.solved} of ${progress.total} puzzles`}
-          value={progress.solved}
-          max={progress.total}
-          centerLabel={`${progress.solved}/${progress.total}`}
-        />
+        <p className="hud__stat" role="status">
+          <span className="hud__stat-value">
+            {progress.solved}/{progress.total}
+          </span>
+          <span className="hud__stat-label">
+            Puzzles solved: {progress.solved} of {progress.total}
+          </span>
+        </p>
 
         <p className="hud__stat" role="status">
           <span className="hud__stat-value">{progress.score}</span>

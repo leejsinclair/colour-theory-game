@@ -33,8 +33,17 @@ function StationCardImpl({ station, index, onEnter }: StationCardProps): ReactEl
   const { blurb, accentVar } = stationPresentation(station.id, index);
   const meta = STATE_META[station.status];
   const locked = station.status === "locked";
-  const started = station.status === "in-progress" || station.status === "complete";
+  const complete = station.status === "complete";
+  const inProgress = station.status === "in-progress";
   const headingId = `station-card-${station.id}`;
+
+  const actionLabel = complete
+    ? `Review ${station.name}`
+    : inProgress
+      ? `Continue ${station.name}`
+      : `Enter ${station.name}`;
+  // Pink only for the one in-progress station; complete cards are review-only.
+  const actionVariant = complete ? "ghost" : inProgress ? "primary" : "secondary";
 
   return (
     <Card
@@ -74,8 +83,8 @@ function StationCardImpl({ station, index, onEnter }: StationCardProps): ReactEl
           <span aria-hidden="true">🔒</span> Locked — finish previous stations
         </p>
       ) : (
-        <Button onClick={() => onEnter(station.id)} block>
-          {started ? `Continue ${station.name}` : `Enter ${station.name}`}
+        <Button variant={actionVariant} onClick={() => onEnter(station.id)} block>
+          {actionLabel}
         </Button>
       )}
     </Card>

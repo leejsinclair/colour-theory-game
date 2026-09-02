@@ -45,7 +45,7 @@ export default function Puzzle01View({
       ? `${parts.join("+")} beams - align overlap to mix`
       : "No beams active"
     : parts.length === 3
-      ? "White light! ✓ All beams aligned"
+      ? "All three beams aligned — press Check"
       : parts.join("+") || "No beams";
 
   const swatchAriaLabel = value.overlap

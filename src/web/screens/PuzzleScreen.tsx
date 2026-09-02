@@ -160,7 +160,6 @@ function PuzzleScreenImpl({
         <LearningIntro
           puzzleId={puzzleId}
           onStartQuiz={() => dispatchStage({ type: "START_QUIZ" })}
-          onOpenInfo={openInfo}
         />
       ) : null}
 
@@ -168,7 +167,6 @@ function PuzzleScreenImpl({
         <LearningQuiz
           puzzleId={puzzleId}
           onBack={() => dispatchStage({ type: "BACK_TO_INTRO" })}
-          onOpenInfo={openInfo}
           announce={announce}
           onPass={() => {
             actions.recordQuizPass(puzzleId);
@@ -207,7 +205,7 @@ function PuzzleScreenImpl({
           scoreReason={outcome.result.scoreEvent.reason}
           reducedMotion={reducedMotion}
           destinationLabel={practice ? "the puzzle" : destinationFor(outcome.result)}
-          autoReturnSeconds={5}
+          autoReturnSeconds={9}
           continueLabel={practice ? "Keep practising" : "Continue"}
           onContinue={() =>
             practice ? setOutcome({ kind: "idle" }) : continueAfterSolve(outcome.result)

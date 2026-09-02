@@ -120,7 +120,7 @@ describe("RewardReveal", () => {
       />,
     );
 
-    expect(screen.getByText(/Returning to Light Laboratory/)).toBeInTheDocument();
+    expect(screen.getAllByText(/Returning to Light Laboratory/).length).toBeGreaterThan(0);
     expect(onContinue).not.toHaveBeenCalled();
 
     for (let i = 0; i < 3; i += 1) {
@@ -129,6 +129,31 @@ describe("RewardReveal", () => {
       });
     }
     expect(onContinue).toHaveBeenCalledTimes(1);
+  });
+
+  it("is a labelled modal dialog and moves focus to the primary action", () => {
+    render(<RewardReveal {...baseProps} reducedMotion autoReturnSeconds={null} />);
+    const dialog = screen.getByRole("dialog");
+    expect(dialog).toHaveAttribute("aria-modal", "true");
+    expect(dialog).toHaveAccessibleName("Puzzle complete");
+    expect(screen.getByRole("button", { name: "Continue" })).toHaveFocus();
+  });
+
+  it("Escape stops the countdown rather than navigating", () => {
+    vi.useFakeTimers();
+    const onContinue = vi.fn();
+    render(
+      <RewardReveal {...baseProps} onContinue={onContinue} reducedMotion autoReturnSeconds={3} />,
+    );
+    act(() => {
+      screen.getByRole("dialog").dispatchEvent(
+        new KeyboardEvent("keydown", { key: "Escape", bubbles: true }),
+      );
+    });
+    act(() => {
+      vi.advanceTimersByTime(10000);
+    });
+    expect(onContinue).not.toHaveBeenCalled();
   });
 
   it("'Stay here' cancels the countdown", () => {

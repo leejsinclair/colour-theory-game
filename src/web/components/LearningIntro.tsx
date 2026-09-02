@@ -6,16 +6,16 @@ import { puzzleLearningContent } from "../../content/puzzleLearningContent";
  * Stage 1 of the learning gate (FR-016). Ports the intro card from the retired
  * `src/web/legacy/learningFlow.ts` into the React tree: title, illustration,
  * the two intro paragraphs, and the how-to-win / why-this-fails / key-terms
- * meta rows. "Start quiz" advances; "How this works" opens the info modal.
+ * meta rows. "Start quiz" advances; the puzzle-screen nav row owns the single
+ * "How this works" affordance.
  */
 
 export type LearningIntroProps = {
   puzzleId: string;
   onStartQuiz: () => void;
-  onOpenInfo: () => void;
 };
 
-export function LearningIntro({ puzzleId, onStartQuiz, onOpenInfo }: LearningIntroProps): ReactElement | null {
+export function LearningIntro({ puzzleId, onStartQuiz }: LearningIntroProps): ReactElement | null {
   const learning = puzzleLearningContent[puzzleId];
   if (!learning) {
     return null;
@@ -55,9 +55,6 @@ export function LearningIntro({ puzzleId, onStartQuiz, onOpenInfo }: LearningInt
 
       <div className="check-row">
         <Button onClick={onStartQuiz}>Start quiz</Button>
-        <Button variant="ghost" onClick={onOpenInfo}>
-          How this works
-        </Button>
       </div>
     </Card>
   );

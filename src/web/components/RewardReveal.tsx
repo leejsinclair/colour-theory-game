@@ -1,9 +1,12 @@
 import {
+  useCallback,
   useEffect,
+  useId,
   useMemo,
   useRef,
   useState,
   type CSSProperties,
+  type KeyboardEvent as ReactKeyboardEvent,
   type ReactElement,
 } from "react";
 import { Button, CelebrationBurst } from "../design-system";
@@ -20,6 +23,11 @@ import { PetBadge } from "./PetBadge";
  * In practice mode the countdown simply closes the overlay (returning to the
  * puzzle for another attempt) rather than navigating away; `autoReturnSeconds =
  * null` disables it entirely, leaving a manual dismiss only.
+ *
+ * The card is a modal dialog (`role="dialog"`, `aria-modal`): focus moves to
+ * Continue on mount, Tab is trapped inside the card, Escape stops the countdown
+ * (or continues when there is none), and focus is restored to the triggering
+ * element on unmount (FR a11y — WCAG 2.1.2 / 2.4.3).
  */
 
 const ENCOURAGEMENTS = [
@@ -65,13 +73,16 @@ export function RewardReveal({
   onContinue,
   continueLabel = "Continue",
   destinationLabel = "the studio",
-  autoReturnSeconds = 5,
+  autoReturnSeconds = 9,
   message,
 }: RewardRevealProps): ReactElement {
   const headline = useMemo(
     () => message ?? pickEncouragement(petId ?? scoreReason),
     [message, petId, scoreReason],
   );
+
+  const cardRef = useRef<HTMLDivElement>(null);
+  const titleId = useId();
 
   const totalSeconds =
     typeof autoReturnSeconds === "number" && autoReturnSeconds > 0 ? autoReturnSeconds : 0;
@@ -99,13 +110,70 @@ export function RewardReveal({
 
   const ringPct = totalSeconds > 0 ? Math.max(0, Math.min(1, remaining / totalSeconds)) * 100 : 0;
 
+  const stayHere = useCallback(() => setPaused(true), []);
+
+  // Modal focus: move focus in on mount, restore it on unmount.
+  useEffect(() => {
+    const previouslyFocused = document.activeElement as HTMLElement | null;
+    const focusTarget = cardRef.current?.querySelector<HTMLElement>(
+      "button, [href], input, select, textarea, [tabindex]:not([tabindex='-1'])",
+    );
+    focusTarget?.focus();
+    return () => previouslyFocused?.focus?.();
+  }, []);
+
+  const handleKeyDown = (event: ReactKeyboardEvent<HTMLDivElement>): void => {
+    if (event.key === "Escape") {
+      event.preventDefault();
+      if (countingDown) {
+        stayHere();
+      } else {
+        onContinue();
+      }
+      return;
+    }
+    if (event.key !== "Tab") {
+      return;
+    }
+    const focusable = Array.from(
+      cardRef.current?.querySelectorAll<HTMLElement>(
+        "button, [href], input, select, textarea, [tabindex]:not([tabindex='-1'])",
+      ) ?? [],
+    ).filter((el) => !el.hasAttribute("disabled"));
+    if (focusable.length === 0) {
+      return;
+    }
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    const active = document.activeElement;
+    if (event.shiftKey && active === first) {
+      event.preventDefault();
+      last.focus();
+    } else if (!event.shiftKey && active === last) {
+      event.preventDefault();
+      first.focus();
+    }
+  };
+
   return (
     <div className="reward-overlay">
-      <div className="reward-overlay__card">
+      {countingDown ? (
+        <p className="ds-visually-hidden" role="status">
+          Returning to {destinationLabel} in {totalSeconds} seconds. Select “Stay here” to remain.
+        </p>
+      ) : null}
+      <div
+        ref={cardRef}
+        className="reward-overlay__card"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
+        onKeyDown={handleKeyDown}
+      >
         <CelebrationBurst reducedMotion={reducedMotion} playKey={petId ?? scoreReason} />
 
         <div className="reward-overlay__status" role="status">
-          <p className="reward-overlay__eyebrow">
+          <p className="reward-overlay__eyebrow" id={titleId}>
             <span className="reward-overlay__icon" aria-hidden="true">
               ✓
             </span>{" "}
@@ -158,7 +226,7 @@ export function RewardReveal({
         <div className="check-row reward-overlay__actions">
           <Button onClick={onContinue}>{continueLabel}</Button>
           {countingDown ? (
-            <Button variant="ghost" onClick={() => setPaused(true)}>
+            <Button variant="ghost" onClick={stayHere}>
               Stay here
             </Button>
           ) : null}

@@ -6,19 +6,17 @@ import { HUD } from "../../src/web/components/HUD";
 import { getDemoSolution } from "../../src/content/demoSolutions";
 
 /**
- * T031 — the HUD reflects the game snapshot: score / pets / streak readouts and
- * the Grand-Canvas progress ring, with pet-milestone badges carrying an icon +
- * label (never colour alone).
+ * T031 — the HUD reflects the game snapshot: puzzles-solved / score / pets /
+ * streak readouts, with pet-milestone badges carrying an icon + label (never
+ * colour alone).
  */
 describe("HUD", () => {
   it("shows fresh readouts and no streak / milestones", () => {
     renderWithGame(<HUD />);
     expect(screen.getByText("Score")).toBeInTheDocument();
     expect(screen.getByText("Pets collected: 0 of 22")).toBeInTheDocument();
+    expect(screen.getByText("Puzzles solved: 0 of 22")).toBeInTheDocument();
     expect(screen.queryByText(/^Streak:/)).not.toBeInTheDocument();
-    expect(
-      screen.getByRole("progressbar", { name: /Grand Canvas progress: 0 of 22/ }),
-    ).toHaveAttribute("aria-valuenow", "0");
     expect(screen.getByRole("button", { name: "Menu" })).toBeInTheDocument();
   });
 
@@ -29,9 +27,7 @@ describe("HUD", () => {
     });
     expect(screen.getByText("Pets collected: 1 of 22")).toBeInTheDocument();
     expect(screen.getByText("Streak: 1")).toBeInTheDocument();
-    expect(
-      screen.getByRole("progressbar", { name: /Grand Canvas progress/ }),
-    ).toHaveAttribute("aria-valuenow", "1");
+    expect(screen.getByText("Puzzles solved: 1 of 22")).toBeInTheDocument();
   });
 
   it("renders earned milestone badges with an icon and a text label", () => {

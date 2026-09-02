@@ -35,14 +35,14 @@ function GrandCanvasScreenImpl(): ReactElement {
     }));
   }, [pets, stations]);
 
-  const stats: ReadonlyArray<{ key: string; value: string; caption: string }> = [
-    { key: "solved", value: `${progress.solved}`, caption: `Puzzles solved: ${progress.solved}` },
+  const stats: ReadonlyArray<{ key: string; value: string; label: string }> = [
+    { key: "solved", value: `${progress.solved}`, label: "Puzzles solved" },
     {
       key: "pets",
       value: `${progress.petsCollected}/${pets.length}`,
-      caption: `Pets rescued: ${progress.petsCollected}/${pets.length}`,
+      label: "Pets rescued",
     },
-    { key: "streak", value: `${progress.bestStreak}`, caption: `Best streak: ${progress.bestStreak}` },
+    { key: "streak", value: `${progress.bestStreak}`, label: "Best streak" },
   ];
 
   return (
@@ -61,12 +61,8 @@ function GrandCanvasScreenImpl(): ReactElement {
           <ul className="grand-canvas__stats">
             {stats.map((stat) => (
               <li key={stat.key} className="grand-canvas__stat">
-                <span className="grand-canvas__stat-value" aria-hidden="true">
-                  {stat.value}
-                </span>
-                <span className="grand-canvas__stat-caption" role="status">
-                  {stat.caption}
-                </span>
+                <span className="grand-canvas__stat-value">{stat.value}</span>
+                <span className="grand-canvas__stat-caption">{stat.label}</span>
               </li>
             ))}
           </ul>

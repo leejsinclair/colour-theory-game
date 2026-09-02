@@ -18,7 +18,6 @@ test.describe("new player journey", () => {
     await page.goto("/");
     await expect(page.getByRole("heading", { name: "Welcome to the Studio", level: 1 })).toBeVisible();
     await expect(page.getByRole("button", { name: "Enter the Studio" })).toBeVisible();
-    await expect(page.getByRole("button", { name: "Skip" })).toBeVisible();
   });
 
   test("studio orients the player: progress, stations, recommended next", async ({ page }) => {
@@ -95,7 +94,7 @@ test.describe("new player journey", () => {
 
     await expect(page.getByRole("button", { name: "Enter Value Sketchboard" })).toBeVisible();
 
-    await page.getByRole("button", { name: /^(Enter|Continue) Light Laboratory/ }).click();
+    await page.getByRole("button", { name: /^(Enter|Continue|Review) Light Laboratory/ }).click();
     await expect(page.getByRole("button", { name: "Go to Value Sketchboard" })).toBeVisible();
     await page.getByRole("button", { name: "Go to Value Sketchboard" }).click();
     await expect(page.getByRole("heading", { name: "Value Sketchboard", level: 1 })).toBeVisible();
@@ -106,7 +105,7 @@ test.describe("new player journey", () => {
     await enterStudio(page);
     await autoSolve(page);
 
-    await expect(page.getByText("Pets rescued: 22/22")).toBeVisible();
+    await expect(page.getByText("Pets rescued", { exact: true })).toBeVisible();
     await expect(page.getByRole("button", { name: "Return to Studio" })).toBeVisible();
     await page.getByRole("button", { name: "Return to Studio" }).click();
     await expect(page.getByRole("heading", { name: "Chromatic Mastery Studio", level: 1 })).toBeVisible();
@@ -121,9 +120,9 @@ test.describe("new player journey", () => {
 
     // Reads as a finale, not a puzzle screen: hero heading + preserved stats.
     await expect(page.getByRole("heading", { name: "Grand Canvas", level: 1 })).toBeVisible();
-    await expect(page.getByText("Puzzles solved: 22")).toBeVisible();
-    await expect(page.getByText("Pets rescued: 22/22")).toBeVisible();
-    await expect(page.getByText(/^Best streak: \d+$/)).toBeVisible();
+    await expect(page.getByText("Puzzles solved", { exact: true })).toBeVisible();
+    await expect(page.getByText("Pets rescued", { exact: true })).toBeVisible();
+    await expect(page.getByText("Best streak", { exact: true })).toBeVisible();
 
     const scoreTile = page.getByRole("status").filter({ hasText: "Score" });
     const scoreAtUnlock = (await scoreTile.textContent())?.replace(/\D/g, "");
@@ -144,7 +143,7 @@ test.describe("new player journey", () => {
     await page.getByRole("button", { name: "Return to Studio" }).click();
     for (const station of ["Light Laboratory", "Value Sketchboard", "Design Studio"]) {
       await expect(
-        page.getByRole("button", { name: new RegExp(`(Enter|Continue) ${station}`) }),
+        page.getByRole("button", { name: new RegExp(`(Enter|Continue|Review) ${station}`) }),
       ).toBeEnabled();
     }
   });

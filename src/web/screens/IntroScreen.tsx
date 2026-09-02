@@ -6,7 +6,7 @@ import { useHashRoute } from "../app/useHashRoute";
 /**
  * The caretaker intro (FR-030a). Shown only when `introSeen !== true` and there
  * is no progress (guarded in `resolveRoute`), or when replayed from the menu.
- * Both actions mark the intro seen and enter the Studio.
+ * A single screen, so a single action — the nav is always available afterward.
  */
 
 const LINES = [
@@ -36,9 +36,6 @@ function IntroScreenImpl(): ReactElement {
       ))}
       <div className="screen__actions">
         <Button onClick={enter}>Enter the Studio</Button>
-        <Button variant="ghost" onClick={enter}>
-          Skip
-        </Button>
       </div>
     </section>
   );

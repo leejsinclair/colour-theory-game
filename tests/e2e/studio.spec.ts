@@ -12,9 +12,7 @@ test.describe("studio & shell", () => {
 
     await expect(page.getByText("Score")).toBeVisible();
     await expect(page.getByText("Pets collected: 0 of 22")).toBeVisible();
-    await expect(
-      page.getByRole("progressbar", { name: /Grand Canvas progress: 0 of 22/ }),
-    ).toBeVisible();
+    await expect(page.getByText("Puzzles solved: 0 of 22")).toBeVisible();
     // Streak tile is hidden when there is no streak.
     await expect(page.getByText(/^Streak:/)).toHaveCount(0);
   });

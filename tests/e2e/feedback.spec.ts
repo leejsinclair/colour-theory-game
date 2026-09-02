@@ -40,8 +40,8 @@ test.describe("feedback loop", () => {
     const result = page.getByRole("alert");
     await expect(result).toContainText("Not quite");
     await expect(result).toContainText("Principle to revisit:");
-    await expect(result).toContainText("Hue relationships");
-    await expect(result).toContainText(/colour wheel/i);
+    await expect(result).toContainText("Additive light");
+    await expect(result).toContainText(/all three beams/i);
   });
 
   test.describe("with reduced motion", () => {

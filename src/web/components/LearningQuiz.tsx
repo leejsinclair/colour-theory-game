@@ -14,7 +14,6 @@ export type LearningQuizProps = {
   puzzleId: string;
   onPass: () => void;
   onBack: () => void;
-  onOpenInfo: () => void;
   announce: (message: string) => void;
 };
 
@@ -22,7 +21,6 @@ export function LearningQuiz({
   puzzleId,
   onPass,
   onBack,
-  onOpenInfo,
   announce,
 }: LearningQuizProps): ReactElement | null {
   const learning = puzzleLearningContent[puzzleId];
@@ -88,9 +86,6 @@ export function LearningQuiz({
 
       <div className="check-row">
         <Button onClick={submit}>Submit quiz</Button>
-        <Button variant="ghost" onClick={onOpenInfo}>
-          How this works
-        </Button>
         <Button variant="ghost" onClick={onBack}>
           Back to intro
         </Button>

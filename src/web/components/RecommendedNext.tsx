@@ -33,7 +33,7 @@ export function RecommendedNext(): ReactElement {
     <div className="recommended-next">
       <span className="recommended-next__eyebrow">Next up</span>
       {target ? (
-        <Button variant="secondary" size="lg" onClick={() => navigate(target)}>
+        <Button variant="primary" size="lg" onClick={() => navigate(target)}>
           Recommended: {rec.label}
         </Button>
       ) : (

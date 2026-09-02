@@ -18,7 +18,6 @@ function renderQuiz(overrides: Partial<Parameters<typeof LearningQuiz>[0]> = {})
     puzzleId: PUZZLE,
     onPass: vi.fn(),
     onBack: vi.fn(),
-    onOpenInfo: vi.fn(),
     announce: vi.fn(),
     ...overrides,
   };

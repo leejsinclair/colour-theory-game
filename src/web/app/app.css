@@ -68,7 +68,7 @@ a.ds-visually-hidden.ds-focusable:focus-visible {
   top: 0;
   z-index: 20;
   border-bottom: 1px solid var(--surface-border);
-  background-color: color-mix(in srgb, var(--bg-deep) 88%, transparent);
+  background-color: color-mix(in srgb, var(--bg-deep) 96%, transparent);
   backdrop-filter: blur(8px);
 }
 
@@ -428,10 +428,11 @@ a.ds-visually-hidden.ds-focusable:focus-visible {
   display: flex;
   flex-direction: column;
   gap: var(--space-2xs);
-  border: 1px solid var(--surface-border);
+  border: 1px solid var(--surface-border-strong);
   border-radius: var(--radius-md);
   padding: var(--space-md);
   margin: 0;
+  background-color: var(--surface-2);
 }
 
 .learning-quiz__option {
@@ -439,6 +440,19 @@ a.ds-visually-hidden.ds-focusable:focus-visible {
   align-items: flex-start;
   gap: var(--space-xs);
   padding: var(--space-2xs) 0;
+}
+
+.learning-quiz__option input[type="radio"] {
+  width: 1.15rem;
+  height: 1.15rem;
+  margin-top: 0.15rem;
+  flex: none;
+  accent-color: var(--accent-secondary);
+}
+
+.learning-quiz__option input[type="radio"]:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
 }
 
 .learning-quiz__feedback {
@@ -857,7 +871,16 @@ a.ds-visually-hidden.ds-focusable:focus-visible {
 
 .pet-badge__name {
   font-size: var(--text-scale-small);
+  line-height: 1.2;
   color: var(--text-primary);
+  /* Reserve two lines so tiles keep a shared vertical rhythm regardless of
+     how the pet name wraps. */
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  min-height: 2.4em;
+  overflow: hidden;
 }
 
 .pet-badge--locked .pet-badge__name {
@@ -866,7 +889,14 @@ a.ds-visually-hidden.ds-focusable:focus-visible {
 
 .pet-badge__origin {
   font-size: var(--text-scale-small);
+  line-height: 1.2;
   color: var(--text-muted);
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  min-height: 2.4em;
+  overflow: hidden;
 }
 
 @media (prefers-reduced-motion: reduce) {

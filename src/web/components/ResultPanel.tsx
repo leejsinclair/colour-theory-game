@@ -55,7 +55,7 @@ export function ResultPanel({ diagnosis, onRetry }: ResultPanelProps): ReactElem
       </ul>
 
       <div className="check-row">
-        <Button variant="secondary" onClick={onRetry}>
+        <Button variant="ghost" onClick={onRetry}>
           Try again
         </Button>
       </div>
