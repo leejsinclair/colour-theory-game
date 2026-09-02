@@ -1,18 +1,20 @@
-import { useCallback, useRef, useState, type ReactElement } from "react";
-import { LegacyPuzzleAdapter } from "./LegacyPuzzleAdapter";
+import { Suspense, useCallback, useRef, useState, type ReactElement } from "react";
 import { CheckButton } from "./CheckButton";
+import { PuzzleSkeleton } from "./PuzzleSkeleton";
+import { puzzleComponents, initialInputFor } from "../puzzles";
 import { useGameActions } from "../state/contexts";
+import { useReducedMotion } from "../state/useReducedMotion";
 import { announce } from "../design-system";
 import type { SubmitResult, SubmitSuccess, FailureDiagnosis } from "../state/actions";
 
 /**
- * Hosts a puzzle experience and owns the Check action (contracts/puzzle-component.md
- * §PuzzlePlayer, FR-006, FR-019).
+ * Hosts a puzzle experience and owns the Check action
+ * (contracts/puzzle-component.md §PuzzlePlayer, FR-006, FR-019).
  *
- * In US1 the puzzle body still comes from `<LegacyPuzzleAdapter>`, which forwards
- * the legacy view's current-answer factory up via `onInputFactory`. US3 (T079)
- * swaps that for a native `<PuzzleComponent value onChange … />`. Either way the
- * real Check button lives in this subtree.
+ * The puzzle body is a controlled `PuzzleComponent`: `<PuzzlePlayer>` owns the
+ * answer (`useState(initialInputFor(...))`), passes it down as `value`, and
+ * takes updates back through `onChange`. There is no `persistedState` bridge and
+ * no DOM Check button — the real Check button lives in this subtree.
  */
 
 export type PuzzlePlayerProps = {
@@ -32,32 +34,37 @@ export function PuzzlePlayer({
   onFailed,
 }: PuzzlePlayerProps): ReactElement {
   const actions = useGameActions();
-  const inputFactoryRef = useRef<(() => unknown) | null>(null);
+  const reducedMotion = useReducedMotion();
+  const PuzzleView = puzzleComponents[puzzleId];
+
+  const [value, setValue] = useState<unknown>(() => initialInputFor(puzzleId));
+  const valueRef = useRef(value);
+  valueRef.current = value;
+
   const pendingRef = useRef(false);
   const [pending, setPending] = useState(false);
 
-  const handleInputFactory = useCallback((factory: () => unknown) => {
-    inputFactoryRef.current = factory;
+  const handleChange = useCallback((next: unknown) => {
+    valueRef.current = next;
+    setValue(next);
   }, []);
 
   const submit = useCallback(() => {
     if (disabled || pendingRef.current) {
       return;
     }
-    const input = inputFactoryRef.current ? inputFactoryRef.current() : undefined;
-
     pendingRef.current = true;
     setPending(true);
-    // Release the guard on the next frame — the submit itself is synchronous,
-    // this only debounces a burst of fast repeated clicks (Edge Cases).
+    // Release the guard on the next microtask — the submit is synchronous; this
+    // only debounces a burst of fast repeated clicks (Edge Cases).
     queueMicrotask(() => {
       pendingRef.current = false;
       setPending(false);
     });
 
     const result: SubmitResult = practice
-      ? actions.practiceSubmit(puzzleId, input)
-      : actions.submitPuzzle(puzzleId, input);
+      ? actions.practiceSubmit(puzzleId, valueRef.current)
+      : actions.submitPuzzle(puzzleId, valueRef.current);
 
     if (result.ok) {
       if (practice) {
@@ -71,11 +78,19 @@ export function PuzzlePlayer({
 
   return (
     <div className="puzzle-stage__play">
-      <LegacyPuzzleAdapter
-        puzzleId={puzzleId}
-        state={practice ? "solved" : "available"}
-        onInputFactory={handleInputFactory}
-      />
+      {PuzzleView ? (
+        <Suspense fallback={<PuzzleSkeleton />}>
+          <PuzzleView
+            value={value}
+            onChange={handleChange}
+            disabled={disabled}
+            announce={announce}
+            reducedMotion={reducedMotion}
+          />
+        </Suspense>
+      ) : (
+        <p role="alert">This puzzle could not be loaded.</p>
+      )}
       <div className="check-row">
         <CheckButton disabled={disabled} pending={pending} onClick={submit} />
       </div>

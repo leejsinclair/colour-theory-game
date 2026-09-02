@@ -37,10 +37,10 @@ export async function passPuzzle01Quiz(page: Page): Promise<void> {
   await expect(page.getByRole("button", { name: "Check" })).toBeVisible();
 }
 
-/** Turn on all four RGB beams (legacy puzzle-01 body, still via the adapter). */
+/** Turn on all four RGB beams (puzzle-01's native React body). */
 export async function activateAllBeams(page: Page): Promise<void> {
-  for (const beam of ["red", "green", "blue", "overlap"]) {
-    await page.locator(`.beam-btn[data-beam="${beam}"]`).click();
+  for (const beam of ["Red Beam", "Green Beam", "Blue Beam", "Align Overlap"]) {
+    await page.getByRole("button", { name: beam }).click();
   }
 }
 

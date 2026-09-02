@@ -385,3 +385,49 @@
 .ds-slider {
   color: var(--accent-secondary);
 }
+
+/* ── Field / Select / Checkbox — shared puzzle-control primitives ───────── */
+.ds-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3xs);
+}
+
+.ds-field__label,
+.ds-checkbox__label {
+  font-size: var(--text-scale-small);
+  color: var(--text-secondary);
+}
+
+.ds-select {
+  min-height: var(--touch-min);
+  padding: var(--space-2xs) var(--space-xs);
+  border: 1px solid var(--surface-border-strong);
+  border-radius: var(--radius-sm);
+  background-color: var(--surface-2);
+  color: var(--text-primary);
+  font: inherit;
+}
+
+.ds-select:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.ds-checkbox {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.ds-checkbox__input {
+  width: 1.15rem;
+  height: 1.15rem;
+  flex: none;
+  accent-color: var(--accent-secondary);
+}
+
+.ds-checkbox__input:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}

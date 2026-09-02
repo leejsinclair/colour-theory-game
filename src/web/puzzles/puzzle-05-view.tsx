@@ -1,99 +1,69 @@
 /**
  * Puzzle 05 – Value Ordering (Lightest to Darkest)
  *
- * Players reorder a row of colour tiles from darkest to lightest using
- * left/right arrow buttons. When all tiles are in the correct sequence a
- * hidden icon is revealed. Teaches value progression and how ordered tonal
- * gradients guide the eye through a composition.
+ * Players reorder colour tiles from darkest to lightest with left/right
+ * controls. Correct order reveals a hidden icon. Teaches value progression.
  */
-import React from "react";
-import { createRoot } from "react-dom/client";
-import { PuzzleActionButton } from "./muiPuzzleControls";
-import { PuzzleRenderDeps, PuzzleRenderer } from "./types";
+import type { ReactElement } from "react";
+import type { PuzzleComponentProps } from "./types";
+import { Button } from "../design-system";
 
-type Puzzle05State = {
-  tiles: number[];
-  revealed: boolean;
+export type Puzzle05Input = {
+  orderedValues: number[];
+  hiddenImageRevealed: boolean;
 };
 
-type Puzzle05ViewProps = {
-  persistedState: Puzzle05State;
-};
+function isOrdered(values: number[]): boolean {
+  return values.every((v, i, arr) => i === 0 || v >= arr[i - 1]);
+}
 
-function Puzzle05View({ persistedState }: Puzzle05ViewProps): React.ReactElement {
-  const [localState, setLocalState] = React.useState<Puzzle05State>({
-    tiles: [...persistedState.tiles],
-    revealed: persistedState.revealed,
-  });
-
-  const updateState = (updater: (prev: Puzzle05State) => Puzzle05State): void => {
-    setLocalState((prev) => {
-      const next = updater(prev);
-      persistedState.tiles = [...next.tiles];
-      persistedState.revealed = next.revealed;
-      return next;
-    });
-  };
-
-  const ordered = localState.tiles.every((v, i, arr) => i === 0 || v >= arr[i - 1]);
-  if (persistedState.revealed !== ordered) {
-    persistedState.revealed = ordered;
-  }
+export default function Puzzle05View({
+  value,
+  onChange,
+  disabled,
+}: PuzzleComponentProps<Puzzle05Input>): ReactElement {
+  const tiles = value.orderedValues;
+  const ordered = isOrdered(tiles);
 
   const shift = (idx: number, direction: -1 | 1): void => {
-    updateState((prev) => {
-      const tiles = [...prev.tiles];
-      const other = idx + direction;
-      [tiles[other], tiles[idx]] = [tiles[idx], tiles[other]];
-      const nowOrdered = tiles.every((v, i, arr) => i === 0 || v >= arr[i - 1]);
-      return { tiles, revealed: nowOrdered };
-    });
+    const next = [...tiles];
+    const other = idx + direction;
+    [next[other], next[idx]] = [next[idx], next[other]];
+    onChange({ orderedValues: next, hiddenImageRevealed: isOrdered(next) });
   };
 
   return (
     <>
-      <div className="mini-label">Reorder tiles from darkest to lightest. Correct order reveals hidden icon.</div>
+      <div className="mini-label">Reorder tiles from darkest to lightest. Correct order reveals the hidden icon.</div>
 
-      <div className="ladder-wrap">
-        {localState.tiles.map((value, idx) => {
-          const tone = Math.round(value * 255);
+      <div className="ladder-wrap" role="group" aria-label="Value tiles">
+        {tiles.map((v, idx) => {
+          const tone = Math.round(v * 255);
           return (
-            <div key={`${idx}-${value}`} className="ladder-tile" style={{ background: `rgb(${tone}, ${tone}, ${tone})` }}>
+            <div key={`${idx}-${v}`} className="ladder-tile" style={{ background: `rgb(${tone}, ${tone}, ${tone})` }}>
               <div className="ladder-controls">
-                <PuzzleActionButton small disabled={idx === 0} onClick={() => shift(idx, -1)}>←</PuzzleActionButton>
-                <PuzzleActionButton small disabled={idx === localState.tiles.length - 1} onClick={() => shift(idx, 1)}>→</PuzzleActionButton>
+                <Button variant="secondary" size="sm" disabled={disabled || idx === 0} onClick={() => shift(idx, -1)}>
+                  <span aria-hidden="true">←</span>
+                  <span className="ds-visually-hidden">Move tile {idx + 1} left</span>
+                </Button>
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  disabled={disabled || idx === tiles.length - 1}
+                  onClick={() => shift(idx, 1)}
+                >
+                  <span aria-hidden="true">→</span>
+                  <span className="ds-visually-hidden">Move tile {idx + 1} right</span>
+                </Button>
               </div>
             </div>
           );
         })}
       </div>
 
-      <div className={`hidden-reveal${ordered ? " is-on" : ""}`}>
+      <div className={`hidden-reveal${ordered ? " is-on" : ""}`} aria-live="polite">
         {ordered ? "Hidden image revealed: ⟡" : "Hidden image is scrambled"}
       </div>
     </>
   );
 }
-
-export const renderPuzzle05: PuzzleRenderer = (deps: PuzzleRenderDeps) => {
-  const {
-    zone,
-    wrapper,
-    puzzleId,
-    ensureState,
-    addCheckButton,
-    shuffleArray,
-  } = deps;
-
-  const state = ensureState<Puzzle05State>(puzzleId, {
-    tiles: shuffleArray([0.05, 0.2, 0.4, 0.6, 0.8, 0.95]),
-    revealed: false,
-  });
-
-  createRoot(zone).render(<Puzzle05View persistedState={state} />);
-
-  addCheckButton(wrapper, puzzleId, () => ({
-    orderedValues: state.tiles,
-    hiddenImageRevealed: state.revealed,
-  }));
-};

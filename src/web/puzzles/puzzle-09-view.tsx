@@ -1,15 +1,11 @@
 /**
  * Puzzle 09 – Mood-to-Palette Matching
  *
- * Six mood cards (joyful carnival, calm ocean, creepy dungeon, romantic sunset,
- * focused studio, mystical premium) each display four colour palettes. Players
- * click the palette that best matches the mood's psychological associations.
- * Teaches how colour combinations evoke specific emotional responses and are
- * used in branding, film, and UX design.
+ * Six mood cards each show four colour palettes. Players click the palette that
+ * best matches the mood's psychological associations.
  */
-import React from "react";
-import { createRoot } from "react-dom/client";
-import { PuzzleRenderDeps, PuzzleRenderer } from "./types";
+import type { ReactElement } from "react";
+import type { PuzzleComponentProps } from "./types";
 
 type MoodOption = {
   mood: string;
@@ -18,12 +14,8 @@ type MoodOption = {
   palettes: Array<{ id: string; swatches: string[] }>;
 };
 
-type Puzzle09State = {
+export type Puzzle09Input = {
   selections: Record<string, string>;
-};
-
-type Puzzle09ViewProps = {
-  persistedState: Puzzle09State;
 };
 
 const MOOD_OPTIONS: MoodOption[] = [
@@ -95,15 +87,16 @@ const MOOD_OPTIONS: MoodOption[] = [
   },
 ];
 
-function Puzzle09View({ persistedState }: Puzzle09ViewProps): React.ReactElement {
-  const [selections, setSelections] = React.useState<Record<string, string>>({ ...persistedState.selections });
+export default function Puzzle09View({
+  value,
+  onChange,
+  disabled,
+}: PuzzleComponentProps<Puzzle09Input>): ReactElement {
+  const { selections } = value;
 
-  const pickPalette = (mood: string, paletteId: string): void => {
-    setSelections((prev) => {
-      const next = { ...prev, [mood]: prev[mood] === paletteId ? "" : paletteId };
-      persistedState.selections = next;
-      return next;
-    });
+  const pick = (mood: string, paletteId: string): void => {
+    const next = { ...selections, [mood]: selections[mood] === paletteId ? "" : paletteId };
+    onChange({ selections: next });
   };
 
   const matched = MOOD_OPTIONS.filter((m) => selections[m.mood] === m.correctId).length;
@@ -115,13 +108,16 @@ function Puzzle09View({ persistedState }: Puzzle09ViewProps): React.ReactElement
       {MOOD_OPTIONS.map((moodDef) => (
         <div key={moodDef.mood} className="mood-match-card">
           <div className="mood-match-title">{moodDef.label}</div>
-          <div className="mood-match-options">
+          <div className="mood-match-options" role="group" aria-label={`Palettes for ${moodDef.label}`}>
             {moodDef.palettes.map((pal) => (
               <button
                 key={`${moodDef.mood}-${pal.id}`}
+                type="button"
                 className={`tod-palette-btn${selections[moodDef.mood] === pal.id ? " --selected" : ""}`}
-                aria-label={`Select palette for ${moodDef.label}`}
-                onClick={() => pickPalette(moodDef.mood, pal.id)}
+                aria-pressed={selections[moodDef.mood] === pal.id}
+                aria-label={`Palette ${pal.id} for ${moodDef.label}`}
+                disabled={disabled}
+                onClick={() => pick(moodDef.mood, pal.id)}
               >
                 <div className="tod-swatch-row">
                   {pal.swatches.map((color) => (
@@ -134,25 +130,9 @@ function Puzzle09View({ persistedState }: Puzzle09ViewProps): React.ReactElement
         </div>
       ))}
 
-      <div className="mini-label">
+      <div className="mini-label" aria-live="polite">
         {matched === MOOD_OPTIONS.length ? "All palettes matched! ✓" : `${matched} of ${MOOD_OPTIONS.length} matched.`}
       </div>
     </>
   );
 }
-
-export const renderPuzzle09: PuzzleRenderer = (deps: PuzzleRenderDeps) => {
-  const {
-    zone,
-    wrapper,
-    puzzleId,
-    ensureState,
-    addCheckButton,
-  } = deps;
-
-  const state = ensureState<Puzzle09State>(puzzleId, { selections: {} });
-
-  createRoot(zone).render(<Puzzle09View persistedState={state} />);
-
-  addCheckButton(wrapper, puzzleId, () => ({ selections: state.selections }));
-};

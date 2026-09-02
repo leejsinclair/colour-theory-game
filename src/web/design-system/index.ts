@@ -26,6 +26,10 @@ export { Menu } from "./Menu";
 export type { MenuItemSpec, MenuProps } from "./Menu";
 export { Slider } from "./Slider";
 export type { SliderProps } from "./Slider";
+export { Select } from "./Select";
+export type { SelectOption, SelectProps } from "./Select";
+export { Checkbox } from "./Checkbox";
+export type { CheckboxProps } from "./Checkbox";
 export { Tooltip } from "./Tooltip";
 export type { TooltipProps } from "./Tooltip";
 

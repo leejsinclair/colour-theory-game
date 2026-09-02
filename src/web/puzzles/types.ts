@@ -1,42 +1,25 @@
-export type PuzzleRenderResult = {
-  appended?: boolean;
+import type { ComponentType } from "react";
+
+/**
+ * Contract: PuzzleComponent (contracts/puzzle-component.md).
+ *
+ * Every playable puzzle is a controlled React component satisfying this shape.
+ * There is no `persistedState` bridge, no `createRoot`-per-puzzle, no
+ * `addCheckButton`, no DOM queries and no domain imports — the component's only
+ * channel out is `onChange`, and `<PuzzlePlayer>` owns the Check action.
+ */
+
+export type PuzzleComponentProps<TInput = unknown> = {
+  /** Current answer. Controlled — the component renders from this, never from its own copy. */
+  value: TInput;
+  /** Report a new answer. The ONLY channel out of the component. */
+  onChange: (next: TInput) => void;
+  /** True until the learning gate is passed, and briefly during reward playback. */
+  disabled: boolean;
+  /** Push a message to the shared aria-live region (results, hints, "cap reached"). */
+  announce: (message: string) => void;
+  /** Reduced-motion flag for any in-puzzle animation. */
+  reducedMotion: boolean;
 };
 
-export type PuzzleRenderDeps = {
-  zone: HTMLDivElement;
-  wrapper: HTMLDivElement;
-  puzzleId: string;
-  state: string;
-  ensureState: <T>(puzzleId: string, initial: T) => T;
-  addMiniLabel: (container: HTMLElement, text: string) => void;
-  addSlider: (
-    container: HTMLElement,
-    label: string,
-    value: number,
-    min: number,
-    max: number,
-    step: number,
-    onInput: (value: number) => void,
-  ) => HTMLInputElement;
-  addSelect: (
-    container: HTMLElement,
-    label: string,
-    options: string[],
-    current: string,
-    onChange: (value: string) => void,
-  ) => HTMLSelectElement;
-  addCheckbox: (
-    container: HTMLElement,
-    label: string,
-    checked: boolean,
-    onChange: (checked: boolean) => void,
-  ) => HTMLInputElement;
-  addCheckButton: (wrapper: HTMLDivElement, puzzleId: string, inputFactory: () => unknown) => void;
-  circularHueDistance: (a: number, b: number) => number;
-  shuffleArray: <T>(items: T[]) => T[];
-  render: () => void;
-  renderArtStationMiniGame: (container: HTMLElement, wrapper: HTMLDivElement, puzzleId: string, state: string) => void;
-  appendWrapper: () => void;
-};
-
-export type PuzzleRenderer = (deps: PuzzleRenderDeps) => PuzzleRenderResult | void;
+export type PuzzleComponent<TInput = unknown> = ComponentType<PuzzleComponentProps<TInput>>;

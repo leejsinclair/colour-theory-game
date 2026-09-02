@@ -1,58 +1,49 @@
 /**
  * Puzzle 06 – Chroma Peaks by Hue
  *
- * Players explore a branching tree of nodes with increasing saturation levels
- * for red, green, and blue hues. Each hue reaches maximum vividness at a
- * different saturation level (red peaks at level 4, green at 2, blue at 3).
- * Teaches that hues have different inherent chroma ceilings and do not all
- * reach peak saturation at the same point.
+ * Players explore branching nodes of increasing saturation for red, green and
+ * blue. Each hue peaks at a different level (red 4, green 2, blue 3), teaching
+ * that hues have different inherent chroma ceilings.
  */
-import React from "react";
-import { createRoot } from "react-dom/client";
-import { PuzzleRenderDeps, PuzzleRenderer } from "./types";
+import { useState, type ReactElement } from "react";
+import type { PuzzleComponentProps } from "./types";
 
 type Hue = "red" | "green" | "blue";
 
-type Puzzle06State = {
-  visited: Record<string, boolean>;
-  peakByHue: Record<Hue, number>;
-  foundPeak: Record<Hue, boolean>;
-};
-
-type Puzzle06ViewProps = {
-  persistedState: Puzzle06State;
+export type Puzzle06Input = {
+  exploredHues: Hue[];
+  discoveredDifferentChromaPeaks: boolean;
 };
 
 const hues: Hue[] = ["red", "green", "blue"];
+const PEAK_BY_HUE: Record<Hue, number> = { red: 4, green: 2, blue: 3 };
 
 function hueDegrees(hue: Hue): number {
-  if (hue === "red") {
-    return 0;
-  }
-  if (hue === "green") {
-    return 120;
-  }
-  return 220;
+  return hue === "red" ? 0 : hue === "green" ? 120 : 220;
 }
 
-function Puzzle06View({ persistedState }: Puzzle06ViewProps): React.ReactElement {
-  const [localState, setLocalState] = React.useState<Puzzle06State>({
-    visited: { ...persistedState.visited },
-    peakByHue: { ...persistedState.peakByHue },
-    foundPeak: { ...persistedState.foundPeak },
+export default function Puzzle06View({
+  onChange,
+  disabled,
+}: PuzzleComponentProps<Puzzle06Input>): ReactElement {
+  const [visited, setVisited] = useState<Record<string, boolean>>({});
+  const [foundPeak, setFoundPeak] = useState<Record<Hue, boolean>>({
+    red: false,
+    green: false,
+    blue: false,
   });
 
-  const updateState = (updater: (prev: Puzzle06State) => Puzzle06State): void => {
-    setLocalState((prev) => {
-      const next = updater(prev);
-      persistedState.visited = { ...next.visited };
-      persistedState.peakByHue = { ...next.peakByHue };
-      persistedState.foundPeak = { ...next.foundPeak };
-      return next;
+  const emit = (nextVisited: Record<string, boolean>, nextFound: Record<Hue, boolean>): void => {
+    const exploredHues = hues.filter((hue) =>
+      Object.keys(nextVisited).some((key) => key.startsWith(`${hue}-`)),
+    );
+    onChange({
+      exploredHues,
+      discoveredDifferentChromaPeaks: hues.every((hue) => nextFound[hue]),
     });
   };
 
-  const foundCount = Object.values(localState.foundPeak).filter(Boolean).length;
+  const foundCount = Object.values(foundPeak).filter(Boolean).length;
 
   return (
     <>
@@ -63,32 +54,29 @@ function Puzzle06View({ persistedState }: Puzzle06ViewProps): React.ReactElement
           <div key={hue} className="chroma-branch">
             <div className="mini-label">{hue.toUpperCase()} branch</div>
             <div className="chroma-nodes">
-              {Array.from({ length: 5 }, (_, value) => {
-                const key = `${hue}-${value}`;
-                const sat = 25 + value * 15;
-                const visited = localState.visited[key];
-                const isPeak = localState.peakByHue[hue] === value;
+              {Array.from({ length: 5 }, (_, level) => {
+                const key = `${hue}-${level}`;
+                const sat = 25 + level * 15;
+                const isVisited = visited[key];
+                const isPeak = PEAK_BY_HUE[hue] === level;
                 return (
                   <button
                     key={key}
-                    className={`chroma-node${visited ? " visited" : ""}${localState.foundPeak[hue] && isPeak ? " peak" : ""}`}
+                    type="button"
+                    className={`chroma-node${isVisited ? " visited" : ""}${foundPeak[hue] && isPeak ? " peak" : ""}`}
                     style={{ background: `hsl(${hueDegrees(hue)}, ${sat}%, 50%)` }}
-                    title={`${hue} chroma level ${value + 1} — saturation ${sat}%`}
-                    aria-label={`${hue} chroma level ${value + 1}${isPeak ? " (peak)" : ""}${visited ? " (visited)" : ""}`}
-                    aria-pressed={visited}
+                    aria-label={`${hue} chroma level ${level + 1}${isPeak ? " (peak)" : ""}${isVisited ? " (visited)" : ""}`}
+                    aria-pressed={isVisited}
+                    disabled={disabled}
                     onClick={() => {
-                      updateState((prev) => {
-                        const nextVisited = { ...prev.visited, [key]: true };
-                        const nextFound = { ...prev.foundPeak };
-                        if (prev.peakByHue[hue] === value) {
-                          nextFound[hue] = true;
-                        }
-                        return {
-                          ...prev,
-                          visited: nextVisited,
-                          foundPeak: nextFound,
-                        };
-                      });
+                      const nextVisited = { ...visited, [key]: true };
+                      const nextFound = { ...foundPeak };
+                      if (isPeak) {
+                        nextFound[hue] = true;
+                      }
+                      setVisited(nextVisited);
+                      setFoundPeak(nextFound);
+                      emit(nextVisited, nextFound);
                     }}
                   />
                 );
@@ -105,26 +93,3 @@ function Puzzle06View({ persistedState }: Puzzle06ViewProps): React.ReactElement
     </>
   );
 }
-
-export const renderPuzzle06: PuzzleRenderer = (deps: PuzzleRenderDeps) => {
-  const {
-    zone,
-    wrapper,
-    puzzleId,
-    ensureState,
-    addCheckButton,
-  } = deps;
-
-  const state = ensureState<Puzzle06State>(puzzleId, {
-    visited: {},
-    peakByHue: { red: 4, green: 2, blue: 3 },
-    foundPeak: { red: false, green: false, blue: false },
-  });
-
-  createRoot(zone).render(<Puzzle06View persistedState={state} />);
-
-  addCheckButton(wrapper, puzzleId, () => ({
-    exploredHues: hues.filter((hue) => Object.keys(state.visited).some((k) => k.startsWith(`${hue}-`))),
-    discoveredDifferentChromaPeaks: Object.values(state.foundPeak).every(Boolean),
-  }));
-};

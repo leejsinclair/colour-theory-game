@@ -16,9 +16,8 @@ import type { Toast } from "../state/sessionReducer";
 
 /**
  * The full puzzle lifecycle in React (FR-031): learning intro → quiz → play →
- * Check → feedback → reward → continue. `legacyGame.ts`'s `renderPuzzleMiniGame`
- * is retired; the puzzle body still comes through `<LegacyPuzzleAdapter>` inside
- * `<PuzzlePlayer>` until US3.
+ * Check → feedback → reward → continue. The puzzle body is a native controlled
+ * `PuzzleComponent` hosted by `<PuzzlePlayer>` (US3) — no legacy adapter.
  */
 
 type Stage = "intro" | "quiz" | "solve";

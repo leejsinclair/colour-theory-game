@@ -16,6 +16,6 @@ test("a solved Design Studio puzzle can be practised with Check present", async 
 
   await page.getByRole("button", { name: /^Practice Color Balance/ }).click();
   await expect(page.getByRole("button", { name: "Check" })).toBeVisible();
-  // Legacy composition body still renders through the adapter.
-  await expect(page.locator(".balance-composition")).toBeVisible();
+  // The composition body is a native React PuzzleComponent with slider controls.
+  await expect(page.getByRole("slider").first()).toBeVisible();
 });

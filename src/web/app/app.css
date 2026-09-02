@@ -195,6 +195,48 @@ a {
   font-size: var(--text-scale-small);
 }
 
+/* ── Art Station pad (puzzle-18) — structural only; full visual pass is US7 ─ */
+.art-station-pad {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.art-station-pad .paint-pad {
+  display: grid;
+  gap: 2px;
+  width: 100%;
+  max-width: 22rem;
+  padding: 2px;
+  border: 1px solid var(--surface-border-strong);
+  border-radius: var(--radius-sm);
+  background-color: var(--surface-border-strong);
+  touch-action: none;
+}
+
+.art-station-pad .paint-cell {
+  aspect-ratio: 1;
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 2px;
+  cursor: crosshair;
+}
+
+.art-station-pad .optical-preview {
+  display: grid;
+  gap: 0;
+  width: 100%;
+  max-width: 12rem;
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.art-station-pad .optical-cell {
+  aspect-ratio: 1;
+}
+
 /* ── HUD ────────────────────────────────────────────────────────────────── */
 .hud {
   display: flex;

@@ -160,30 +160,30 @@ Single repository. Web SPA under `src/web/`, domain core under `src/game/ src/sy
 
 ### Tests for User Story 3
 
-- [ ] T063 [P] [US3] Create `src/web/puzzles/types.ts` (new) — `PuzzleComponentProps<TInput>` = `{ value, onChange, disabled, announce, reducedMotion }` and `PuzzleComponent<TInput>` (`contracts/puzzle-component.md` §Signature)
-- [ ] T064 [P] [US3] Rewrite `tests/artStationMiniGame.test.ts` → `tests/artStationCoverage.test.ts` — pure coverage/optical math for the extracted module
-- [ ] T065 [P] [US3] Rewrite `tests/learningFlow.test.ts` → `tests/component/LearningQuiz.test.tsx` — component test of the quiz gate
-- [ ] T066 [P] [US3] Add `tests/component/puzzle-views.test.tsx` — representative sample (one per station) + special apparatus: renders from `value`, emits correct `onChange` shape, asserts no `document`/`createRoot`/module-global/`Game` access
-- [ ] T067 [P] [US3] Add `tests/e2e/puzzle-interaction.spec.ts` — keyboard + pointer control operation and wrong-then-right submission across ≥3 stations
+- [X] T063 [P] [US3] Create `src/web/puzzles/types.ts` (new) — `PuzzleComponentProps<TInput>` = `{ value, onChange, disabled, announce, reducedMotion }` and `PuzzleComponent<TInput>` (`contracts/puzzle-component.md` §Signature)
+- [X] T064 [P] [US3] Rewrite `tests/artStationMiniGame.test.ts` → `tests/artStationCoverage.test.ts` — pure coverage/optical math for the extracted module (`getArtCoverage` / `distinctDots` / `artStationResult` / `opticalPreview`)
+- [X] T065 [P] [US3] Rewrite `tests/learningFlow.test.ts` → `tests/component/LearningQuiz.test.tsx` — component test of the quiz gate; the pure scorer keeps its unit coverage in the renamed `tests/evaluateLearningQuiz.test.ts`
+- [X] T066 [P] [US3] Add `tests/component/puzzle-views.test.tsx` — one puzzle per station + `ArtStationPad`: renders from `value`, emits correct `onChange` shape, disabled-aware; plus a static scan of all 22 view modules for `persistedState` / `createRoot` / `react-dom/client` / domain imports / DOM queries
+- [X] T067 [P] [US3] Add `tests/e2e/puzzle-interaction.spec.ts` — pointer (station-01, station-06) + keyboard slider (station-03) operation with wrong-then-right submission
 
 ### Implementation for User Story 3
 
-- [ ] T068 [US3] Create `src/web/puzzles/index.ts` (new shape) — `puzzleComponents` `React.lazy` map keyed `puzzle-01..21`, `puzzle-23`, plus `initialInputFor(puzzleId)` (`contracts/puzzle-component.md` §Registration, research.md R13)
-- [ ] T069 [P] [US3] Add design-system puzzle controls if not already covered by T022/T023 — labelled `Slider` / `Select` / `Checkbox` wrappers giving every puzzle one interaction vocabulary (Principle III, `contracts/puzzle-component.md` rule 3)
-- [ ] T070 [P] [US3] Create `src/web/puzzles/artStationCoverage.ts` — pure, unit-tested coverage/optical math extracted from `src/web/legacy/artStationMiniGame.ts` (research.md R4)
-- [ ] T071 [US3] Create `src/web/puzzles/ArtStationPad.tsx` — React rewrite of the Art Station paint pad satisfying `PuzzleComponentProps`; internal pad state local; selected colour is local state (was `legacyGame` `selectedArtColor`) (data-model.md §4, US3-4)
-- [ ] T072 [P] [US3] Migrate **station-01** puzzle views — `src/web/puzzles/puzzle-0{1,2,3}-view.tsx` to the `PuzzleComponent` contract (drop local `useState` copy + `Object.assign(persistedState,…)`, drop `renderPuzzle0N`, `export default`, add `initialInputFor` case) per `contracts/puzzle-component.md` §Migration checklist
-- [ ] T073 [P] [US3] Migrate **station-02** puzzle views — `puzzle-0{4,5,6}-view.tsx`; puzzle-06 keeps/uses `ChromaTreeExplorer.tsx`
-- [ ] T074 [P] [US3] Migrate **station-03** puzzle views — `puzzle-0{7,8,9}-view.tsx`
-- [ ] T075 [P] [US3] Migrate **station-04** puzzle views — `puzzle-1{0,1,2}-view.tsx`
-- [ ] T076 [P] [US3] Migrate **station-05** puzzle views — `puzzle-1{3,4,5}-view.tsx`
-- [ ] T077 [P] [US3] Migrate **station-06** puzzle views — `puzzle-1{6,7}-view.tsx` + `puzzle-18-view.tsx` (uses `ArtStationPad`)
-- [ ] T078 [P] [US3] Migrate **station-07** puzzle views — `puzzle-{19,20,21}-view.tsx` + `puzzle-23-view.tsx` (keeps `puzzle-23-data.ts`)
-- [ ] T079 [US3] Switch `src/web/components/PuzzlePlayer.tsx` from `LegacyPuzzleAdapter` to `<Suspense fallback={<PuzzleSkeleton/>}><PuzzleComponent value onChange disabled announce reducedMotion/></Suspense>` (`contracts/puzzle-component.md` §PuzzlePlayer)
-- [ ] T080 [US3] Delete legacy puzzle machinery — `src/web/components/LegacyPuzzleAdapter.tsx`, `src/web/puzzles/puzzle-0*.ts`/`puzzle-1*.ts`/`puzzle-2*.ts` entry re-exports, `src/web/puzzles/puzzle-01.tsx` (dead duplicate), the old `renderPuzzleById`/`puzzleRenderers`/`PuzzleRenderDeps`, `src/web/puzzles/muiPuzzleControls.tsx`, `src/web/muiControls.tsx`, `src/web/legacy/artStationMiniGame.ts`; delete the now-empty `src/web/legacy/` directory (FR-003, SC-004, SC-005)
-- [ ] T081 [US3] Run the checkpoint gate (build / test / test:component / lint / build:web / test:e2e); grep confirms zero `persistedState` / `PuzzleRenderDeps` / `src/web/legacy` references remain (SC-005)
+- [X] T068 [US3] Create `src/web/puzzles/index.ts` (new shape) — `puzzleComponents` `React.lazy` map keyed `puzzle-01..21`, `puzzle-23` (+ `hasPuzzleComponent`), plus `initialInputFor(puzzleId)` (`contracts/puzzle-component.md` §Registration, research.md R13). Puzzle chunks are now code-split — initial JS gzip dropped to 169.3 kB.
+- [X] T069 [P] [US3] Add design-system puzzle controls — `Select` + `Checkbox` (native, labelled) alongside the existing `Slider`; puzzle-local `controls.tsx` `PuzzleSlider` only formats the label over `design-system/Slider` (Principle III, `contracts/puzzle-component.md` rule 3)
+- [X] T070 [P] [US3] Create `src/web/puzzles/artStationCoverage.ts` — pure, unit-tested coverage/optical math extracted from the retired `src/web/legacy/artStationMiniGame.ts` (research.md R4)
+- [X] T071 [US3] Create `src/web/puzzles/ArtStationPad.tsx` — React rewrite of the Art Station paint pad satisfying `PuzzleComponentProps`; pad pixels + selected colour are local state; pointer-drag and click paint, `role="grid"` cells
+- [X] T072 [P] [US3] Migrate **station-01** puzzle views — `puzzle-0{1,2,3}-view.tsx` to the `PuzzleComponent` contract (`value`/`onChange`, `export default`, `initialInputFor` case, no `persistedState`, no `renderPuzzle0N`)
+- [X] T073 [P] [US3] Migrate **station-02** puzzle views — `puzzle-0{4,5,6}-view.tsx`; `ChromaTreeExplorer.tsx` retained (used by `InfoModal`)
+- [X] T074 [P] [US3] Migrate **station-03** puzzle views — `puzzle-0{7,8,9}-view.tsx`
+- [X] T075 [P] [US3] Migrate **station-04** puzzle views — `puzzle-1{0,1,2}-view.tsx`
+- [X] T076 [P] [US3] Migrate **station-05** puzzle views — `puzzle-1{3,4,5}-view.tsx`; puzzle-15 fully rewritten from imperative DOM to a two-stage React component
+- [X] T077 [P] [US3] Migrate **station-06** puzzle views — `puzzle-1{6,7}-view.tsx`; puzzle-18 is now `ArtStationPad` (old `puzzle-18-view.tsx` deleted)
+- [X] T078 [P] [US3] Migrate **station-07** puzzle views — `puzzle-{19,20,21}-view.tsx` + `puzzle-23-view.tsx` (keeps `puzzle-23-data.ts`)
+- [X] T079 [US3] Switch `src/web/components/PuzzlePlayer.tsx` to `<Suspense fallback={<PuzzleSkeleton/>}><PuzzleView value onChange disabled announce reducedMotion/></Suspense>` + the real Check button in-subtree; new `components/PuzzleSkeleton.tsx`
+- [X] T080 [US3] Delete legacy puzzle machinery — `LegacyPuzzleAdapter.tsx`, all 22 `puzzle-NN.ts` entry re-exports, `puzzle-01.tsx` (dead duplicate), `renderPuzzleById`/`puzzleRenderers`/`PuzzleRenderDeps`, `muiPuzzleControls.tsx`, `src/web/muiControls.tsx`, `src/web/legacy/artStationMiniGame.ts`; `src/web/legacy/` removed (FR-003, SC-004, SC-005)
+- [X] T081 [US3] Checkpoint gate green — `npm run build` (tsc), `npm run lint`, `npm test` (16 files / 227 tests), `npm run build:web` (JS gzip **169.3 kB** vs 219.0 baseline; SC-013 OK), `npm run test:e2e` (22 passed). `git grep` in `src/**` for `persistedState` / `PuzzleRenderDeps` / `src/web/legacy` finds only historical doc-comment references, no code.
 
-**Checkpoint**: All 22 puzzles are native React components; the mutable bridge is gone.
+**Checkpoint**: ✅ All 22 puzzles are native controlled React components hosted by `<PuzzlePlayer>` behind `<Suspense>`; the `persistedState` bridge, `addCheckButton`, `PuzzleRenderDeps`, `LegacyPuzzleAdapter` and `src/web/legacy/` are gone. Puzzle chunks are code-split. Visual styling of the puzzle bodies (class hooks preserved, orphaned `src/web/styles.css` as the reference) remains for the US7 responsive/visual pass.
 
 ---
 
