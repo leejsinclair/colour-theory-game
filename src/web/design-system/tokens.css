@@ -1,0 +1,132 @@
+/*
+ * Chromatic Mastery — design tokens (FR-041, research.md R8)
+ * Identity: "Magical Artist's Studio + Colour Laboratory + Indie Game Arcade".
+ *
+ * All values are provisional until the WCAG AA contrast matrix in
+ * contracts/ui-contract.md is filled during US7 (T093). Every colour that
+ * carries meaning is also paired with an icon + label in the components — never
+ * colour alone (FR-035, SC-008).
+ */
+
+:root {
+  color-scheme: dark;
+
+  /* ── Background: deep midnight studio ──────────────────────────────────── */
+  --bg-base: #0e0b1a;
+  --bg-deep: #08060f;
+  --bg-raised: #171332;
+
+  /* ── Surfaces: layered panels / "glass pigment" ───────────────────────── */
+  --surface-1: #1d1840;
+  --surface-2: #262056;
+  --surface-3: #322a6e;
+  --surface-inset: #141031;
+  --surface-border: #3a3270;
+  --surface-border-strong: #5b4fae;
+
+  /* ── Text ─────────────────────────────────────────────────────────────── */
+  --text-primary: #f4f1ff;
+  --text-secondary: #cfc7f0;
+  --text-muted: #9a90c4;
+  --text-on-accent: #0e0b1a;
+  --text-inverse: #0e0b1a;
+
+  /* ── Accent set (small + vivid — not per-element colour) ───────────────── */
+  --accent-primary: #ff5bb0;      /* magenta pigment — primary CTA */
+  --accent-primary-hover: #ff7cc2;
+  --accent-secondary: #46e0d0;    /* aqua glass — secondary CTA / links */
+  --accent-secondary-hover: #6cebdd;
+  --accent-gold: #ffcf5c;         /* reward / highlight */
+  --accent-violet: #a78bfa;
+
+  /* ── Per-station hue identity (one per station) ───────────────────────── */
+  --station-01: #ffd24a;  /* Light Laboratory     — warm beam yellow */
+  --station-02: #8ea0b8;  /* Value Sketchboard    — graphite */
+  --station-03: #ff6f61;  /* Color Wheel Table    — coral */
+  --station-04: #7c5cff;  /* Optical Illusion Wall — violet */
+  --station-05: #4bb8ff;  /* Window Landscape     — sky */
+  --station-06: #43d17a;  /* Paint Workbench      — viridian */
+  --station-07: #ff8ad8;  /* Design Studio        — rose */
+
+  /* ── Meaningful state colours (always icon + label alongside) ─────────── */
+  --state-success: #4fd08a;
+  --state-success-bg: #12341f;
+  --state-failure: #ff8f6b;
+  --state-failure-bg: #3a1c14;
+  --state-locked: #7a719f;
+  --state-locked-bg: #191536;
+  --state-info: #6cc8ff;
+
+  /* ── Spacing (modular scale, 4px base) ────────────────────────────────── */
+  --space-3xs: 0.125rem;
+  --space-2xs: 0.25rem;
+  --space-xs: 0.5rem;
+  --space-sm: 0.75rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2.5rem;
+  --space-2xl: 4rem;
+  --space-3xl: 6rem;
+
+  /* ── Radius ──────────────────────────────────────────────────────────── */
+  --radius-xs: 4px;
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 22px;
+  --radius-pill: 999px;
+
+  /* ── Shadows / glows ─────────────────────────────────────────────────── */
+  --shadow-1: 0 2px 8px rgba(0, 0, 0, 0.35);
+  --shadow-2: 0 8px 28px rgba(0, 0, 0, 0.45);
+  --shadow-3: 0 18px 60px rgba(0, 0, 0, 0.55);
+  --glow-accent: 0 0 0 1px rgba(255, 91, 176, 0.4), 0 0 24px rgba(255, 91, 176, 0.25);
+  --glow-secondary: 0 0 0 1px rgba(70, 224, 208, 0.4), 0 0 24px rgba(70, 224, 208, 0.2);
+  --glow-gold: 0 0 28px rgba(255, 207, 92, 0.35);
+
+  /* ── Focus ring (>= 3:1 vs adjacent — SC-008) ────────────────────────── */
+  --focus-ring: 0 0 0 3px var(--bg-base), 0 0 0 6px var(--accent-secondary);
+  --focus-ring-color: var(--accent-secondary);
+
+  /* ── Typography ──────────────────────────────────────────────────────── */
+  --font-display: "Space Grotesk", "Trebuchet MS", "Gill Sans", system-ui, sans-serif;
+  --font-body: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", "Cascadia Code", Menlo, Consolas, monospace;
+
+  --text-scale-hero: clamp(2.25rem, 1.6rem + 3.2vw, 3.75rem);
+  --text-scale-h1: clamp(1.75rem, 1.35rem + 2vw, 2.75rem);
+  --text-scale-h2: clamp(1.375rem, 1.15rem + 1.1vw, 1.875rem);
+  --text-scale-h3: clamp(1.125rem, 1.03rem + 0.5vw, 1.375rem);
+  --text-scale-body: 1rem;
+  --text-scale-small: 0.875rem;
+  --line-tight: 1.15;
+  --line-body: 1.6;
+
+  /* ── Motion (zeroed under prefers-reduced-motion below) ──────────────── */
+  --motion-fast: 120ms;
+  --motion-base: 240ms;
+  --motion-slow: 420ms;
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --ease-emphasised: cubic-bezier(0.2, 0, 0, 1.2);
+  --ease-exit: cubic-bezier(0.4, 0, 1, 1);
+
+  /* ── Layout ──────────────────────────────────────────────────────────── */
+  --layout-max: 72rem;
+  --hud-height: 3.5rem;
+  --touch-min: 44px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --motion-fast: 0ms;
+    --motion-base: 0ms;
+    --motion-slow: 0ms;
+  }
+}
+
+/* JS-driven effects read this attribute (set by useReducedMotion) as a mirror
+   of the media query, so imperative animation can branch too (FR-047). */
+:root[data-reduced-motion="true"] {
+  --motion-fast: 0ms;
+  --motion-base: 0ms;
+  --motion-slow: 0ms;
+}
