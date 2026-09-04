@@ -1,4 +1,4 @@
-import { memo, useEffect, useReducer, useState, type ReactElement } from "react";
+import { memo, useReducer, useState, type ReactElement } from "react";
 import { Button, Heading, announce } from "../design-system";
 import { usePuzzle, useStation, useStations } from "../state/selectors";
 import { useGameActions, useSession } from "../state/contexts";
@@ -66,20 +66,23 @@ function PuzzleScreenImpl({
   const gated = Boolean(puzzle?.learningRequired) && !practice;
 
   const [stage, dispatchStage] = useReducer(stageReducer, gated ? "intro" : "solve");
+  // If the gate has cleared (quiz recorded, puzzle solved elsewhere), solve is
+  // the only valid stage regardless of internal intro/quiz progress.
+  const effectiveStage: Stage = gated ? stage : "solve";
   const [outcome, setOutcome] = useState<Outcome>({ kind: "idle" });
-
-  // If the gate clears (quiz recorded, puzzle solved elsewhere) move to solve.
-  useEffect(() => {
-    if (!gated && stage !== "solve") {
-      dispatchStage({ type: "TO_SOLVE" });
-    }
-  }, [gated, stage]);
 
   const openInfo = (): void => dispatch({ type: "OPEN_INFO", puzzleId });
 
   const backRoute: Route = { view: "station", stationId };
 
   const handleSolved = (result: SubmitSuccess): void => {
+    if (result.alreadySolved) {
+      // Reached a solved, non-practice puzzle directly (e.g. browser Back) —
+      // nothing new to celebrate, so just return to the station.
+      navigate(backRoute);
+      return;
+    }
+
     if (practice) {
       announce(`Practice solved. ${result.scoreEvent.reason}`);
       setOutcome({ kind: "solved", result });
@@ -156,14 +159,14 @@ function PuzzleScreenImpl({
 
       {practice ? <p role="status">Practice mode — this puzzle is already solved.</p> : null}
 
-      {stage === "intro" ? (
+      {effectiveStage === "intro" ? (
         <LearningIntro
           puzzleId={puzzleId}
           onStartQuiz={() => dispatchStage({ type: "START_QUIZ" })}
         />
       ) : null}
 
-      {stage === "quiz" ? (
+      {effectiveStage === "quiz" ? (
         <LearningQuiz
           puzzleId={puzzleId}
           onBack={() => dispatchStage({ type: "BACK_TO_INTRO" })}
@@ -179,7 +182,7 @@ function PuzzleScreenImpl({
         />
       ) : null}
 
-      {stage === "solve" && outcome.kind !== "solved" ? (
+      {effectiveStage === "solve" && outcome.kind !== "solved" ? (
         <PuzzlePlayer
           key={practice ? "practice" : "play"}
           puzzleId={puzzleId}

@@ -26,6 +26,8 @@ export type SubmitSuccess = {
   stationCompleted: boolean;
   nextStationId: string | null;
   grandCanvasUnlocked: boolean;
+  /** A repeat submit for a puzzle already solved — nothing new was earned. */
+  alreadySolved?: boolean;
 };
 
 export type SubmitFailure = {
@@ -75,8 +77,10 @@ export function createGameActions({ store, dispatchSession }: GameActionsDeps): 
     const game = store.getGame();
     const puzzle = game.puzzleManager.getPuzzle(puzzleId);
 
-    // Idempotent: a repeat submit for an already-solved puzzle is a no-op success
-    // (Edge Cases — fast repeated Check clicks).
+    // Idempotent: a repeat submit for an already-solved puzzle is a no-op
+    // (Edge Cases — fast repeated Check clicks). Flagged `alreadySolved` so the
+    // caller can skip the reward celebration instead of replaying it for zero
+    // actual reward.
     if (puzzle?.solved) {
       return {
         ok: true,
@@ -84,7 +88,8 @@ export function createGameActions({ store, dispatchSession }: GameActionsDeps): 
         petId: null,
         stationCompleted: false,
         nextStationId: null,
-        grandCanvasUnlocked: game.getProgress().finalCanvasUnlocked,
+        grandCanvasUnlocked: false,
+        alreadySolved: true,
       };
     }
 
@@ -95,7 +100,7 @@ export function createGameActions({ store, dispatchSession }: GameActionsDeps): 
     }
 
     const stationCompleted = scoreEvent.stationCompleted === true;
-    const grandCanvasUnlocked = game.getProgress().finalCanvasUnlocked;
+    const grandCanvasUnlocked = scoreEvent.grandCanvasUnlocked === true;
     const petId = scoreEvent.petRescued && puzzle ? puzzle.rewardPetId : null;
     const nextStationId =
       stationCompleted && puzzle ? nextUnlockedStationAfter(store, puzzle.stationId) : null;
@@ -131,7 +136,7 @@ export function createGameActions({ store, dispatchSession }: GameActionsDeps): 
       petId: null,
       stationCompleted: false,
       nextStationId: null,
-      grandCanvasUnlocked: game.getProgress().finalCanvasUnlocked,
+      grandCanvasUnlocked: scoreEvent.grandCanvasUnlocked === true,
     };
   };
 

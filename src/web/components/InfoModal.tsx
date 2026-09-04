@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactElement } from "react";
+import { useEffect, useRef, useState, type ReactElement } from "react";
 import { marked } from "marked";
 import { Button, Dialog } from "../design-system";
 import { useSession } from "../state/contexts";
@@ -68,6 +68,16 @@ export function InfoModal(): ReactElement | null {
 
   const [content, setContent] = useState<Content | null>(null);
   const [explorerOpen, setExplorerOpen] = useState(false);
+  const bodyRef = useRef<HTMLDivElement>(null);
+
+  // Learning-card markdown can contain external links; open them in a new
+  // tab rather than navigating the SPA away, and suppress the referrer.
+  useEffect(() => {
+    bodyRef.current?.querySelectorAll("a").forEach((a) => {
+      a.setAttribute("target", "_blank");
+      a.setAttribute("rel", "noopener noreferrer");
+    });
+  }, [content]);
 
   useEffect(() => {
     if (!modal) {
@@ -102,6 +112,7 @@ export function InfoModal(): ReactElement | null {
         <>
           {content ? (
             <div
+              ref={bodyRef}
               className="info-modal-body"
               // Content is repo-authored markdown / learning copy, not user input.
               dangerouslySetInnerHTML={{ __html: content.html }}

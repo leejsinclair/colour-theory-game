@@ -75,7 +75,7 @@ function diagnosePuzzle01(input: {
   // If the beams are all on but the overlap hasn't been aligned, the player
   // has the right components but hasn't combined them yet.
   if (input.redBeam && input.greenBeam && input.blueBeam && !input.overlap) {
-    return ["missing_primary_beam"];
+    return ["beams_not_aligned"];
   }
   // One or more primary beams are missing.
   return ["missing_primary_beam"];

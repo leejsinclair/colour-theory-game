@@ -52,4 +52,29 @@ describe("InfoModal", () => {
     await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
     expect(opener).toHaveFocus();
   });
+
+  it("opens external links in a new tab with noopener/noreferrer", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({
+        ok: true,
+        text: () =>
+          Promise.resolve("# RGB White Light\n\nSee [Britannica](https://www.britannica.com/science/light) for more."),
+      }),
+    );
+
+    const user = userEvent.setup();
+    renderWithGame(
+      <>
+        <Opener />
+        <InfoModal />
+      </>,
+    );
+
+    await user.click(screen.getByRole("button", { name: "How this works" }));
+
+    const link = await screen.findByRole("link", { name: "Britannica" });
+    expect(link).toHaveAttribute("target", "_blank");
+    expect(link).toHaveAttribute("rel", "noopener noreferrer");
+  });
 });
