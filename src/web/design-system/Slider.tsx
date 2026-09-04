@@ -6,8 +6,8 @@ import { useId, type ReactElement } from "react";
  * operation and `aria-valuetext`. Every puzzle slider goes through this so the
  * interaction vocabulary is uniform (contracts/puzzle-component.md rule 3).
  *
- * Always labelled: `label` renders a visible `<label>` unless `hideLabel` is set,
- * and it is also applied as the control's `aria-label`.
+ * Always labelled: `label` renders a visible text label unless `hideLabel` is
+ * set; the slider then uses `aria-labelledby` or `aria-label` accordingly.
  */
 
 export type SliderProps = {
@@ -37,12 +37,13 @@ export function Slider({
   marks = false,
 }: SliderProps): ReactElement {
   const id = useId();
+  const labelId = `${id}-label`;
   return (
     <div className="ds-slider-field">
       {!hideLabel ? (
-        <label htmlFor={id} className="ds-tag" style={{ background: "transparent", padding: 0 }}>
+        <span id={labelId} className="ds-tag" style={{ background: "transparent", padding: 0 }}>
           {label}
-        </label>
+        </span>
       ) : null}
       <MuiSlider
         id={id}
@@ -53,7 +54,8 @@ export function Slider({
         step={step}
         marks={marks}
         disabled={disabled}
-        aria-label={label}
+        aria-label={hideLabel ? label : undefined}
+        aria-labelledby={hideLabel ? undefined : labelId}
         getAriaValueText={valueText}
         valueLabelDisplay={valueText ? "auto" : "off"}
         valueLabelFormat={valueText}
