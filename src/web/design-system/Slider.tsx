@@ -7,7 +7,7 @@ import { useId, type ReactElement } from "react";
  * interaction vocabulary is uniform (contracts/puzzle-component.md rule 3).
  *
  * Always labelled: `label` renders a visible `<label>` unless `hideLabel` is set,
- * in which case it becomes the `aria-label`.
+ * and it is also applied as the control's `aria-label`.
  */
 
 export type SliderProps = {
@@ -53,7 +53,7 @@ export function Slider({
         step={step}
         marks={marks}
         disabled={disabled}
-        aria-label={hideLabel ? label : undefined}
+        aria-label={label}
         getAriaValueText={valueText}
         valueLabelDisplay={valueText ? "auto" : "off"}
         valueLabelFormat={valueText}

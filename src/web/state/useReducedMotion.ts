@@ -1,4 +1,4 @@
-import { useSyncExternalStore } from "react";
+import { useEffect, useSyncExternalStore } from "react";
 
 /**
  * `prefers-reduced-motion: reduce` as a reactive boolean (FR-047).
@@ -20,23 +20,22 @@ function subscribe(onChange: () => void): () => void {
     return () => {};
   }
   const mql = window.matchMedia(QUERY);
-  const handler = (): void => {
-    syncAttribute();
-    onChange();
-  };
+  const handler = (): void => onChange();
   mql.addEventListener("change", handler);
   return () => mql.removeEventListener("change", handler);
 }
 
-function syncAttribute(): void {
+function syncAttribute(reduced: boolean): void {
   if (typeof document === "undefined") {
     return;
   }
-  document.documentElement.dataset.reducedMotion = String(getMatch());
+  document.documentElement.dataset.reducedMotion = String(reduced);
 }
 
 export function useReducedMotion(): boolean {
   const reduced = useSyncExternalStore(subscribe, getMatch, () => false);
-  syncAttribute();
+  useEffect(() => {
+    syncAttribute(reduced);
+  }, [reduced]);
   return reduced;
 }

@@ -32,8 +32,8 @@ type LocalProgressSnapshot = {
 - Extend the existing defensive parse: each field independently validated,
   wrong-typed fields dropped to their default, **never throws**.
 - `introSeen`: `typeof parsed.introSeen === 'boolean' ? parsed.introSeen : undefined`.
-- `lastRoute`: kept only if it is a string that `parseHash` resolves to a valid,
-  currently-permitted route; otherwise dropped.
+- `lastRoute`: kept only if it is a string; route validation happens during the
+  restore flow in `persistenceSync.ts`.
 - Corrupt JSON / `localStorage` throw → `null`.
 
 ## Write contract — `saveLocalProgress(snapshot): void`
@@ -61,9 +61,9 @@ type LocalProgressSnapshot = {
    deterministically — including stations completed "out of order" in the blob
    (Edge Cases).
 3. Apply `learningProgressByPuzzle` to the store's `learning` map.
-4. Initial route: `lastRoute` if valid, else `activeStationId` → that station,
-   else `studio`. If `introSeen !== true` and there is **no** progress, route =
-   `intro`.
+4. Initial route: `lastRoute` if it resolves to a currently-permitted route,
+   else `activeStationId` → that station, else `studio`. If
+   `introSeen !== true` and there is **no** progress, route = `intro`.
 5. `finalCanvasUnlocked` (all pets) → allow `grand-canvas`; a returning
    fully-complete player lands in an all-unlocked Studio or the finale,
    matching today (Edge Cases).

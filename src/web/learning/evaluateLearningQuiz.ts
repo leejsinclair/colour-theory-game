@@ -3,7 +3,7 @@ import type { LearningQuizQuestion } from "../../content/puzzleLearningContent";
 /**
  * Pure learning-quiz scorer (was in the retired `src/web/legacy/learningFlow.ts`).
  * A pass requires every answer correct — the 100% gate in FR-016. Unit-tested in
- * `tests/learningFlow.test.ts`.
+ * `tests/evaluateLearningQuiz.test.ts`.
  */
 export function evaluateLearningQuiz(
   questions: LearningQuizQuestion[],
