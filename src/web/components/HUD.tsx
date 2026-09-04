@@ -2,12 +2,16 @@ import { memo, type ReactElement } from "react";
 import { Badge, TrophyIcon, PetsIcon, AutoAwesomeIcon } from "../design-system";
 import { useProgress, usePets } from "../state/selectors";
 import { AppMenu } from "./AppMenu";
+import { PetBadge } from "./PetBadge";
 
 /**
  * The persistent player HUD (FR-015, FR-030, FR-035, SC-002). Brand + app menu
  * on the top line, then puzzles / score / pets / streak at a glance, plus the
- * earned pet-milestone badges (icon + label, never colour alone). Simplifies —
- * not shrinks — on small screens (the streak tile drops out, values step down).
+ * earned pet-milestone badges (icon + label, never colour alone), and a
+ * horizontal strip of every pet (locked silhouette or collected sprite) that
+ * links to the Collection screen — the only way in, since there's no separate
+ * nav item for it. Simplifies — not shrinks — on small screens (the streak
+ * tile drops out, values step down).
  */
 
 const MILESTONE_ICON: Record<string, ReactElement> = {
@@ -71,6 +75,27 @@ function HUDImpl(): ReactElement {
           ))}
         </ul>
       ) : null}
+
+      <a
+        className="hud__pets-row"
+        href="#/collection"
+        aria-label={`View pet collection: ${progress.petsCollected} of ${petsTotal} collected`}
+      >
+        <ul className="hud__pets-list" aria-hidden="true">
+          {pets.map((pet) => (
+            <li key={pet.id}>
+              <PetBadge
+                petId={pet.id}
+                name={pet.name}
+                collected={pet.collected}
+                size="sm"
+                showLabel={false}
+                focusable={false}
+              />
+            </li>
+          ))}
+        </ul>
+      </a>
     </div>
   );
 }

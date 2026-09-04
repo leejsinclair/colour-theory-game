@@ -30,7 +30,7 @@ test.describe("studio & shell", () => {
   test("navigation between studio and collection", async ({ page }) => {
     await page.goto("/");
     await enterStudio(page);
-    await page.getByRole("navigation", { name: "Game navigation" }).getByRole("link", { name: "Collection" }).click();
+    await page.getByRole("link", { name: /^View pet collection:/ }).click();
     await expect(
       page.getByRole("heading", { name: "Chromatic Pet Collection", level: 1 }),
     ).toBeVisible();
@@ -83,7 +83,7 @@ test.describe("studio & shell", () => {
     await injectProgress(page, ["puzzle-01"]);
     await page.goto("/");
     await enterStudio(page);
-    await page.getByRole("navigation", { name: "Game navigation" }).getByRole("link", { name: "Collection" }).click();
+    await page.getByRole("link", { name: /^View pet collection:/ }).click();
     await expect(page.getByRole("img", { name: /Glow Sprite — from Light Laboratory/ })).toBeVisible();
     await expect(page.getByRole("img", { name: /Locked pet/ }).first()).toBeVisible();
   });

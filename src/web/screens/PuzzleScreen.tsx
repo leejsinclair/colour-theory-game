@@ -204,12 +204,11 @@ function PuzzleScreenImpl({
           points={outcome.result.scoreEvent.delta}
           scoreReason={outcome.result.scoreEvent.reason}
           reducedMotion={reducedMotion}
-          destinationLabel={practice ? "the puzzle" : destinationFor(outcome.result)}
+          destinationLabel={practice ? (station?.name ?? "the studio") : destinationFor(outcome.result)}
           autoReturnSeconds={9}
-          continueLabel={practice ? "Keep practising" : "Continue"}
-          onContinue={() =>
-            practice ? setOutcome({ kind: "idle" }) : continueAfterSolve(outcome.result)
-          }
+          continueLabel={practice ? "Try a different puzzle" : "Continue"}
+          onContinue={() => (practice ? navigate(backRoute) : continueAfterSolve(outcome.result))}
+          onStay={practice ? () => setOutcome({ kind: "idle" }) : undefined}
         />
       ) : null}
     </section>

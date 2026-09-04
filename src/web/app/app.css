@@ -340,12 +340,43 @@ a.ds-visually-hidden.ds-focusable:focus-visible {
   max-width: 100%;
 }
 
+.hud__pets-row {
+  display: block;
+  width: 100%;
+  text-decoration: none;
+  border-radius: var(--radius-md);
+}
+
+.hud__pets-row:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.hud__pets-row:hover .pet-badge__frame {
+  box-shadow: var(--glow-secondary);
+}
+
+.hud__pets-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2xs);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
 /* Simplify (not shrink) the HUD on narrow viewports: the milestone badges
    scroll in their own strip, stat values step down. The HUD stays a sticky top
    rail so the skip-link → banner → nav → main tab order and focus-to-h1
    behaviour the a11y contract depends on are unchanged (research.md R15). */
 @media (max-width: 640px) {
   .hud__milestones {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .hud__pets-list {
     overflow-x: auto;
     flex-wrap: nowrap;
     -webkit-overflow-scrolling: touch;

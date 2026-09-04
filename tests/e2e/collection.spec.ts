@@ -14,10 +14,7 @@ const ALL_PLAYABLE = [
 
 async function openCollection(page: Page): Promise<void> {
   await enterStudio(page);
-  await page
-    .getByRole("navigation", { name: "Game navigation" })
-    .getByRole("link", { name: "Collection" })
-    .click();
+  await page.getByRole("link", { name: /^View pet collection:/ }).click();
   await expect(
     page.getByRole("heading", { name: "Chromatic Pet Collection", level: 1 }),
   ).toBeVisible();
@@ -57,12 +54,9 @@ test.describe("Chromatic Pet collection (US5)", () => {
   test("complete: the whole roll is freed, nothing left locked", async ({ page }) => {
     await injectProgress(page, ALL_PLAYABLE);
     await page.goto("/");
-    // A finished game boots to the finale; reach the collection via the nav.
+    // A finished game boots to the finale; reach the collection via the HUD pet strip.
     await expect(page.getByRole("heading", { name: "Grand Canvas", level: 1 })).toBeVisible();
-    await page
-      .getByRole("navigation", { name: "Game navigation" })
-      .getByRole("link", { name: "Collection" })
-      .click();
+    await page.getByRole("link", { name: /^View pet collection:/ }).click();
     await expect(
       page.getByRole("heading", { name: "Chromatic Pet Collection", level: 1 }),
     ).toBeVisible();

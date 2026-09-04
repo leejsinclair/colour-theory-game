@@ -88,13 +88,6 @@ export function App(): ReactElement {
             >
               Studio
             </a>
-            <a
-              className="app-shell__nav-link"
-              href="#/collection"
-              aria-current={route.view === "collection" ? "page" : undefined}
-            >
-              Collection
-            </a>
             {progress.finalCanvasUnlocked ? (
               <a
                 className="app-shell__nav-link"

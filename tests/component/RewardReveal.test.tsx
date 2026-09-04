@@ -177,4 +177,29 @@ describe("RewardReveal", () => {
     expect(onContinue).not.toHaveBeenCalled();
     expect(screen.queryByRole("button", { name: "Stay here" })).not.toBeInTheDocument();
   });
+
+  it("'Stay here' calls onStay instead of just pausing, when provided", () => {
+    vi.useFakeTimers();
+    const onContinue = vi.fn();
+    const onStay = vi.fn();
+    render(
+      <RewardReveal
+        {...baseProps}
+        onContinue={onContinue}
+        onStay={onStay}
+        reducedMotion
+        autoReturnSeconds={3}
+      />,
+    );
+
+    act(() => {
+      screen.getByRole("button", { name: "Stay here" }).click();
+    });
+
+    expect(onStay).toHaveBeenCalledTimes(1);
+    act(() => {
+      vi.advanceTimersByTime(10000);
+    });
+    expect(onContinue).not.toHaveBeenCalled();
+  });
 });

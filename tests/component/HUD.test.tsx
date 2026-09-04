@@ -42,4 +42,11 @@ describe("HUD", () => {
     const list = screen.getByRole("list", { name: "Milestones unlocked" });
     expect(within(list).getByText("Color Apprentice")).toBeInTheDocument();
   });
+
+  it("renders a pet strip linking to the collection, with one badge per pet", () => {
+    renderWithGame(<HUD />);
+    const link = screen.getByRole("link", { name: "View pet collection: 0 of 22 collected" });
+    expect(link).toHaveAttribute("href", "#/collection");
+    expect(within(link).getAllByRole("img", { hidden: true })).toHaveLength(22);
+  });
 });

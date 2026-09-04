@@ -20,9 +20,10 @@ import { PetBadge } from "./PetBadge";
  * motion (delegated to `<CelebrationBurst>`); the countdown still runs under
  * reduced motion (it is information, not decoration) but its ring does not spin.
  *
- * In practice mode the countdown simply closes the overlay (returning to the
- * puzzle for another attempt) rather than navigating away; `autoReturnSeconds =
- * null` disables it entirely, leaving a manual dismiss only.
+ * In practice mode the countdown navigates away (back to the puzzle list) by
+ * default, same as elsewhere; "Stay here" (`onStay`) is what returns to the
+ * puzzle for another attempt instead of just pausing. `autoReturnSeconds =
+ * null` disables the countdown entirely, leaving a manual dismiss only.
  *
  * The card is a modal dialog (`role="dialog"`, `aria-modal`): focus moves to
  * Continue on mount, Tab is trapped inside the card, Escape stops the countdown
@@ -56,6 +57,8 @@ export type RewardRevealProps = {
   reducedMotion: boolean;
   onContinue: () => void;
   continueLabel?: string;
+  /** Overrides "Stay here": called instead of pausing the countdown. */
+  onStay?: () => void;
   /** Woven into the countdown copy: "Returning to <destinationLabel>…". */
   destinationLabel?: string;
   /** Seconds before the countdown auto-returns; `null` disables it. */
@@ -72,6 +75,7 @@ export function RewardReveal({
   reducedMotion,
   onContinue,
   continueLabel = "Continue",
+  onStay,
   destinationLabel = "the studio",
   autoReturnSeconds = 9,
   message,
@@ -110,7 +114,13 @@ export function RewardReveal({
 
   const ringPct = totalSeconds > 0 ? Math.max(0, Math.min(1, remaining / totalSeconds)) * 100 : 0;
 
-  const stayHere = useCallback(() => setPaused(true), []);
+  const stayHere = useCallback(() => {
+    if (onStay) {
+      onStay();
+      return;
+    }
+    setPaused(true);
+  }, [onStay]);
 
   // Modal focus: move focus in on mount, restore it on unmount.
   useEffect(() => {
