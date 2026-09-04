@@ -1,0 +1,28 @@
+# Pre-feature bundle baseline (SC-013 reference)
+
+Captured from `main` @ b970ac4 via `git worktree` + `npm ci` + `npm run build:web`
+Date: 2026-09-02
+Node: v24.2.0
+
+## Production JS/CSS (vite build → dist/assets/)
+
+| Asset                  | Raw      | Gzip      |
+|------------------------|----------|-----------|
+| index-*.js             | 401.27 kB| 129.95 kB |
+| legacyGame-*.js        | 296.37 kB|  89.06 kB |
+| legacyGame-*.css       |  26.15 kB|   6.20 kB |
+| index.html             |   0.35 kB|   0.25 kB |
+
+## Totals
+
+- **JS raw**:   697.64 kB
+- **JS gzip**:  219.01 kB   ← primary SC-013 metric
+- **CSS gzip**:   6.20 kB
+
+## SC-013 budget (≤115% of baseline)
+
+- JS gzip ceiling:  ~251.9 kB gzip
+- Any overage beyond this must be justified in the PR.
+
+Note: static assets under dist/assets/{pets,illustrations}/ are unchanged by this
+feature (domain/content untouched) and excluded from the JS budget comparison.

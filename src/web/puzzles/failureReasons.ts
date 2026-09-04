@@ -21,6 +21,9 @@ export type FailureReasonCode =
   // MIXING & PIGMENT LOGIC
   | "overmixing"
   | "unbalanced_mix"
+  // ADDITIVE LIGHT
+  | "missing_primary_beam"
+  | "beams_not_aligned"
   // LIGHT & ENVIRONMENT
   | "insufficient_atmosphere"
   | "excessive_atmosphere"
@@ -29,6 +32,33 @@ export type FailureReasonCode =
   | "weak_simultaneous_contrast"
   | "competing_focal_points"
   | "weak_accent_isolation";
+
+/**
+ * The colour-theory principle each failure code belongs to. Surfaced in the
+ * Result Analysis panel as the single idea to revisit before the next attempt
+ * (FR-034) — grouped to match the canonical failure-reason families.
+ */
+export const FAILURE_PRINCIPLE: Record<FailureReasonCode, string> = {
+  low_value_contrast: "Value structure",
+  incorrect_value_structure: "Value structure",
+  chroma_collapsed: "Chroma & saturation",
+  insufficient_chroma: "Chroma & saturation",
+  excessive_chroma: "Chroma & saturation",
+  insufficient_luminosity: "Chroma & saturation",
+  complement_conflict: "Hue relationships",
+  incorrect_hue_selection: "Hue relationships",
+  incorrect_hue_bias: "Hue relationships",
+  overmixing: "Pigment mixing",
+  unbalanced_mix: "Pigment mixing",
+  missing_primary_beam: "Additive light",
+  beams_not_aligned: "Additive light",
+  insufficient_atmosphere: "Light & atmosphere",
+  excessive_atmosphere: "Light & atmosphere",
+  incorrect_color_temperature: "Light & atmosphere",
+  weak_simultaneous_contrast: "Colour relativity",
+  competing_focal_points: "Colour relativity",
+  weak_accent_isolation: "Colour relativity",
+};
 
 export const FAILURE_EXPLANATIONS: Record<FailureReasonCode, string> = {
   low_value_contrast:
@@ -53,6 +83,10 @@ export const FAILURE_EXPLANATIONS: Record<FailureReasonCode, string> = {
     "Too many components combined have muddied the result — simplify and use fewer, purer ingredients.",
   unbalanced_mix:
     "The ratio of components is off — adjust the proportions until the resulting colour clearly matches the target.",
+  missing_primary_beam:
+    "White light needs all three beams — red, green and blue — switched on. Turn on the ones that are still off.",
+  beams_not_aligned:
+    "All three beams are on but haven't been brought together — white light only appears where red, green and blue overlap. Align them so they meet.",
   insufficient_atmosphere:
     "Distant objects are still too sharp or saturated — raise edge softening, lower saturation, and shift far layers toward a cooler hue.",
   excessive_atmosphere:

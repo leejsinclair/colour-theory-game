@@ -1,0 +1,481 @@
+/*
+ * Chromatic Mastery — design-system component styles.
+ *
+ * One stylesheet for every `design-system/` primitive, imported once from
+ * `index.ts`. Screens compose these classes; they do not restyle primitives
+ * locally (FR-041). Tokens come from `tokens.css`; the display face from
+ * `fonts.css`.
+ */
+
+@import "./tokens.css";
+@import "./fonts.css";
+
+/* ── Focus ring — every interactive primitive shares this ─────────────────── */
+.ds-focusable:focus-visible,
+.ds-button:focus-visible,
+.ds-icon-button:focus-visible,
+.ds-tag:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+/* ── Button ─────────────────────────────────────────────────────────────── */
+.ds-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-xs);
+  min-height: var(--touch-min);
+  padding: var(--space-xs) var(--space-lg);
+  border: 1px solid transparent;
+  border-radius: var(--radius-pill);
+  font-family: var(--font-body);
+  font-size: var(--text-scale-body);
+  font-weight: 600;
+  line-height: 1;
+  cursor: pointer;
+  text-decoration: none;
+  transition:
+    transform var(--motion-fast) var(--ease-standard),
+    background-color var(--motion-fast) var(--ease-standard),
+    box-shadow var(--motion-fast) var(--ease-standard);
+}
+
+.ds-button:hover:not(:disabled):not([aria-disabled="true"]) {
+  transform: translateY(-1px);
+}
+
+.ds-button:active:not(:disabled):not([aria-disabled="true"]) {
+  transform: translateY(0);
+}
+
+.ds-button:disabled,
+.ds-button[aria-disabled="true"] {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.ds-button--primary {
+  background-color: var(--accent-primary);
+  color: var(--text-on-accent);
+  box-shadow: var(--glow-accent);
+}
+
+.ds-button--primary:hover:not(:disabled):not([aria-disabled="true"]) {
+  background-color: var(--accent-primary-hover);
+}
+
+.ds-button--secondary {
+  background-color: var(--accent-secondary);
+  color: var(--text-on-accent);
+  box-shadow: var(--glow-secondary);
+}
+
+.ds-button--secondary:hover:not(:disabled):not([aria-disabled="true"]) {
+  background-color: var(--accent-secondary-hover);
+}
+
+.ds-button--ghost {
+  background-color: transparent;
+  border-color: var(--surface-border-strong);
+  color: var(--text-primary);
+}
+
+.ds-button--ghost:hover:not(:disabled):not([aria-disabled="true"]) {
+  background-color: var(--surface-2);
+}
+
+.ds-button--danger {
+  background-color: var(--state-failure-bg);
+  border-color: var(--state-failure);
+  color: var(--state-failure);
+}
+
+.ds-button--sm {
+  min-height: 2rem;
+  padding: var(--space-2xs) var(--space-md);
+  font-size: var(--text-scale-small);
+}
+
+.ds-button--lg {
+  min-height: 3.25rem;
+  padding: var(--space-sm) var(--space-xl);
+  font-size: var(--text-scale-h3);
+}
+
+.ds-button--block {
+  display: flex;
+  width: 100%;
+}
+
+/* ── IconButton ─────────────────────────────────────────────────────────── */
+.ds-icon-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--touch-min);
+  height: var(--touch-min);
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: var(--radius-pill);
+  background-color: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition:
+    background-color var(--motion-fast) var(--ease-standard),
+    color var(--motion-fast) var(--ease-standard);
+}
+
+.ds-icon-button:hover:not(:disabled) {
+  background-color: var(--surface-2);
+  color: var(--text-primary);
+}
+
+.ds-icon-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+/* ── Card ──────────────────────────────────────────────────────────────── */
+.ds-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  padding: var(--space-lg);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-lg);
+  background-color: var(--surface-1);
+  box-shadow: var(--shadow-2);
+}
+
+.ds-card--interactive {
+  cursor: pointer;
+  transition:
+    transform var(--motion-base) var(--ease-standard),
+    border-color var(--motion-base) var(--ease-standard),
+    box-shadow var(--motion-base) var(--ease-standard);
+}
+
+.ds-card--interactive:hover {
+  transform: translateY(-3px);
+  border-color: var(--surface-border-strong);
+  box-shadow: var(--shadow-3);
+}
+
+/* ── Panel — a flatter surface for HUD / sidebars / result regions ──────── */
+.ds-panel {
+  padding: var(--space-md);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-md);
+  background-color: var(--surface-inset);
+}
+
+.ds-panel--success {
+  border-color: var(--state-success);
+  background-color: var(--state-success-bg);
+}
+
+.ds-panel--failure {
+  border-color: var(--state-failure);
+  background-color: var(--state-failure-bg);
+}
+
+/* ── Heading ───────────────────────────────────────────────────────────── */
+.ds-heading {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 600;
+  line-height: var(--line-tight);
+  color: var(--text-primary);
+}
+
+.ds-heading--hero {
+  font-size: var(--text-scale-hero);
+}
+.ds-heading--1 {
+  font-size: var(--text-scale-h1);
+}
+.ds-heading--2 {
+  font-size: var(--text-scale-h2);
+}
+.ds-heading--3 {
+  font-size: var(--text-scale-h3);
+}
+
+/* Route-change focus is moved to the screen's <h1> (which carries tabindex="-1",
+   so it is never in the keyboard tab order) purely for assistive-tech context —
+   it is not a visual target, so it shows no ring. */
+.ds-heading:focus,
+.ds-heading:focus-visible {
+  outline: none;
+  box-shadow: none;
+}
+
+/* ── Badge — milestone / status pill with an icon ──────────────────────── */
+.ds-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2xs);
+  padding: var(--space-2xs) var(--space-sm);
+  border: 1px solid var(--surface-border-strong);
+  border-radius: var(--radius-pill);
+  background-color: var(--surface-2);
+  color: var(--text-secondary);
+  font-size: var(--text-scale-small);
+  font-weight: 600;
+}
+
+.ds-badge--gold {
+  border-color: var(--accent-gold);
+  color: var(--accent-gold);
+}
+
+.ds-badge--success {
+  border-color: var(--state-success);
+  color: var(--state-success);
+}
+
+.ds-badge--locked {
+  border-color: var(--state-locked);
+  color: var(--state-locked);
+}
+
+/* ── Tag — small categorical label (station type, puzzle count) ────────── */
+.ds-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3xs);
+  padding: var(--space-3xs) var(--space-xs);
+  border-radius: var(--radius-sm);
+  background-color: var(--surface-3);
+  color: var(--text-secondary);
+  font-size: var(--text-scale-small);
+  letter-spacing: 0.02em;
+}
+
+/* ── VisuallyHidden ───────────────────────────────────────────────────── */
+.ds-visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ── ProgressBar / ProgressRing ───────────────────────────────────────── */
+.ds-progress-bar {
+  overflow: hidden;
+  width: 100%;
+  height: 0.5rem;
+  border-radius: var(--radius-pill);
+  background-color: var(--surface-inset);
+}
+
+.ds-progress-bar__fill {
+  height: 100%;
+  border-radius: inherit;
+  background-color: var(--accent-secondary);
+  transition: width var(--motion-base) var(--ease-standard);
+}
+
+.ds-progress-ring__track {
+  stroke: var(--surface-inset);
+}
+
+.ds-progress-ring__value {
+  stroke: var(--accent-secondary);
+  transition: stroke-dashoffset var(--motion-base) var(--ease-standard);
+}
+
+/* ── StudioBackdrop — bounded decorative field (FR-045) ───────────────── */
+.ds-studio-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  background:
+    radial-gradient(60rem 60rem at 15% -10%, rgba(124, 92, 255, 0.16), transparent 60%),
+    radial-gradient(50rem 50rem at 100% 0%, rgba(70, 224, 208, 0.12), transparent 55%),
+    var(--bg-base);
+  pointer-events: none;
+}
+
+.ds-studio-backdrop__blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(2px);
+  opacity: 0.5;
+  animation: ds-drift 18s var(--ease-standard) infinite alternate;
+}
+
+@keyframes ds-drift {
+  from {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  to {
+    transform: translate3d(0, -1.5rem, 0) scale(1.08);
+  }
+}
+
+/* ── CelebrationBurst — CSS-only, capped particles (R13) ──────────────── */
+.ds-celebration {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+}
+
+.ds-celebration__particle {
+  position: absolute;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: var(--radius-xs);
+  animation: ds-burst var(--motion-slow) var(--ease-emphasised) forwards;
+}
+
+.ds-celebration__particle--dot {
+  border-radius: 50%;
+}
+
+.ds-celebration__particle--fleck {
+  border-radius: 1px;
+  transform: rotate(45deg);
+}
+
+.ds-celebration__particle--spark {
+  width: 0.35rem;
+  height: 0.7rem;
+  border-radius: 50%;
+}
+
+@keyframes ds-burst {
+  from {
+    transform: translate3d(0, 0, 0) scale(0.4);
+    opacity: 1;
+  }
+  to {
+    transform: translate3d(var(--ds-burst-x, 0), var(--ds-burst-y, 0), 0) scale(1);
+    opacity: 0;
+  }
+}
+
+.ds-celebration--static .ds-celebration__particle {
+  animation: none;
+  opacity: 0.9;
+}
+
+/* Reduced motion: no drift, no burst travel, no ring/particle animation. */
+@media (prefers-reduced-motion: reduce) {
+  .ds-studio-backdrop__blob,
+  .ds-celebration__particle {
+    animation: none;
+  }
+}
+
+:root[data-reduced-motion="true"] .ds-studio-backdrop__blob,
+:root[data-reduced-motion="true"] .ds-celebration__particle {
+  animation: none;
+}
+
+/* ── MUI wrapper skins — hide default theming, apply tokens ───────────── */
+.ds-dialog__paper {
+  border: 1px solid var(--surface-border-strong);
+  border-radius: var(--radius-lg);
+  background-color: var(--surface-1);
+  color: var(--text-primary);
+  box-shadow: var(--shadow-3);
+}
+
+.ds-dialog__title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+  font-family: var(--font-display);
+}
+
+/* MUI's `.MuiPaper-root { background:#fff }` ties on specificity and wins on
+   source order — the `.MuiPaper-root` qualifier here breaks the tie. */
+.ds-menu__paper.MuiPaper-root {
+  border: 1px solid var(--surface-border-strong);
+  border-radius: var(--radius-md);
+  background-color: var(--surface-2);
+  color: var(--text-primary);
+}
+
+.ds-menu__paper .MuiMenuItem-root {
+  font: inherit;
+  min-height: var(--touch-min);
+  padding: var(--space-xs) var(--space-md);
+}
+
+.ds-menu__paper .MuiMenuItem-root:hover,
+.ds-menu__paper .MuiMenuItem-root.Mui-focusVisible {
+  background-color: var(--surface-3);
+}
+
+.ds-menu__item--danger.MuiMenuItem-root {
+  margin-top: var(--space-3xs);
+  border-top: 1px solid var(--surface-border);
+  color: var(--state-failure);
+}
+
+.ds-menu__item--danger.MuiMenuItem-root:hover,
+.ds-menu__item--danger.MuiMenuItem-root.Mui-focusVisible {
+  background-color: var(--state-failure-bg);
+}
+
+.ds-slider {
+  color: var(--accent-secondary);
+}
+
+/* ── Field / Select / Checkbox — shared puzzle-control primitives ───────── */
+.ds-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3xs);
+}
+
+.ds-field__label,
+.ds-checkbox__label {
+  font-size: var(--text-scale-small);
+  color: var(--text-secondary);
+}
+
+.ds-select {
+  min-height: var(--touch-min);
+  padding: var(--space-2xs) var(--space-xs);
+  border: 1px solid var(--surface-border-strong);
+  border-radius: var(--radius-sm);
+  background-color: var(--surface-2);
+  color: var(--text-primary);
+  font: inherit;
+}
+
+.ds-select:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.ds-checkbox {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.ds-checkbox__input {
+  width: 1.15rem;
+  height: 1.15rem;
+  flex: none;
+  accent-color: var(--accent-secondary);
+}
+
+.ds-checkbox__input:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}

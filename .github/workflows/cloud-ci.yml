@@ -33,7 +33,7 @@ jobs:
       - name: Build Core
         run: npm run build
 
-      - name: Unit Tests
+      - name: Unit + Component Tests
         run: npm test
 
       - name: E2E Tests (Playwright)

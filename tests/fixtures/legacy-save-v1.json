@@ -1,0 +1,29 @@
+{
+  "completedPuzzleIds": [
+    "puzzle-01",
+    "puzzle-02",
+    "puzzle-03",
+    "puzzle-04",
+    "puzzle-05",
+    "puzzle-06",
+    "puzzle-07",
+    "puzzle-08",
+    "puzzle-09",
+    "puzzle-10"
+  ],
+  "activeStationId": "station-04",
+  "practicePuzzleId": null,
+  "learningProgressByPuzzle": {
+    "puzzle-01": { "quizPassed": true },
+    "puzzle-02": { "quizPassed": true },
+    "puzzle-03": { "quizPassed": true },
+    "puzzle-04": { "quizPassed": true },
+    "puzzle-05": { "quizPassed": true },
+    "puzzle-06": { "quizPassed": true },
+    "puzzle-07": { "quizPassed": true },
+    "puzzle-08": { "quizPassed": true },
+    "puzzle-09": { "quizPassed": true },
+    "puzzle-10": { "quizPassed": true },
+    "puzzle-11": { "quizPassed": true }
+  }
+}

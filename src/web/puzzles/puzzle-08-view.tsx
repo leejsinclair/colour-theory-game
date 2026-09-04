@@ -1,104 +1,82 @@
 /**
  * Puzzle 08 – Triadic Harmony (120° Spacing)
  *
- * Players adjust three hue sliders and aim for roughly equal 120° spacing
- * on the colour wheel. Visual markers show the gaps between hues and a
- * "triad aligned" message appears when all gaps are within ±15° of 120°.
- * Teaches the triadic colour scheme and the visual balance it creates.
+ * Players adjust three hue sliders toward roughly equal 120° spacing on the
+ * colour wheel. "Triad aligned" appears when all gaps are within ±15° of 120°.
  */
-import React from "react";
-import { createRoot } from "react-dom/client";
-import { PuzzleSlider } from "./muiPuzzleControls";
-import { PuzzleRenderDeps, PuzzleRenderer } from "./types";
+import type { ReactElement } from "react";
+import type { PuzzleComponentProps } from "./types";
+import { PuzzleSlider } from "./controls";
 
-type Puzzle08State = {
-  h1: number;
-  h2: number;
-  h3: number;
-};
-
-type Puzzle08ViewProps = {
-  persistedState: Puzzle08State;
+export type Puzzle08Input = {
+  hueAngles: [number, number, number];
 };
 
 function normalizeHue(h: number): number {
   return ((h % 360) + 360) % 360;
 }
 
-function triadInfo(state: Puzzle08State): { gaps: number[]; good: boolean } {
-  const values = [state.h1, state.h2, state.h3].map(normalizeHue).sort((a, b) => a - b);
+function triadInfo(angles: number[]): { gaps: number[]; good: boolean } {
+  const values = angles.map(normalizeHue).sort((a, b) => a - b);
   const gaps = [
     (values[1] - values[0] + 360) % 360,
     (values[2] - values[1] + 360) % 360,
     (values[0] + 360 - values[2]) % 360,
   ];
-  const tolerance = 15;
-  const good = gaps.every((gap) => Math.abs(gap - 120) <= tolerance);
-  return { gaps, good };
+  return { gaps, good: gaps.every((gap) => Math.abs(gap - 120) <= 15) };
 }
 
-function Puzzle08View({ persistedState }: Puzzle08ViewProps): React.ReactElement {
-  const [localState, setLocalState] = React.useState<Puzzle08State>({ ...persistedState });
-
-  const setHue = (key: keyof Puzzle08State, value: number): void => {
-    setLocalState((prev) => {
-      const next = { ...prev, [key]: value };
-      Object.assign(persistedState, next);
-      return next;
-    });
+export default function Puzzle08View({
+  value,
+  onChange,
+  disabled,
+}: PuzzleComponentProps<Puzzle08Input>): ReactElement {
+  const angles = value.hueAngles;
+  const setHue = (index: 0 | 1 | 2, next: number): void => {
+    const nextAngles = [...angles] as [number, number, number];
+    nextAngles[index] = next;
+    onChange({ hueAngles: nextAngles });
   };
 
-  const { gaps, good } = triadInfo(localState);
-
-  const renderHueRow = (label: string, key: keyof Puzzle08State): React.ReactElement => (
-    <div className="mini-row">
-      <div className="hue-row">
-        <span>{label}: {Math.round(localState[key])}deg</span>
-        <span className="hue-swatch" style={{ background: `hsl(${localState[key]}, 85%, 55%)` }} />
-      </div>
-      <PuzzleSlider label={label} value={localState[key]} min={0} max={360} step={1} showLabel={false} onChange={(v) => setHue(key, v)} />
-    </div>
-  );
+  const { gaps, good } = triadInfo(angles);
 
   return (
     <>
-      <div className="mini-label">Aim for roughly equal 120deg spacing between all three hue markers.</div>
-      {renderHueRow("Hue 1", "h1")}
-      {renderHueRow("Hue 2", "h2")}
-      {renderHueRow("Hue 3", "h3")}
+      <div className="mini-label">Aim for roughly equal 120° spacing between all three hue markers.</div>
 
-      <div className="triad-strip">
-        {[localState.h1, localState.h2, localState.h3].map((hue, index) => (
+      {([0, 1, 2] as const).map((index) => (
+        <div key={index} className="mini-row">
+          <div className="hue-row">
+            <span>Hue {index + 1}: {Math.round(angles[index])}°</span>
+            <span className="hue-swatch" style={{ background: `hsl(${angles[index]}, 85%, 55%)` }} />
+          </div>
+          <PuzzleSlider
+            label={`Hue ${index + 1}`}
+            hideValue
+            value={angles[index]}
+            min={0}
+            max={360}
+            step={1}
+            disabled={disabled}
+            onChange={(v) => setHue(index, v)}
+            format={(v) => `${Math.round(v)} degrees`}
+          />
+        </div>
+      ))}
+
+      <div className="triad-strip" aria-hidden="true">
+        {angles.map((hue, index) => (
           <div
             key={index}
             className="triad-mark"
-            style={{
-              left: `${(normalizeHue(hue) / 360) * 100}%`,
-              background: `hsl(${hue}, 85%, 55%)`,
-            }}
+            style={{ left: `${(normalizeHue(hue) / 360) * 100}%`, background: `hsl(${hue}, 85%, 55%)` }}
           />
         ))}
       </div>
 
-      <div className="mini-label">
-        Gaps: {Math.round(gaps[0])}deg / {Math.round(gaps[1])}deg / {Math.round(gaps[2])}deg{good ? "  triad aligned" : ""}
+      <div className="mini-label" aria-live="polite">
+        Gaps: {Math.round(gaps[0])}° / {Math.round(gaps[1])}° / {Math.round(gaps[2])}°{good ? " — triad aligned ✓" : ""}
       </div>
     </>
   );
 }
-
-export const renderPuzzle08: PuzzleRenderer = (deps: PuzzleRenderDeps) => {
-  const {
-    zone,
-    wrapper,
-    puzzleId,
-    ensureState,
-    addCheckButton,
-  } = deps;
-
-  const state = ensureState<Puzzle08State>(puzzleId, { h1: 0, h2: 120, h3: 240 });
-
-  createRoot(zone).render(<Puzzle08View persistedState={state} />);
-
-  addCheckButton(wrapper, puzzleId, () => ({ hueAngles: [state.h1, state.h2, state.h3] }));
-};

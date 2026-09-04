@@ -1,27 +1,17 @@
 /**
  * Puzzle 07 – Complementary Colour Matching Game
  *
- * Players select a colour and then pick its complement from a set of options.
- * Correct complementary pairs are red↔green, blue↔orange, and yellow↔purple.
- * Incorrect guesses show immediate feedback. Builds intuitive knowledge of
- * colour-wheel opposites through gamified interaction.
+ * Players select a colour then pick its complement. Correct pairs: red↔green,
+ * blue↔orange, yellow↔purple.
  */
-import React from "react";
-import { createRoot } from "react-dom/client";
-import { PuzzleRenderDeps, PuzzleRenderer } from "./types";
+import { useState, type ReactElement } from "react";
+import type { PuzzleComponentProps } from "./types";
 
 type ColorName = "red" | "orange" | "yellow" | "green" | "blue" | "purple";
 
-type Puzzle07State = {
-  a: ColorName;
-  b: ColorName;
-  rounds: number;
-  streak: number;
-  matchedPairs: Set<ColorName>;
-};
-
-type Puzzle07ViewProps = {
-  persistedState: Puzzle07State;
+export type Puzzle07Input = {
+  selectedColorA: ColorName;
+  selectedColorB: ColorName;
 };
 
 const defs: Array<{ name: ColorName; hue: number }> = [
@@ -42,138 +32,83 @@ const comp: Record<ColorName, ColorName> = {
   purple: "yellow",
 };
 
-function Puzzle07View({ persistedState }: Puzzle07ViewProps): React.ReactElement {
-  const [localState, setLocalState] = React.useState<Puzzle07State>({
-    ...persistedState,
-    matchedPairs: new Set(persistedState.matchedPairs instanceof Set ? persistedState.matchedPairs : []),
-  });
-  const [resultText, setResultText] = React.useState("Build intuition: select a color, then pick its complement.");
+export default function Puzzle07View({
+  value,
+  onChange,
+  disabled,
+  announce,
+}: PuzzleComponentProps<Puzzle07Input>): ReactElement {
+  const [matched, setMatched] = useState<Set<ColorName>>(new Set());
+  const [resultText, setResultText] = useState(
+    "Build intuition: select a color, then pick its complement.",
+  );
 
-  const updateState = (updater: (prev: Puzzle07State) => Puzzle07State): void => {
-    setLocalState((prev) => {
-      const next = updater(prev);
-      // Serialize matchedPairs to/from Set for persistence
-      Object.assign(persistedState, {
-        ...next,
-        matchedPairs: Array.from(next.matchedPairs),
-      });
-      return next;
-    });
-  };
+  const target = value.selectedColorA;
 
-  const isMatched = (color: ColorName): boolean => localState.matchedPairs.has(color);
-  const isTargetSelected = (color: ColorName): boolean => color === localState.a;
-  const complementOf = (color: ColorName): ColorName => comp[color];
-
-  const handleTargetClick = (color: ColorName): void => {
-    if (!isMatched(color)) {
-      updateState((prev) => ({ ...prev, a: color }));
-      setResultText(`Selected ${color}. Now pick its complement!`);
+  const handleTarget = (color: ColorName): void => {
+    if (matched.has(color)) {
+      return;
     }
+    onChange({ selectedColorA: color, selectedColorB: value.selectedColorB });
+    setResultText(`Selected ${color}. Now pick its complement!`);
   };
 
-  const handleComplementClick = (color: ColorName): void => {
-    if (isMatched(color) || !localState.a) return;
-
-    const correct = complementOf(localState.a) === color;
-    updateState((prev) => {
-      const rounds = prev.rounds + 1;
-      const streak = correct ? prev.streak + 1 : 0;
-      const newMatched = new Set(prev.matchedPairs);
-      
-      if (correct) {
-        newMatched.add(prev.a);
-        newMatched.add(color);
-      }
-      
-      return { ...prev, b: color, rounds, streak, matchedPairs: newMatched };
-    });
-
+  const handleComplement = (color: ColorName): void => {
+    if (matched.has(color) || !target) {
+      return;
+    }
+    const correct = comp[target] === color;
+    onChange({ selectedColorA: target, selectedColorB: color });
     if (correct) {
-      setResultText(`✓ Perfect! ${localState.a} + ${color}. Streak: ${localState.streak + 1}`);
+      const next = new Set(matched);
+      next.add(target);
+      next.add(color);
+      setMatched(next);
+      const message = `Perfect! ${target} + ${color}.`;
+      setResultText(`✓ ${message}`);
+      announce(message);
     } else {
-      setResultText(`✗ Not paired. ${localState.a} pairs with ${complementOf(localState.a)}.`);
+      setResultText(`✗ Not paired. ${target} pairs with ${comp[target]}.`);
+      announce(`Not a complement. ${target} pairs with ${comp[target]}.`);
     }
+  };
+
+  const chip = (kind: "target" | "pick", def: { name: ColorName; hue: number }): ReactElement => {
+    const isMatched = matched.has(def.name);
+    const selected = kind === "target" && def.name === target;
+    return (
+      <button
+        key={`${kind}-${def.name}`}
+        type="button"
+        className="chip-btn"
+        aria-pressed={selected}
+        aria-label={`${kind === "target" ? "Starting colour" : "Complement"}: ${def.name}${selected ? " (selected)" : ""}${isMatched ? " (matched)" : ""}`}
+        style={{
+          background: `hsl(${def.hue}, 78%, 54%)`,
+          opacity: isMatched ? 0.3 : 1,
+          outline: selected ? "3px solid #fff" : "none",
+        }}
+        disabled={disabled || isMatched}
+        onClick={() => (kind === "target" ? handleTarget(def.name) : handleComplement(def.name))}
+      >
+        {def.name}
+      </button>
+    );
   };
 
   return (
     <>
-      <div className="chip-row">
-        {defs.map((def) => (
-          <button
-            key={`target-${def.name}`}
-            className="chip-btn"
-            style={{
-              background: `hsl(${def.hue}, 78%, 54%)`,
-              opacity: isMatched(def.name) ? 0.3 : 1,
-              border: isTargetSelected(def.name) ? "3px solid #fff" : "none",
-              cursor: isMatched(def.name) ? "not-allowed" : "pointer",
-              transform: isTargetSelected(def.name) ? "scale(1.08)" : "scale(1)",
-              transition: "all 0.2s ease",
-            }}
-            onClick={() => handleTargetClick(def.name)}
-            disabled={isMatched(def.name)}
-          >
-            {def.name}
-          </button>
-        ))}
+      <div className="chip-row" role="group" aria-label="Choose a starting colour">
+        {defs.map((def) => chip("target", def))}
       </div>
 
-      <div className="mini-label">
-        {localState.a ? `Selected: ${localState.a.toUpperCase()}` : "Pick a starting color"}
+      <div className="mini-label">{target ? `Selected: ${target.toUpperCase()}` : "Pick a starting color"}</div>
+
+      <div className="chip-row" role="group" aria-label="Choose the complement">
+        {defs.map((def) => chip("pick", def))}
       </div>
 
-      <div className="chip-row">
-        {defs.map((def) => (
-          <button
-            key={`pick-${def.name}`}
-            className="chip-btn"
-            style={{
-              background: `hsl(${def.hue}, 78%, 54%)`,
-              opacity: isMatched(def.name) ? 0.3 : 1,
-              cursor: isMatched(def.name) ? "not-allowed" : "pointer",
-              transition: "all 0.2s ease",
-            }}
-            onClick={() => handleComplementClick(def.name)}
-            disabled={isMatched(def.name)}
-          >
-            {def.name}
-          </button>
-        ))}
-      </div>
-
-      <div className="mini-label">{resultText}</div>
+      <div className="mini-label" aria-live="polite" aria-atomic="true">{resultText}</div>
     </>
   );
 }
-
-export const renderPuzzle07: PuzzleRenderer = (deps: PuzzleRenderDeps) => {
-  const {
-    zone,
-    wrapper,
-    puzzleId,
-    ensureState,
-    addCheckButton,
-  } = deps;
-
-  const state = ensureState<Puzzle07State>(puzzleId, {
-    a: "red",
-    b: "green",
-    rounds: 0,
-    streak: 0,
-    matchedPairs: new Set(),
-  });
-
-  createRoot(zone).render(<Puzzle07View persistedState={state} />);
-
-  addCheckButton(wrapper, puzzleId, () => {
-    const matchedPairs = state.matchedPairs instanceof Set 
-      ? state.matchedPairs 
-      : new Set(state.matchedPairs as unknown as ColorName[]);
-    return {
-      selectedColorA: state.a,
-      selectedColorB: state.b,
-      matchedCount: matchedPairs.size / 2,
-    };
-  });
-};

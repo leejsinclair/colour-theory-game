@@ -22,13 +22,15 @@ Follow these standards while writing or modifying code.
 
 ## React and UI
 
+- React owns the entire browser UI. Keep game rules in the domain layer; UI writes go through `src/web/state/actions.ts`.
 - Prefer clear state transitions and deterministic UI updates.
 - Keep accessibility in place (aria labels, keyboard handling, focus behavior).
-- Reuse existing UI patterns before adding new abstractions.
+- Reuse existing design-system primitives (`src/web/design-system`) and style from tokens; do not hard-code colours or spacing in a screen.
 
 ## Testing
 
-- Update unit tests in [tests/game.test.ts](../../tests/game.test.ts) for game logic changes.
+- Update unit tests (`tests/*.test.ts`) for domain / validation / reducer changes.
+- Update component tests (`tests/component/**`) for React component / interaction changes.
 - Update e2e tests in [tests/e2e](../../tests/e2e) for user-flow changes.
 
 ## Prohibited Changes

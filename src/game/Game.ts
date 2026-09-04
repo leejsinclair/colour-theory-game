@@ -19,6 +19,12 @@ const PRACTICE_CAP_PER_PUZZLE = 30;
 export type ScoreEvent = {
   delta: number;
   reason: string;
+  /** This solve rescued a pet that had not been collected before. */
+  petRescued?: boolean;
+  /** This solve completed the puzzle's station. */
+  stationCompleted?: boolean;
+  /** This solve unlocked the Grand Canvas finale. */
+  grandCanvasUnlocked?: boolean;
 };
 
 export class Game {
@@ -88,15 +94,17 @@ export class Game {
     const petCountBefore = this.petManager.getUnlockedPets().length;
     this.petManager.unlockPet(puzzle.rewardPetId);
     this.playerController.collectPet(puzzle.rewardPetId);
+    let petRescued = false;
     if (this.petManager.getUnlockedPets().length > petCountBefore) {
       delta += 25;
       reason += " +25 Pet Rescued";
+      petRescued = true;
     }
 
     const station = this.stationManager.getStation(puzzle.stationId);
     if (!station) {
       this.score += delta;
-      return { delta, reason };
+      return { delta, reason, petRescued };
     }
 
     const stationPuzzles = this.puzzleManager.getPuzzlesByStation(station.id);
@@ -110,9 +118,11 @@ export class Game {
     this.stationManager.refreshCompletion(station.id);
 
     // +50 station completion bonus
+    let stationCompleted = false;
     if (station.completed) {
       delta += 50;
       reason += " +50 Station Complete";
+      stationCompleted = true;
     }
 
     this.unlockNextStationIfNeeded();
@@ -121,15 +131,17 @@ export class Game {
     this.checkFinalCanvasUnlock();
 
     // +200 final canvas unlock bonus (once)
+    let grandCanvasUnlocked = false;
     if (wasLocked && this.finalCanvasUnlocked) {
       delta += 200;
       reason += " +200 Final Canvas!";
+      grandCanvasUnlocked = true;
     }
 
     this.score += delta;
     this.checkPetMilestones();
 
-    return { delta, reason };
+    return { delta, reason, petRescued, stationCompleted, grandCanvasUnlocked };
   }
 
   /**

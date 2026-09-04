@@ -1,0 +1,23 @@
+/*
+ * Self-hosted display face — headings only (FR-046, research.md R9).
+ *
+ * Space Grotesk (SIL OFL 1.1 — see ./fonts/OFL.txt). Variable weight, Latin
+ * subset as shipped by Google Fonts (~22 KB WOFF2). `font-display: swap` keeps
+ * it off the first-paint critical path; the system fallback stack in
+ * `--font-display` renders immediately.
+ *
+ * Body text and every interactive control use `--font-body` (a system stack,
+ * no bundled file).
+ */
+
+@font-face {
+  font-family: "Space Grotesk";
+  font-style: normal;
+  font-weight: 300 700;
+  font-display: swap;
+  src: url("./fonts/space-grotesk-latin.woff2") format("woff2");
+  /* Latin subset only — headings are English strings (station/puzzle titles). */
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+    U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215,
+    U+FEFF, U+FFFD;
+}

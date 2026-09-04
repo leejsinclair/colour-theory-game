@@ -1,1 +1,0 @@
-export { renderPuzzle23 } from "./puzzle-23-view";

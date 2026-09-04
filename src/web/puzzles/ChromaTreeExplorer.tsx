@@ -1,5 +1,4 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
-import { createRoot } from "react-dom/client";
 
 // ─── Colour model helpers ─────────────────────────────────────────────────────
 
@@ -337,13 +336,4 @@ export function ChromaTreeExplorer(): React.ReactElement {
       </div>
     </div>
   );
-}
-
-/** Mount the ChromaTreeExplorer into the given container element. */
-export function mountChromaTreeExplorer(container: HTMLElement): () => void {
-  const root = createRoot(container);
-  root.render(<ChromaTreeExplorer />);
-  return () => {
-    root.unmount();
-  };
 }

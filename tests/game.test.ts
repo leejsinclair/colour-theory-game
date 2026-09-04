@@ -124,6 +124,28 @@ describe("Gamification scoring", () => {
     expect(game.getProgress().score).toBeGreaterThanOrEqual(125 * 3 + 50);
   });
 
+  test("completePuzzle reports structured milestone flags", () => {
+    const game = new Game();
+    game.initialize();
+
+    const first = game.completePuzzle("puzzle-01", getDemoSolution("puzzle-01"));
+    expect(first).toMatchObject({ petRescued: true, stationCompleted: false });
+
+    game.completePuzzle("puzzle-02", getDemoSolution("puzzle-02"));
+    const closing = game.completePuzzle("puzzle-03", getDemoSolution("puzzle-03"));
+    expect(closing).toMatchObject({ petRescued: true, stationCompleted: true });
+
+    let sawGrandCanvasFlag = false;
+    for (const puzzleId of getPuzzleIds(game)) {
+      const event = game.completePuzzle(puzzleId, getDemoSolution(puzzleId));
+      if (event?.grandCanvasUnlocked) {
+        sawGrandCanvasFlag = true;
+      }
+    }
+    expect(sawGrandCanvasFlag).toBe(true);
+    expect(game.getProgress().finalCanvasUnlocked).toBe(true);
+  });
+
   test("final canvas unlock awards +200 bonus", () => {
     const game = new Game();
     game.initialize();
@@ -447,16 +469,16 @@ describe("diagnoseFailure – unknown puzzle", () => {
 });
 
 describe("diagnoseFailure – new puzzles (01, 02, 03, 04, 05, 06, 12, 14, 18, 21)", () => {
-  test("puzzle-01: missing beams → incorrect_hue_selection", () => {
+  test("puzzle-01: missing beams → missing_primary_beam (not a hue/wheel reason)", () => {
     expect(diagnoseFailure("puzzle-01", { redBeam: false, greenBeam: false, blueBeam: false }))
-      .toContain("incorrect_hue_selection");
+      .toEqual(["missing_primary_beam"]);
     expect(diagnoseFailure("puzzle-01", { redBeam: true, greenBeam: true, blueBeam: false }))
-      .toContain("incorrect_hue_selection");
+      .toEqual(["missing_primary_beam"]);
   });
 
-  test("puzzle-01: all beams on but overlap missing → unbalanced_mix", () => {
+  test("puzzle-01: all beams on but overlap missing → beams_not_aligned", () => {
     expect(diagnoseFailure("puzzle-01", { redBeam: true, greenBeam: true, blueBeam: true, overlap: false }))
-      .toContain("unbalanced_mix");
+      .toEqual(["beams_not_aligned"]);
   });
 
   test("puzzle-02: always returns unbalanced_mix", () => {

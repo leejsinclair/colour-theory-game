@@ -1,0 +1,375 @@
+---
+description: "Task list for React Architecture Refactor & Visual Redesign"
+---
+
+# Tasks: React Architecture Refactor & Visual Redesign
+
+**Input**: Design documents from `/specs/001-react-refactor-redesign/`
+
+**Prerequisites**: plan.md, spec.md, research.md, data-model.md, contracts/ (app-state, puzzle-component, persistence, ui-contract), quickstart.md
+
+**Tests**: REQUIRED for this feature. The constitution makes testing non-negotiable and FR-056/FR-057/FR-058 explicitly mandate preserved unit tests, a rewritten Playwright suite, and new component/interaction tests. Test tasks are therefore included in every phase.
+
+**Organization**: Tasks are grouped by user story. Each story is an independently testable increment. The migration follows a strangler-fig pattern (research.md R5/R6): the React shell flips once early, and un-migrated puzzles keep working through a temporary `LegacyPuzzleAdapter` so `main` stays playable at every checkpoint (FR-064).
+
+## Format: `[ID] [P?] [Story] Description`
+
+- **[P]**: Can run in parallel (different files, no dependency on an incomplete task)
+- **[Story]**: US1–US7 for user-story phases; no label for Setup / Foundational / Polish
+
+## Path Conventions
+
+Single repository. Web SPA under `src/web/`, domain core under `src/game/ src/systems/ src/entities/ src/puzzles/ src/content/` (untouched), tests under `tests/`.
+
+---
+
+## Phase 1: Setup (Shared Infrastructure)
+
+**Purpose**: Test tooling, design-system scaffold, and baselines needed before any migration work.
+
+- [X] T001 [P] Add dev dependencies `jsdom`, `@testing-library/react`, `@testing-library/jest-dom`, `@testing-library/user-event` to `package.json` (devDependencies only — runtime deps unchanged, SC-014) and run `npm install`
+- [X] T002 Create `vitest.config.mts` at repo root (`.mts` — package.json is CommonJS) with two projects — `unit` (node env, `tests/*.test.ts`) and `component` (jsdom env, `tests/component/**/*.test.{ts,tsx}` + setup file `tests/component/setup.ts` importing `@testing-library/jest-dom/vitest`). Vite 8 (oxc) transforms TSX automatically; `passWithNoTests` so an empty component project is green until suites land.
+- [X] T003 Update `package.json` scripts: `test` runs BOTH Vitest projects (`vitest run`) so the Husky `pre-commit` hook gates component tests (Principle II, research.md R10, quickstart.md); `test:component` = `vitest run --project component`; `test:watch` = `vitest --project unit`; `test:cloud` chains `test` unchanged
+- [X] T004 [P] Create `src/web/design-system/tokens.css` with the CSS custom-property scaffold from research.md R8 (`--bg-*`, `--surface-*`, `--text-*`, `--accent-*`, `--station-01..07`, `--state-success/failure/locked`, `--space-*`, `--radius-*`, `--shadow-*`/`--glow-*`, `--font-display`/`--font-body`, `--motion-*`, `[data-reduced-motion]` mirror) — values provisional, filled during US7 contrast work
+- [X] T005 [P] Add one SIL OFL display font (Space Grotesk, Latin-subset WOFF2 ~22 KB) under `src/web/design-system/fonts/` + `src/web/design-system/fonts.css` `@font-face` (`font-display: swap`, `unicode-range` Latin, system fallback via `--font-display`) and the upstream `OFL.txt` (FR-046)
+- [X] T006 [P] Capture the pre-feature bundle baseline via `git worktree` on `main` + `npm ci` + `npm run build:web`; gzip sizes recorded to `specs/001-react-refactor-redesign/baseline-bundle.txt` (JS gzip baseline 219.01 kB; SC-013 ceiling ~251.9 kB)
+- [X] T007 [P] Add `tests/fixtures/legacy-save-v1.json` — a mid-game `ctg:web-progress:v1` snapshot (10 `completedPuzzleIds` through `puzzle-10`, `activeStationId: station-04`, 11 `learningProgressByPuzzle` entries incl. a passed-but-unsolved `puzzle-11`) for persistence compatibility tests (SC-003)
+
+---
+
+## Phase 2: Foundational (Blocking Prerequisites)
+
+**Purpose**: The state, navigation, persistence, shell, and design-system plumbing that every screen and every user story depends on. Per `contracts/app-state.md`, `contracts/persistence.md`, `contracts/puzzle-component.md`.
+
+**⚠️ CRITICAL**: No user-story phase can begin until this phase is complete.
+
+### State core
+
+- [X] T008 [P] Create `src/web/state/gameStore.ts` — `subscribe(cb)` / `getSnapshot()` adapter over the mutable `Game` instance with a structurally-memoised stable `GameSnapshot` (research.md R1, `contracts/app-state.md` §GameSnapshot)
+- [X] T009 Create `src/web/state/selectors.ts` — memoised selector hooks `useProgress`, `useStations`, `useStation(id)`, `usePuzzle(id)`, `useRecommendedNext`, `usePets`, each passing a slice selector to `useSyncExternalStore` (data-model.md §3e)
+- [X] T010 Create `src/web/state/sessionReducer.ts` — `SessionState` + `SessionAction` union (`SUBMIT_RESULT`, `ENTER_PRACTICE`, `EXIT_PRACTICE`, `OPEN_INFO`, `CLOSE_MODAL`, `PUSH_TOAST`, `EXPIRE_TOAST`, `DISMISS_INTRO`, `RESET`), pure (data-model.md §3b)
+- [X] T011 [P] Create `tests/component/sessionReducer.test.ts` — pure reducer coverage for every action incl. `RESET` clearing session state
+- [X] T012 Create `src/web/state/actions.ts` (or co-locate in provider) — `GameActions`: `submitPuzzle`, `practiceSubmit`, `recordQuizPass`, `reset`, `markIntroSeen`, `autoSolveJourney`; each delegates to the domain (`Game.completePuzzle` / `Game.practiceComplete` / `validatePuzzleInput`), returns `SubmitResult`, is idempotent for already-solved puzzles, batches one store notification on success (`contracts/app-state.md` §GameActions)
+- [X] T013 Create `src/web/state/GameProvider.tsx` — mounts the store, `useReducer(sessionReducer)`, and the three split contexts `GameStoreContext` / `GameActionsContext` / `SessionContext` (research.md R3, `contracts/app-state.md` §Contexts)
+- [X] T014 [P] Create `src/web/state/useReducedMotion.ts` — `matchMedia('(prefers-reduced-motion: reduce)')` hook (FR-047)
+
+### Navigation
+
+- [X] T015 [P] Create `src/web/app/routes.ts` — `Route` union (`intro | studio | station | puzzle | collection | grand-canvas`), pure total `parseHash(hash)` and `serialiseRoute(route)`, plus the guard-resolution table (locked/unknown → `studio`; `grand-canvas` without unlock → `studio`) from `contracts/app-state.md` §Guard rules
+- [X] T016 [P] Create `tests/component/useHashRoute.test.ts` — `parseHash` round-trips, unparseable → `studio`, every guard-rule row
+- [X] T017 Create `src/web/app/useHashRoute.ts` — hook returning guard-resolved `route` + `navigate(route)` (sets `location.hash`), driven by `hashchange` and the current `GameSnapshot` (research.md R2)
+
+### Persistence
+
+- [X] T018 Extend `src/web/localProgress.ts` — add optional `introSeen?: boolean` and `lastRoute?: string` to `LocalProgressSnapshot`, with tolerant per-field parsing (wrong type → dropped, never throws) per `contracts/persistence.md` §Read contract; keep key `ctg:web-progress:v1`
+- [X] T019 [P] Update `tests/localProgress.test.ts` — new-field parsing, unknown extra keys ignored, corrupt JSON → `null`, `setItem` throw swallowed
+- [X] T020 Create `src/web/state/persistenceSync.ts` — on mount `readLocalProgress()` → rebuild `Game` by replaying `completedPuzzleIds` through the domain restore path → restore `learningProgressByPuzzle` / `activeStationId` / `practicePuzzleId` / `introSeen`; on first mount resolve and set the initial `location.hash` per `contracts/persistence.md` §4 (`lastRoute` if it passes `parseHash` + guards, else `activeStationId` → that station, else `studio`; `intro` only when `introSeen !== true` and no progress); debounced (≥250 ms) `saveLocalProgress()` on snapshot/session change; never writes before first progress on a fresh run (`skipNextPersist`); swallows storage errors (`contracts/persistence.md` §Load/restore sequence, FR-049–FR-051)
+- [X] T021 [P] Create `tests/component/persistenceSync.test.ts` — `tests/fixtures/legacy-save-v1.json` restores with zero loss; missing `introSeen` → first run; corrupt JSON → fresh game, blob not overwritten until progress; `localStorage` throw → session continues; reset then reload → fresh state; initial-route resolution (valid `lastRoute` honoured; invalid `lastRoute` falls back to `activeStationId`; no progress + no `introSeen` → `intro`) (`contracts/persistence.md` §Compatibility tests)
+
+### Design-system primitives
+
+- [X] T022 [P] Create `src/web/design-system/` core primitives: `Button.tsx`, `IconButton.tsx`, `Card.tsx`, `Panel.tsx`, `Heading.tsx`, `Badge.tsx`, `Tag.tsx` — custom-styled from tokens, semantic HTML, `:focus-visible` ring (FR-048, FR-053). Shared class styles in `design-system/styles.css`; barrel `design-system/index.ts` (imports `styles.css` → `tokens.css` + `fonts.css`).
+- [X] T023 [P] Create `src/web/design-system/` MUI-backed primitives: `Dialog.tsx`, `Menu.tsx`, `Slider.tsx`, `Tooltip.tsx` — thin custom-skinned wrappers over `@mui/material` (the only four MUI components retained, research.md R7)
+- [X] T024 [P] Create `src/web/design-system/` a11y + progress primitives: `LiveRegion.tsx` (single app-level polite `aria-live` with an `announce()` API, research.md R14), `VisuallyHidden.tsx`, `ProgressRing.tsx`, `ProgressBar.tsx`
+- [X] T025 [P] Create `src/web/design-system/CelebrationBurst.tsx` and `src/web/design-system/StudioBackdrop.tsx` — CSS/SVG only, reduced-motion aware (FR-045, FR-047)
+- [X] T026 [P] Replace the 5 `@mui/icons-material` icons with inline SVG components in `src/web/design-system/icons.tsx`; remove `@mui/icons-material` from `package.json` (research.md R7). The 5 legacy call sites (`AppShell.tsx`, `muiControls.tsx`) re-aliased to the new icons so `main` stays green until they are deleted in Phase 3.
+
+### Shell + adapter
+
+- [X] T027 Create `src/web/app/App.tsx` — renders `banner` / `navigation` / `main` landmarks, switches on `useHashRoute().route`, mounts one `LiveRegion`, and moves focus to the new screen's `<h1>` on every route change (FR-009, FR-053, research.md R14, `contracts/ui-contract.md` §Landmarks). HUD (T038), `AppMenu` (T039) and `ToastHost` (T047a) are placeholders until US1; not yet wired into `main.tsx` (that is the T052 shell flip).
+- [X] T028 Create screen shells under `src/web/screens/` — `IntroScreen.tsx`, `StudioScreen.tsx`, `StationScreen.tsx`, `PuzzleScreen.tsx`, `CollectionScreen.tsx`, `GrandCanvasScreen.tsx` — each renders its landmark `<h1>` (names per `contracts/ui-contract.md`) and is wired to selector hooks; content filled in later phases
+- [X] T029 [P] Create `src/web/components/LegacyPuzzleAdapter.tsx` — TEMPORARY: hosts the existing `renderPuzzleById(puzzleId, deps)` inside a React container with a synthetic `PuzzleRenderDeps`; the legacy `addCheckButton` no longer builds a DOM button — its `inputFactory` is forwarded up via `onInputFactory` so `<PuzzlePlayer>` (T045) renders the real design-system Check button in the React tree (research.md R5). Deleted in Phase 5 (T080).
+- [X] T030 [P] Add a React-friendly `getPetSprite(id, collected)` descriptor export to `src/web/petSprites.ts` (background style props + `ariaLabel` for `<PetBadge>`) without removing the existing DOM builder yet (data-model.md §1)
+
+**Checkpoint**: State, navigation, persistence, design-system primitives, and an empty routed shell all build and unit-test green. `legacyGame.ts` still active — not yet wired in.
+
+---
+
+## Phase 3: User Story 1 - The full game plays end to end in a React-driven UI (Priority: P1) 🎯 MVP
+
+**Goal**: The entire journey — Intro → Studio → Station → learning gate → Puzzle → feedback → reward → next station → Grand Canvas — runs through the React tree with every existing mechanic intact. `legacyGame.ts` and `src/web/legacy/{infoModal,learningFlow,resultFeedback}.ts` are removed from the browser flow (puzzle internals still run through `LegacyPuzzleAdapter` until US3).
+
+**Independent Test**: From a fresh `localStorage`, play to the Grand Canvas — every puzzle solves, every pet unlocks, score/streak/milestones match baseline, reload restores progress, reset returns to fresh state — and DevTools shows no `legacyGame`/`src/web/legacy/*` module loaded (SC-004, quickstart.md §Manual smoke).
+
+### Tests for User Story 1
+
+- [X] T031 [P] [US1] Create `tests/component/HUD.test.tsx` — fresh readouts, score/pets/streak update after a solve, milestone badge (icon + label) after 6 pets. Narrow-width simplification is CSS-only (verified in the mobile e2e spec, US7).
+- [X] T032 [P] [US1] Create `tests/component/LearningGate.test.tsx` — `<PuzzleScreen>`: Check absent through intro + a failed quiz (tips shown), appears once the quiz passes at 100%.
+- [X] T033 [P] [US1] Create `tests/component/PuzzlePlayer.test.tsx` — real Check button in `.puzzle-stage__play`, wrong → `onFailed` w/ diagnosis, correct (via legacy beam buttons) → `onSolved`, second click idempotent, no submit while `disabled`.
+- [X] T034 [P] [US1] Create `tests/component/InfoModal.test.tsx` — opens as a `dialog`, focus moves inside, `Escape` closes and restores focus to the opener (`fetch` stubbed → inline learning-content fallback).
+- [X] T035 [US1] Rewrite `tests/e2e/new-player-journey.spec.ts` against `contracts/ui-contract.md` roles/names — intro, studio, learning gate, wrong then correct solve, pet reveal, station unlock, progression to Grand Canvas.
+- [X] T036 [P] [US1] Rewrite `tests/e2e/studio.spec.ts` + `tests/e2e/design-studio-check.spec.ts` to role/name selectors; `tests/e2e/screenshot.spec.ts` retargeted to the `ResultPanel` alert.
+- [X] T037 [US1] Persistence + reset e2e coverage in `tests/e2e/persistence.spec.ts` — reload mid-game restores solved set / quiz pass / route; menu → Reset run → fresh Studio + intro again.
+
+### Implementation for User Story 1
+
+- [X] T038 [P] [US1] Build `src/web/components/HUD.tsx` — brand + Grand-Canvas `ProgressRing`, Score / "Pets collected: N of 22" / "Streak: N" `status` readouts, milestone `Badge`s (icon + label), `AppMenu`. CSS simplifies (not shrinks) at ≤640 px.
+- [X] T039 [P] [US1] Build `src/web/components/AppMenu.tsx` — design-system `Menu` (trigger "Menu"): "Reset run", "Replay intro", "Feedback"; "Auto solve journey" gated to a localhost/127.0.0.1 host (CommonJS-safe; `import.meta.env` unavailable under `module: CommonJS`).
+- [X] T040 [P] [US1] Build `src/web/screens/IntroScreen.tsx` — 3 caretaker lines + "Enter the Studio" / "Skip", both `markIntroSeen()` → studio. First-run routing to `#/intro` added in `persistenceSync` (was a Phase 2 gap); `useHashRoute` reconciliation effect now guards against clobbering a hash another effect just changed.
+- [X] T041 [US1] Fill `src/web/screens/StudioScreen.tsx` — `Card` grid from `useStations`, Enter/Continue nav, "Recommended: …" from `useRecommendedNext`, pet summary, "View pet collection".
+- [X] T042 [US1] Fill `src/web/screens/StationScreen.tsx` — puzzle list, "Back to Studio", Play/Practice per puzzle (dispatches ENTER/EXIT_PRACTICE), "Go to <next station>" when complete.
+- [X] T043 [P] [US1] Build `src/web/components/LearningIntro.tsx` + `LearningQuiz.tsx` — ported from `legacy/learningFlow.ts`; the pure scorer moved to `src/web/learning/evaluateLearningQuiz.ts`; 100%-pass gate; `onPass` → `actions.recordQuizPass`.
+- [X] T044 [US1] Fill `src/web/screens/PuzzleScreen.tsx` — `useReducer` stage (`intro|quiz|solve`, initial `solve` when not gated/practice), `LearningIntro`→`LearningQuiz`→`PuzzlePlayer`, `ResultPanel`/`RewardReveal`, toasts + announcements, Continue routes to next station / Grand Canvas / back, "How this works" → OPEN_INFO.
+- [X] T045 [US1] Build `src/web/components/PuzzlePlayer.tsx` + `CheckButton.tsx` — hosts `LegacyPuzzleAdapter`, real Check button in-subtree; `submit()` → `actions.submitPuzzle` / `practiceSubmit`; microtask double-submit guard. (Adapter fixed to append its wrapper unless the renderer self-appended.)
+- [X] T046 [P] [US1] Build `src/web/components/ResultPanel.tsx` — `role="alert"` failure `Panel`, "✗ Not quite" + ordered `diagnosis.explanations`, "Try again", `announce()`.
+- [X] T047 [P] [US1] Build `src/web/components/RewardReveal.tsx` — `CelebrationBurst` + pet `img` "<name> collected" + score reason + "Continue"; `role="status"` success `Panel`.
+- [X] T047a [P] [US1] Build `src/web/components/ToastHost.tsx` — renders the `sessionReducer` toast queue, per-toast `setTimeout` → `EXPIRE_TOAST`; mounted once in `App.tsx`.
+- [X] T048 [US1] Build `src/web/components/InfoModal.tsx` — `marked`-rendered `puzzle-info/*.md` (→ learning content → `puzzleConcepts` fallback) in design-system `Dialog`; "Open Chroma Tree explorer" mounts `ChromaTreeExplorer` for puzzle-06; driven by `session.modal`.
+- [X] T049 [US1] Fill `src/web/screens/GrandCanvasScreen.tsx` — reuses `CompletionCertificate` (stats + full pet roll + Return / Review & practice). +200 applied once by the domain at unlock.
+- [X] T050 [US1] Fill `src/web/screens/CollectionScreen.tsx` — `getPetSprite` grid; unlocked "<name> — from <station>", locked greyed silhouette + reveal hint.
+- [X] T051 [US1] `actions.autoSolveJourney()` already implemented in Phase 2 (drives `submitPuzzle` + `recordQuizPass` with demo solutions); `AppMenu` now surfaces it on a dev host.
+- [X] T052 [US1] Rewrite `src/web/main.tsx` — mounts `<GameProvider><App/></GameProvider>` into `#root`; `void import("./legacyGame")` removed (the shell flip).
+- [X] T053 [US1] `index.html` reduced to `<div id="root"></div>` + the module script; static gameplay skeleton, `#auto-solve`/`#reset` hooks and `ctg:ready` gone.
+- [X] T054 [US1] Deleted `src/web/legacyGame.ts`, `AppShell.tsx`, `legacy/{infoModal,learningFlow,resultFeedback}.ts`; `legacy/artStationMiniGame.ts` kept for Phase 5; `tests/learningFlow.test.ts` import repointed. `muiTheme.ts` now orphaned (T105).
+- [X] T055 [US1] CLI regression — `git diff` confirms `src/game` / `src/systems` / `src/entities` / `src/cli.ts` / `src/content` untouched; `list` shows 22 puzzles, `solve puzzle-01` → "Solved puzzle-01."; 168 domain unit tests green.
+- [X] T056 [US1] Checkpoint gate green — `npm run build` (tsc), `npm test` (177 unit + component), `npm run lint`, `npm run build:web` (JS gzip 207.7 kB vs 219.0 baseline; SC-013 OK), `npm run test:e2e` (18 passed). Grep: only comment references to `legacyGame` remain (in the temporary `LegacyPuzzleAdapter`, deleted T080); zero to `AppShell` / retired `legacy/*` modules.
+
+**Checkpoint**: MVP — the full game is playable end to end in React, `legacyGame.ts` is retired, persistence and reset verified. Deployable. ✅
+
+**Navigation fixes made in this phase** (Phase 2 `useHashRoute` / `persistenceSync` had a first-paint race): `src/web/app/navReady.ts` one-shot flag; `useHashRoute`'s URL-reconciliation effect is gated on it and re-resolves from the live store snapshot (not the stale `route` memo) so `persistenceSync`'s restore can set `#/station/...` / `#/intro` without being clobbered.
+
+---
+
+## Phase 4: User Story 2 - The Studio is a game hub that tells me what to do next (Priority: P2)
+
+**Goal**: The Studio orients a player in seconds — premise, overall progress, per-station identity/lock/complete state, pet summary, and one recommended next activity — with stations as distinctive game-world cards.
+
+**Independent Test**: Load the Studio at fresh / mid-game / all-complete states and confirm each station card shows identity + description + colour theme + puzzle count + progress + lock state, the HUD summarises progress, and "recommended next" points to the correct target within 10 s (SC-010).
+
+### Tests for User Story 2
+
+- [X] T057 [P] [US2] Create `tests/component/StudioScreen.test.tsx` — fresh/mid/complete snapshots: card states distinct, `useRecommendedNext` target correct (earliest unlocked incomplete station or its next unsolved puzzle)
+- [X] T058 [P] [US2] Extend `tests/e2e/studio.spec.ts` — station-card identity, locked-station treatment communicated by more than colour, recommended-next affordance present on load
+
+### Implementation for User Story 2
+
+- [X] T059 [P] [US2] Build `src/web/components/StationCard.tsx` — title, short description, per-station colour token, puzzle count, `ProgressRing`, `locked | available | in-progress | complete` treatment (icon + text, not colour alone), "Enter <station>" / "Continue <station>" action; locked card states the reason (FR-029, FR-035, US2-3, US2-4). Presentation copy + hue map in `src/web/content/stationPresentation.ts` (no game rules).
+- [X] T060 [P] [US2] Build `src/web/components/RecommendedNext.tsx` — consumes `useRecommendedNext`; links to station / puzzle / Grand Canvas (US2-2, SC-010)
+- [X] T061 [US2] Redesign `src/web/screens/StudioScreen.tsx` — game title, premise line, overall completion `ProgressBar` + pet-rescue summary, `StationCard` grid (`repeat(auto-fill, minmax(min(100%,16rem),1fr))`, research.md R15), `RecommendedNext`, "View pet collection" link (FR-028)
+- [X] T062 [US2] Studio hero treatment + station-card hue accents on the design tokens (`app.css`) so the Studio reads unmistakably as a colour game — dark studio ground (shell `StudioBackdrop`), custom cards, colourful CTAs (FR-042, FR-043; formal review in Polish)
+
+**Checkpoint**: Studio is a proper hub. US1 journey still passes. ✅ — gate green: `npm run build`, `npm run lint`, `npm test` (14 files / 180), `npm run build:web` (JS gzip 208.57 kB vs 219.0 baseline), `npm run test:e2e` (19 passed).
+
+---
+
+## Phase 5: User Story 3 - Each puzzle is a self-contained React experience (Priority: P2)
+
+**Goal**: Every playable puzzle is a controlled React component satisfying `contracts/puzzle-component.md` — no `persistedState`, no `createRoot`-per-puzzle, no DOM queries, no domain imports. `LegacyPuzzleAdapter` and the `PuzzleRenderDeps` machinery are deleted.
+
+**Independent Test**: For a puzzle in each of the 7 stations, drive the learning gate, operate controls by keyboard and pointer, submit wrong (specific feedback) then correct (reward), and confirm via source/React DevTools that input reaches Check through React state only (SC-005, quickstart.md §Architecture correctness).
+
+### Tests for User Story 3
+
+- [X] T063 [P] [US3] Create `src/web/puzzles/types.ts` (new) — `PuzzleComponentProps<TInput>` = `{ value, onChange, disabled, announce, reducedMotion }` and `PuzzleComponent<TInput>` (`contracts/puzzle-component.md` §Signature)
+- [X] T064 [P] [US3] Rewrite `tests/artStationMiniGame.test.ts` → `tests/artStationCoverage.test.ts` — pure coverage/optical math for the extracted module (`getArtCoverage` / `distinctDots` / `artStationResult` / `opticalPreview`)
+- [X] T065 [P] [US3] Rewrite `tests/learningFlow.test.ts` → `tests/component/LearningQuiz.test.tsx` — component test of the quiz gate; the pure scorer keeps its unit coverage in the renamed `tests/evaluateLearningQuiz.test.ts`
+- [X] T066 [P] [US3] Add `tests/component/puzzle-views.test.tsx` — one puzzle per station + `ArtStationPad`: renders from `value`, emits correct `onChange` shape, disabled-aware; plus a static scan of all 22 view modules for `persistedState` / `createRoot` / `react-dom/client` / domain imports / DOM queries
+- [X] T067 [P] [US3] Add `tests/e2e/puzzle-interaction.spec.ts` — pointer (station-01, station-06) + keyboard slider (station-03) operation with wrong-then-right submission
+
+### Implementation for User Story 3
+
+- [X] T068 [US3] Create `src/web/puzzles/index.ts` (new shape) — `puzzleComponents` `React.lazy` map keyed `puzzle-01..21`, `puzzle-23` (+ `hasPuzzleComponent`), plus `initialInputFor(puzzleId)` (`contracts/puzzle-component.md` §Registration, research.md R13). Puzzle chunks are now code-split — initial JS gzip dropped to 169.3 kB.
+- [X] T069 [P] [US3] Add design-system puzzle controls — `Select` + `Checkbox` (native, labelled) alongside the existing `Slider`; puzzle-local `controls.tsx` `PuzzleSlider` only formats the label over `design-system/Slider` (Principle III, `contracts/puzzle-component.md` rule 3)
+- [X] T070 [P] [US3] Create `src/web/puzzles/artStationCoverage.ts` — pure, unit-tested coverage/optical math extracted from the retired `src/web/legacy/artStationMiniGame.ts` (research.md R4)
+- [X] T071 [US3] Create `src/web/puzzles/ArtStationPad.tsx` — React rewrite of the Art Station paint pad satisfying `PuzzleComponentProps`; pad pixels + selected colour are local state; pointer-drag and click paint, `role="grid"` cells
+- [X] T072 [P] [US3] Migrate **station-01** puzzle views — `puzzle-0{1,2,3}-view.tsx` to the `PuzzleComponent` contract (`value`/`onChange`, `export default`, `initialInputFor` case, no `persistedState`, no `renderPuzzle0N`)
+- [X] T073 [P] [US3] Migrate **station-02** puzzle views — `puzzle-0{4,5,6}-view.tsx`; `ChromaTreeExplorer.tsx` retained (used by `InfoModal`)
+- [X] T074 [P] [US3] Migrate **station-03** puzzle views — `puzzle-0{7,8,9}-view.tsx`
+- [X] T075 [P] [US3] Migrate **station-04** puzzle views — `puzzle-1{0,1,2}-view.tsx`
+- [X] T076 [P] [US3] Migrate **station-05** puzzle views — `puzzle-1{3,4,5}-view.tsx`; puzzle-15 fully rewritten from imperative DOM to a two-stage React component
+- [X] T077 [P] [US3] Migrate **station-06** puzzle views — `puzzle-1{6,7}-view.tsx`; puzzle-18 is now `ArtStationPad` (old `puzzle-18-view.tsx` deleted)
+- [X] T078 [P] [US3] Migrate **station-07** puzzle views — `puzzle-{19,20,21}-view.tsx` + `puzzle-23-view.tsx` (keeps `puzzle-23-data.ts`)
+- [X] T079 [US3] Switch `src/web/components/PuzzlePlayer.tsx` to `<Suspense fallback={<PuzzleSkeleton/>}><PuzzleView value onChange disabled announce reducedMotion/></Suspense>` + the real Check button in-subtree; new `components/PuzzleSkeleton.tsx`
+- [X] T080 [US3] Delete legacy puzzle machinery — `LegacyPuzzleAdapter.tsx`, all 22 `puzzle-NN.ts` entry re-exports, `puzzle-01.tsx` (dead duplicate), `renderPuzzleById`/`puzzleRenderers`/`PuzzleRenderDeps`, `muiPuzzleControls.tsx`, `src/web/muiControls.tsx`, `src/web/legacy/artStationMiniGame.ts`; `src/web/legacy/` removed (FR-003, SC-004, SC-005)
+- [X] T081 [US3] Checkpoint gate green — `npm run build` (tsc), `npm run lint`, `npm test` (16 files / 227 tests), `npm run build:web` (JS gzip **169.3 kB** vs 219.0 baseline; SC-013 OK), `npm run test:e2e` (22 passed). `git grep` in `src/**` for `persistedState` / `PuzzleRenderDeps` / `src/web/legacy` finds only historical doc-comment references, no code.
+
+**Checkpoint**: ✅ All 22 puzzles are native controlled React components hosted by `<PuzzlePlayer>` behind `<Suspense>`; the `persistedState` bridge, `addCheckButton`, `PuzzleRenderDeps`, `LegacyPuzzleAdapter` and `src/web/legacy/` are gone. Puzzle chunks are code-split. Visual styling of the puzzle bodies (class hooks preserved, orphaned `src/web/styles.css` as the reference) remains for the US7 responsive/visual pass.
+
+---
+
+## Phase 6: User Story 4 - Success feels rewarding and failure is instructive (Priority: P2)
+
+**Goal**: Correct solves get a brief, non-blocking celebration + pet reveal + encouraging message; wrong attempts get a calm, specific, principle-level explanation. Both respect reduced motion and never rely on colour alone.
+
+**Independent Test**: Trigger success and failure on several puzzles — celebration is brief and non-blocking, failure text names the specific issue and principle, `prefers-reduced-motion` swaps to a static equivalent, state carries icon/text not just colour (SC-008, SC-009).
+
+### Tests for User Story 4
+
+- [X] T082 [P] [US4] Create `tests/component/ResultPanel.test.tsx` — renders the specific `diagnose.ts` reason + principle; state exposed by role/text not colour; retry works. 5 tests, builds each `FailureDiagnosis` from the real `diagnoseFailure` + `FAILURE_PRINCIPLE`/`FAILURE_EXPLANATIONS`.
+- [X] T083 [P] [US4] Create `tests/component/RewardReveal.test.tsx` — `reducedMotion` prop → burst carries `ds-celebration--static` (no travelling animation); animated variant otherwise; static success treatment (status role + ✓ + encouragement + pet + score); encouragement stable across re-renders. 6 tests.
+- [X] T084 [P] [US4] Add `tests/e2e/feedback.spec.ts` — 3 tests: correct solve shows a polite `status` reward and Continue is immediately clickable (celebration never intercepts the click); wrong answer names "Principle to revisit: Hue relationships" + the specific explanation; `page.emulateMedia({ reducedMotion: "reduce" })` → `.ds-celebration--static`.
+
+### Implementation for User Story 4
+
+- [X] T085 [US4] Polished `src/web/components/RewardReveal.tsx` + `src/web/design-system/CelebrationBurst.tsx` — rotating encouragement (deterministic per solve, override via `message`), explicit "&lt;pet&gt; freed — added to your collection" line, dot/fleck/spark particle shapes via CSS; Continue operable at once (`pointer-events: none` burst); static branch delegated to `<CelebrationBurst reducedMotion>` (FR-033, FR-047, US4-1, US4-2)
+- [X] T086 [US4] Polished `src/web/components/ResultPanel.tsx` — new `FAILURE_PRINCIPLE` map (failureReasons.ts) grouped by canonical family; `FailureDiagnosis.principle` built in `actions.ts`; panel names "Principle to revisit: &lt;principle&gt;" above the explanations; every state carries ✗ glyph + leading word + the bordered failure panel shape, not colour alone (FR-034, FR-035, US4-3, US4-4)
+- [X] T087 [US4] Live-region announcements centralised in `PuzzleScreen.handleSolved` — one composed message ("Correct — puzzle solved. &lt;pet&gt; freed. Station complete. The Grand Canvas is now unlocked.") instead of sequential `announce()` calls that overwrote each other; Grand Canvas unlock now announced + toasted; failure announcement includes the principle; practice-solve announcement moved out of `PuzzlePlayer` (FR-036, `contracts/ui-contract.md` §Live region)
+
+**Checkpoint**: Feedback loop is polished. ✅ — gate green: `npm run build` (tsc), `npm run lint`, `npm test` (18 files / 238 tests, +11), `npm run build:web` (JS gzip 169.76 kB vs 219.0 baseline), `npm run test:e2e` (25 passed, +3 feedback).
+
+---
+
+## Phase 7: User Story 7 - The game works and is accessible on any device (Priority: P2)
+
+**Goal**: Purpose-built layouts for mobile / tablet / desktop, full keyboard operability with visible focus, accessible dialogs, WCAG AA contrast, non-colour-only state, no horizontal page scroll.
+
+**Independent Test**: Run the primary journeys at 320 px / tablet / desktop, keyboard-only, and with a screen reader — no body horizontal scroll, adequate touch targets, visible focus at every step, correct semantics, AA contrast (SC-006, SC-007, SC-008).
+
+### Tests for User Story 7
+
+- [X] T088 [US7] Create `tests/e2e/mobile-critical-path.spec.ts` — 320 px viewport: Studio → station → learning gate → puzzle → Check → Continue → next station with no horizontal page scroll and touch-operable controls (FR-054, SC-007). `test.use({ viewport: 320×720, hasTouch })`; a `expectNoHorizontalScroll` helper asserts `scrollingElement.scrollWidth ≤ clientWidth` at every step; controls driven with `.tap()`.
+- [X] T089 [P] [US7] `tests/component/focus-management.test.tsx` — renders `<App/>` and asserts focus lands on the new screen's `<h1>` on mount and after each route change (intro → Studio → station); `announce()` pushes a polite `role="status"` update. The `InfoModal` focus trap (open → `Escape` → focus returns to opener) is covered by `tests/component/InfoModal.test.tsx` (T034), referenced in the file header.
+- [X] T090 [P] [US7] `tests/e2e/keyboard.spec.ts` — skip link is the focusable before `main` and reveals on focus with a ring; the whole Studio → station → gate → puzzle → Check → Continue journey is driven with real `Tab`/`Shift+Tab` presses + `Enter`, asserting a computed focus ring (`box-shadow`/`outline`) at every stop (SC-006).
+
+### Implementation for User Story 7
+
+- [X] T091 [US7] Responsive layout pass — `box-sizing:border-box` reset + `body{overflow-x:hidden}` guard; `.app-shell__main` padding on a `clamp()`; station grid already `repeat(auto-fill, minmax(min(100%,16rem),1fr))` (1 col at 320); HUD **simplified not shrunk** on ≤640 px (brand + values step down, milestone badges scroll in their own strip) and kept a sticky top rail — a deliberate call to preserve the skip-link → banner → nav → main tab order + focus-to-`h1` the a11y contract depends on (noted in `app.css`); new `src/web/puzzles/puzzle-body.css` re-expresses every puzzle-body class hook (orphaned `src/web/styles.css` was the structural reference) against the dark tokens with ≥44 px targets, wrapping flex rows, `max-width:100%`, and no fixed pixel widths; verified 320 by the mobile e2e spec (FR-052, FR-054, research.md R15).
+- [X] T092 [US7] Accessibility pass — `banner`/`navigation`/`main` landmarks + one `<h1>` per screen confirmed (unchanged from R14); a `:focus-visible` token ring added for `a`, nav links, the skip link (now revealed on focus, not left clipped), and every custom control inside `.puzzle-stage__play` (`puzzle-body.css`); real `<button>`s / labelled controls / MUI `Dialog` unchanged; axe finds zero violations (T094).
+- [X] T093 [US7] WCAG AA contrast matrix in `contracts/ui-contract.md` filled from `tokens.css` (WCAG 2.1 relative-luminance) — every pair passes; two provisional values adjusted: `--state-locked` `#7a719f → #a99fce` (was 3.9 on `--state-locked-bg`) and `--station-04` `#7c5cff → #977dff` (was 3.8 on `--surface-1`). locked/solved/success/failure already carry icon + text in the components (FR-035, FR-055, SC-008).
+- [X] T094 [US7] `tests/e2e/a11y.spec.ts` — `@axe-core/playwright` (new devDependency) scans Studio, Collection, Station, Puzzle and Grand Canvas against `wcag2a/2aa/21a/21aa`; **zero violations** on every screen.
+
+**Checkpoint**: Responsive + accessible across devices. ✅ — gate green: `npm run build` (tsc, incl. e2e specs), `npm run lint`, `npm test` (19 files / 240 tests, +2), `npm run build:web` (JS gzip 169.70 kB vs 219.0 baseline; CSS 6.46 kB gzip), `npm run test:e2e` (33 passed, +8: mobile 2 / a11y 4 / keyboard 2). No `src/` domain or CLI changes.
+
+---
+
+## Phase 8: User Story 5 - The Chromatic Pet collection feels like an achievement (Priority: P3)
+
+**Goal**: One reusable pet component used everywhere; a game-like gallery with intriguing locked silhouettes, names, and source attribution; strong focus/hover.
+
+**Independent Test**: Open the collection at several progress states — locked silhouettes don't reveal the design, unlocked pets show name + origin, every pet is keyboard-focusable with a label, and the same component renders pets in the HUD, collection and Grand Canvas (FR-038, US5).
+
+### Tests for User Story 5
+
+- [X] T095 [P] [US5] Create `tests/component/PetBadge.test.tsx` — locked silhouette vs unlocked (name + origin), visible focus state, accessible label per `contracts/ui-contract.md` §Collection. 3 tests: unlocked art + `tabindex="0"` + name/origin caption; locked silhouette with `?` glyph + `???` (name hidden); `focusable={false}` drops the tab stop and honours a `label` override.
+- [X] T096 [P] [US5] Add `tests/e2e/collection.spec.ts` — 4 tests: fresh (22 locked silhouettes, "0 of 22 freed"), partial (puzzle-01 → exactly Glow Sprite freed, 21 locked), keyboard-focus a freed tile, complete (22/22, 0 locked — reached via the finale's nav since a done game boots to Grand Canvas).
+
+### Implementation for User Story 5
+
+- [X] T097 [P] [US5] Build `src/web/components/PetBadge.tsx` — THE reusable pet component: `<figure>` + `role="img"` frame (keyboard tab stop unless `focusable={false}`), unlocked art via `getPetSprite`, locked = pure silhouette (`filter: brightness(0)`) + `?` glyph so the design isn't revealed, `size` (`sm`/`md`/`lg`) + `showLabel` + `origin` + `label` props, focus ring + hover glow, reduced-motion branch (FR-038)
+- [X] T098 [US5] Build `src/web/components/PetGallery.tsx` (grid of `PetBadge`, caller resolves origin) and redesign `src/web/screens/CollectionScreen.tsx` — lede + `ProgressBar` ("N of 22 freed") + gallery with "<pet> — from <station>" / "Locked pet — solve a puzzle in <station> to reveal" labels; new `.pet-badge` / `.pet-gallery` / `.collection__*` tokens replace the old `.pet-grid*` rules in `app.css` (FR-039, US5-1, US5-2)
+- [X] T099 [US5] `RewardReveal.tsx` and `GrandCanvasScreen.tsx` now render pets via `PetBadge`/`PetGallery`; `HUD.tsx` shows only a count (no sprite) so it was already clean. Removed the legacy DOM builder `createPetSpriteDiv` from `src/web/petSprites.ts` and its only (dead, unreferenced) consumer `src/web/CompletionCertificate.tsx` (FR-038, US5-4)
+
+**Checkpoint**: Pets are a cohesive collectible surface everywhere. ✅ — gate green: `npm run build` (tsc), `npm run lint`, `npm test` (20 files / 243 tests, +3), `npm run build:web` (JS gzip 170.08 kB vs 219.0 baseline; CSS 6.67 kB gzip), `npm run test:e2e` (37 passed, +4 collection). One dead file removed (`CompletionCertificate.tsx`); no `src/` domain or CLI changes.
+
+---
+
+## Phase 9: User Story 6 - The Grand Canvas is a distinctive finale (Priority: P3)
+
+**Goal**: A finale that reads as a genuine reward — visually distinct from puzzle screens, same design system — preserving stats, full pet roll, return + review/practice, and free revisiting of every station.
+
+**Independent Test**: Complete the game (or inject a completed save) — finale shows preserved stats + pet roll, offers return + review/practice, looks clearly different from a puzzle screen, and reduces motion to a static treatment (US6, FR-040).
+
+### Tests for User Story 6
+
+- [X] T100 [P] [US6] Created `tests/component/GrandCanvasScreen.test.tsx` — 3 tests: preserved stats ("Puzzles solved: 22" / "Pets rescued: 22/22" / `/^Best streak: \d+$/`) + full 22-pet roll via `PetBadge` (`role="img"`) + both actions; hero `<h1>` + "your progress is saved" reassurance = reads as a finale; `.ds-celebration` animated by default, `.ds-celebration--static` under emulated reduced motion.
+- [X] T101 [P] [US6] Added `tests/e2e/new-player-journey.spec.ts` › "the finale is distinct, keeps its stats, and its bonus is applied once" — auto-solve → hero heading + stats; capture the HUD Score tile, Return to Studio, re-enter via the "Grand Canvas" nav link, assert the Score is unchanged (the +200 is applied once at unlock); every station enterable for free revisit.
+- [X] T102 [US6] Redesigned `src/web/screens/GrandCanvasScreen.tsx` — a certificate-style `<Panel tone="success">` award card (gold border + `--glow-gold`, centred, one-shot `CelebrationBurst`), display-font stat tiles with `role="status"` captions, a titled pet roll via `PetGallery`, an explicit saved-progress / everything-unlocked reassurance line, and the "Return to Studio" + "Review & practise puzzles" actions. New `.grand-canvas__*` rules in `app.css` on design tokens. Both stat text strings the contract/e2e assert are preserved.
+- [X] T103 [US6] `GrandCanvasScreen` now calls `useReducedMotion()` and passes it to `CelebrationBurst`, which renders a static cluster (`ds-celebration--static`, no burst travel) under reduced motion — covered by the component test and the existing `feedback.spec.ts` reduced-motion path. Return/Review both navigate to `{ view: "studio" }`; the "every station enterable" assertion in the new e2e confirms the domain leaves all stations unlocked after completion.
+
+**Checkpoint**: All user stories complete. ✅ — gate green: `npm run build` (tsc, incl. e2e specs), `npm run lint`, `npm test` (21 files / 246 tests, +3), `npm run build:web` (JS gzip 170.27 kB vs 219.0 baseline; CSS 6.87 kB gzip), `npm run test:e2e` (38 passed, +1 finale). No `src/` domain or CLI changes.
+
+---
+
+## Phase 10: Polish & Cross-Cutting Concerns
+
+**Purpose**: Consistency, cleanup, performance verification, documentation, and final acceptance.
+
+- [X] T104 [P] Design tokens already consistent — `app.css` and `styles.css` carry **zero** hardcoded colours/spacing; every screen styles from `tokens.css`. Puzzle-domain literal colours in `puzzle-body.css` (RGB beam swatches etc.) are intentional. The legacy `src/web/styles.css` (Emotion-era, `.app-shell` @1240px, `.hud-stat`, `.completion-certificate`, …) was **fully unreferenced** — `git rm`'d. (FR-041, FR-044)
+- [X] T105 [P] `git rm src/web/muiTheme.ts` — orphaned since T054 (the last `@mui/material/styles` / `createTheme` user). `@mui/material` stays for the four a11y primitives (`Dialog`, `Menu`, `Slider`, `Tooltip`); no theme wrapper — the design system owns the visual identity. (research.md R7)
+- [X] T106 [P] `React.memo` on all six route screens (`Intro/Studio/Station/Puzzle/Collection/GrandCanvas` → `*Impl` + `memo` export) plus `HUD`, `StationCard`, `PetBadge` (list items — primitive props). `StationCard.onEnter` → `(stationId) => void` so `StudioScreen` holds one `useCallback`. `React.lazy` chunk split confirmed in `build:web` (24 `puzzle-*-view` chunks, 0.24–2.01 kB gzip each). Selector hooks verified: `selectors.ts` `useSelector` passes a slice selector to `useSyncExternalStore` over the structurally-shared `getSnapshot()`. (research.md R13)
+- [X] T107 `npm run build:web`: JS **170.30 kB gzip** (529.19 kB raw), CSS **~6.9 kB gzip**. Baseline 219.01 kB gzip, ≤115% ceiling ~251.9 kB → **~78% of baseline**, comfortably under. Lazy puzzle chunks add ~25 kB gzip total but load on demand. (SC-013)
+- [X] T108 Repo grep clean: `src/web/legacy/` **deleted**; **zero** code references to `legacyGame` / `AppShell` / `muiControls` / `muiTheme` / `persistedState` / `PuzzleRenderDeps` / `puzzleRenderers` / `inputFactory` / `addCheckButton` / `resetSessionState`. Only historical prose in a few doc-comments. `createRoot` now only in `main.tsx` (the single root) — the nested `mountChromaTreeExplorer` root in `InfoModal` was replaced with plain `<ChromaTreeExplorer />` JSX. `@mui/icons-material` gone from `package.json` (was on `main`); net runtime deps **−1**, 0 added. (SC-004, SC-005, SC-014)
+- [X] T109 [P] `game-architecture.md` rewritten for the React-owned architecture (shell/screens/design-system, three-layer state, split contexts, hash nav, code-split puzzle views, `persistenceSync`). `CLAUDE.md` Architecture section replaced; `npm test` / Husky / test-runner lines now say unit **+ component**. `.github/instructions/coding-standards.instructions.md` gains component-test + design-token guidance. README: Node 24.x, tech-stack table, `npm test` description, project structure, badges. `cloud-ci.yml` step relabelled. `AGENTS.md` already accurate. (FR-060, SC-016)
+- [X] T110 [P] `vite.config.ts` → `base: command === 'serve' ? '/' : '/colour-theory-game/'` ✓. `deploy.yml`: `npm run build:web` → `dist` → Pages on push to `main`, Node from `.nvmrc` ✓. `cloud-ci.yml`: build + `npm test` + e2e on PR + push to `main` ✓. (FR-062)
+- [ ] T111 Full `quickstart.md` validation — manual fresh→Grand-Canvas playthrough, persistence tests, keyboard/screen-reader/320 px checks, CLI regression; tick the Done-when list (SC-001…SC-012) — **needs a human; automated proxies (246 unit/component + 38 e2e incl. 320px + keyboard specs) all green**
+- [ ] T112 Informal visual-identity review — show only the Studio to 3–5 people; they call it a colour/art game, not a dashboard/LMS/MUI demo (SC-015, FR-043) — **needs a human**
+- [ ] T113 Final gate — `npm run build`, `npm test`, `npm run test:component`, `npm run lint`, `npm run build:web`, `npm run test:e2e` all green; PR description calls out the three sanctioned constitution deviations (plan.md Complexity Tracking) — **gate green (see below); PR deferred to user go-ahead**
+
+**Phase 10 Checkpoint**: Automatable polish complete (T104–T110). Gate green — `npm run build` (tsc, incl. e2e specs), `npm run lint`, `npm test` (21 files / 246 tests), `npm run build:web` (JS 170.30 kB gzip vs 219.0 baseline = ~78%; CSS ~6.9 kB gzip), `npm run test:e2e` (38 passed). Deleted: `src/web/styles.css`, `src/web/muiTheme.ts`. No `src/` domain or CLI changes. **T111 (manual playthrough / screen-reader / CLI regression) and T112 (visual-identity review with 3–5 people) require a human. T113's PR is deferred pending user go-ahead.**
+
+---
+
+## Dependencies & Execution Order
+
+### Phase dependencies
+
+- **Setup (Phase 1)**: no dependencies — start immediately
+- **Foundational (Phase 2)**: needs Setup — **blocks every user story**
+- **US1 (Phase 3, P1)**: needs Foundational — the MVP; also establishes the shell flip and legacy-orchestrator removal that later phases assume
+- **US2 (Phase 4, P2)**: needs US1 (Studio screen + navigation exist)
+- **US3 (Phase 5, P2)**: needs US1 (`PuzzlePlayer` + `LegacyPuzzleAdapter` exist); independent of US2
+- **US4 (Phase 6, P2)**: needs US1 (`ResultPanel`/`RewardReveal` exist); best after US3 so all puzzles are native
+- **US7 (Phase 7, P2)**: needs US1; strongest after US2/US3/US4 so all surfaces exist to make responsive/accessible
+- **US5 (Phase 8, P3)**: needs US1 (`getPetSprite`, Collection shell); independent of US2–US4
+- **US6 (Phase 9, P3)**: needs US1 (Grand Canvas shell) and US5 (`PetBadge` for the pet roll)
+- **Polish (Phase 10)**: needs all targeted user stories
+
+### Story independence
+
+US2, US3, US5 are largely independent slices once Foundational + US1 land and can be worked in parallel by different people. US4 and US6 have light ordering preferences (noted above) but each remains independently testable. US7 is cross-cutting and is easiest last, but its e2e/a11y checks can begin against whatever screens exist.
+
+### Within each phase
+
+- Tests for a story can be written alongside implementation (they will fail until the components exist); each phase ends with a green checkpoint gate.
+- `[P]` tasks touch different files with no incomplete-task dependency.
+- Sequential (non-`[P]`) tasks in a phase share a file or consume a prior task's output (e.g. `PuzzleScreen` before `PuzzlePlayer` swap; all station migrations before deleting the adapter).
+
+---
+
+## Parallel Opportunities
+
+- **Setup**: T001, T004, T005, T006, T007 in parallel (T002→T003 sequential).
+- **Foundational**: after T008, the pure modules T011/T014/T015/T016/T019/T021 and the design-system batches T022/T023/T024/T025/T026/T030 run in parallel; T009/T012/T013/T017/T020 have ordering.
+- **US1 tests**: T031–T034 in parallel; T036/T037 in parallel with T035.
+- **US3 puzzle migrations**: T072–T078 are seven independent station-sized batches — the biggest parallel win in the plan.
+- **US2 / US3 / US5**: whole phases parallelisable across contributors after US1.
+- **Polish**: T104, T105, T106, T109, T110 in parallel.
+
+### Parallel example — US3 puzzle migration
+
+```text
+# After T063 (types) + T068 (registry) land, run in parallel:
+Task T072: Migrate station-01 views  (puzzle-01..03)
+Task T073: Migrate station-02 views  (puzzle-04..06)
+Task T074: Migrate station-03 views  (puzzle-07..09)
+Task T075: Migrate station-04 views  (puzzle-10..12)
+Task T076: Migrate station-05 views  (puzzle-13..15)
+Task T077: Migrate station-06 views  (puzzle-16..18)
+Task T078: Migrate station-07 views  (puzzle-19..21, 23)
+# Then T079 (swap PuzzlePlayer) → T080 (delete adapter) → T081 (gate)
+```
+
+---
+
+## Implementation Strategy
+
+### MVP first
+
+1. Phase 1 (Setup) → Phase 2 (Foundational) → Phase 3 (US1).
+2. **Stop and validate**: full fresh→Grand-Canvas playthrough, persistence, reset, CLI, `legacyGame.ts` gone from the browser flow.
+3. This is a shippable, correctly-architected game even before the visual redesign and per-puzzle migration land.
+
+### Incremental delivery
+
+Each subsequent phase is a green, deployable checkpoint (FR-064):
+
+- + US2 → Studio becomes a real hub.
+- + US3 → puzzles are native React; the mutable bridge and `PuzzleRenderDeps` are deleted.
+- + US4 → feedback loop polished.
+- + US7 → responsive + accessible across devices.
+- + US5 → cohesive pet collection.
+- + US6 → distinctive finale.
+- + Polish → token consistency, docs, bundle check, formal acceptance.
+
+### Parallel team strategy
+
+After US1: Dev A on US2, Dev B on US3 (fan out T072–T078), Dev C on US5. Reconvene for US4/US7/US6, then Polish.
+
+---
+
+## Notes
+
+- The game MUST remain playable end-to-end on `main` at every checkpoint (FR-064) — the shell flips once in T052; un-migrated puzzles ride `LegacyPuzzleAdapter` until their US3 batch.
+- Do not skip or delete failing tests to merge (Principle II); fix forward.
+- Net-new runtime dependencies: 0. Net-new dev dependencies: 4 (jsdom + `@testing-library/{react,jest-dom,user-event}`), justified in plan.md Complexity Tracking.
+- Commit after each task or logical group; run the phase checkpoint gate before moving on.

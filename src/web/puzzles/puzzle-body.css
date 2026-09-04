@@ -1,0 +1,782 @@
+/*
+ * Chromatic Mastery — puzzle-body styling (US7 / T091).
+ *
+ * The per-puzzle mini-game views (`src/web/puzzles/*-view.tsx`) keep the class
+ * hooks they had before the migration; the orphaned light-theme `src/web/
+ * styles.css` is the structural reference. This file re-expresses those hooks
+ * against the dark design tokens (`design-system/tokens.css`) and adds the US7
+ * requirements the old sheet lacked: a `:focus-visible` ring on every custom
+ * control, ≥44px touch targets, and no fixed pixel widths that could force a
+ * horizontal page scroll at 320px (FR-052, FR-054, SC-006, SC-007).
+ *
+ * Imported once from `app/App.tsx`, after `app.css`.
+ */
+
+/* ── Shared: the puzzle stage never overflows the page ─────────────────────── */
+.puzzle-stage__play,
+.puzzle-stage__play * {
+  max-width: 100%;
+}
+
+.puzzle-stage__play :is(button, [role="button"], input, select, label) {
+  font-family: inherit;
+}
+
+/* A focus ring for every custom (non-design-system) control inside a puzzle. */
+.puzzle-stage__play :is(button, [role="button"], [tabindex="0"]):focus-visible,
+.puzzle-stage__play input:focus-visible,
+.puzzle-stage__play select:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+  border-radius: var(--radius-xs);
+}
+
+/* ── Generic mini-game scaffolding ────────────────────────────────────────── */
+.mini-label,
+.mini-check,
+.hidden-reveal,
+.coverage-bar-label,
+.color-preview-label,
+.mud-log,
+.puzzle-meta,
+.puzzle-objective {
+  font-size: var(--text-scale-small);
+  color: var(--text-secondary);
+}
+
+.mini-row {
+  display: grid;
+  gap: var(--space-2xs);
+  font-size: var(--text-scale-small);
+  color: var(--text-secondary);
+}
+
+.mini-row input[type="range"] {
+  width: 100%;
+}
+
+.hidden-reveal.is-on {
+  color: var(--state-success);
+  font-weight: 600;
+}
+
+.text-input,
+.mini-row select {
+  width: 100%;
+  min-height: var(--touch-min);
+  padding: var(--space-2xs) var(--space-xs);
+  border: 1px solid var(--surface-border-strong);
+  border-radius: var(--radius-sm);
+  background-color: var(--surface-2);
+  color: var(--text-primary);
+}
+
+/* ── Buttons used inside puzzle bodies ────────────────────────────────────── */
+.btn {
+  min-height: var(--touch-min);
+  border: 1px solid var(--surface-border-strong);
+  border-radius: var(--radius-sm);
+  background-color: var(--surface-2);
+  color: var(--text-primary);
+  padding: var(--space-xs) var(--space-md);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn:hover:not(:disabled) {
+  background-color: var(--surface-3);
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-accent {
+  border-color: transparent;
+  background-color: var(--accent-secondary);
+  color: var(--text-on-accent);
+}
+
+.btn.mini {
+  min-height: 2rem;
+  padding: var(--space-3xs) var(--space-xs);
+  font-size: var(--text-scale-small);
+}
+
+.action-row,
+.ladder-controls,
+.chip-row,
+.swatch-row,
+.mood-match-options,
+.p16-swatch-row,
+.beam-btns,
+.tod-palette-tray {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+  align-items: center;
+}
+
+/* ── Colour preview strip ────────────────────────────────────────────────── */
+.color-preview-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: var(--space-sm);
+  margin-top: var(--space-2xs);
+}
+
+.color-preview-swatch,
+.accent-chip,
+.hue-swatch {
+  border: 1px solid var(--surface-border-strong);
+  border-radius: var(--radius-sm);
+  flex-shrink: 0;
+}
+
+.color-preview-swatch {
+  width: clamp(112px, 34vw, 160px);
+  height: clamp(112px, 34vw, 160px);
+}
+
+.accent-chip {
+  width: 46px;
+  height: 46px;
+  box-shadow: var(--shadow-1);
+}
+
+.hue-swatch {
+  width: 20px;
+  height: 20px;
+  border-radius: var(--radius-pill);
+  display: inline-block;
+}
+
+.hue-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+/* ── Puzzle-01 beams ─────────────────────────────────────────────────────── */
+.beam-btns {
+  justify-content: center;
+}
+
+.beam-btn {
+  min-height: var(--touch-min);
+  padding: var(--space-xs) var(--space-md);
+  border-radius: var(--radius-sm);
+  border: 2px solid var(--surface-border-strong);
+  background-color: var(--surface-2);
+  color: var(--text-primary);
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background-color var(--motion-fast) var(--ease-standard),
+    border-color var(--motion-fast) var(--ease-standard);
+}
+
+.beam-btn.--on[data-beam="red"] {
+  background-color: #e84343;
+  border-color: #e84343;
+  color: #fff;
+}
+.beam-btn.--on[data-beam="green"] {
+  background-color: #2f9e44;
+  border-color: #2f9e44;
+  color: #fff;
+}
+.beam-btn.--on[data-beam="blue"] {
+  background-color: #3b7fdd;
+  border-color: #3b7fdd;
+  color: #fff;
+}
+.beam-btn.--on[data-beam="overlap"] {
+  background-color: var(--accent-violet);
+  border-color: var(--accent-violet);
+  color: var(--text-on-accent);
+}
+
+/* ── Swatch grids (puzzle-03 / 16 / 17 / 18 / 20) ─────────────────────────── */
+.swatch,
+.p16-swatch,
+.mud-swatch,
+.chip-btn,
+.tod-swatch {
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.swatch {
+  width: 40px;
+  height: 40px;
+  border: 2px solid var(--surface-border-strong);
+  border-radius: var(--radius-sm);
+}
+
+.swatch.is-active,
+.p16-swatch--selected {
+  outline: 2px solid var(--accent-secondary);
+  outline-offset: 2px;
+}
+
+.p16-swatch {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-xs);
+  border: 2px solid var(--surface-border-strong);
+  transition: transform var(--motion-fast) var(--ease-standard);
+}
+
+.p16-swatch:hover {
+  transform: scale(1.1);
+}
+
+.p16-swatch-group,
+.chip-grid {
+  display: grid;
+  gap: var(--space-2xs);
+}
+
+.chip-btn {
+  min-height: 2rem;
+  border: 1px solid var(--surface-border-strong);
+  border-radius: var(--radius-sm);
+  padding: var(--space-3xs) var(--space-xs);
+  color: #fff;
+  font-size: var(--text-scale-small);
+  font-weight: 700;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.35);
+}
+
+/* ── Mix bowl (puzzle-16 / 17) ───────────────────────────────────────────── */
+.mix-bowl,
+.mud-monster-board,
+.mood-board,
+.mood-match-card,
+.art-game-card,
+.chroma-branch {
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-md);
+  background-color: var(--surface-1);
+  padding: var(--space-sm);
+  display: grid;
+  gap: var(--space-xs);
+}
+
+.mix-bowl-swatch {
+  width: 100%;
+  min-height: 56px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--surface-border-strong);
+}
+
+.mud-monster {
+  width: 72px;
+  height: 72px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--surface-border-strong);
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 auto;
+}
+
+.mud-controls {
+  display: grid;
+  gap: var(--space-xs);
+}
+
+.mud-swatches {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(64px, 1fr));
+  gap: var(--space-xs);
+}
+
+.mud-swatch {
+  min-height: var(--touch-min);
+  border: 1px solid var(--surface-border-strong);
+  border-radius: var(--radius-sm);
+}
+
+.mud-reset {
+  min-height: var(--touch-min);
+  border: 1px solid var(--surface-border-strong);
+  border-radius: var(--radius-sm);
+  background-color: var(--surface-2);
+  color: var(--text-primary);
+  font-weight: 600;
+  padding: var(--space-xs) var(--space-sm);
+  cursor: pointer;
+}
+
+.mood-match-title {
+  font-size: var(--text-scale-small);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2xs);
+}
+
+/* ── Value / illusion boards (puzzle-04 / 05 / 10 / 11) ───────────────────── */
+.value-block-row {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: var(--space-2xs);
+}
+
+.value-block {
+  min-height: 44px;
+  border: 1px solid var(--surface-border-strong);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+.blur-preview {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  min-height: 32px;
+  overflow: hidden;
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-sm);
+  filter: blur(4px);
+}
+
+.ladder-wrap {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: var(--space-2xs);
+}
+
+.ladder-tile {
+  border: 1px solid var(--surface-border-strong);
+  border-radius: var(--radius-sm);
+  min-height: 78px;
+  display: grid;
+  align-content: end;
+  padding: var(--space-3xs);
+}
+
+.illusion-board {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-xs);
+}
+
+.illusion-board.single {
+  grid-template-columns: 1fr;
+}
+
+.illusion-panel,
+.neutral-field,
+.neutral-hero-board {
+  min-height: 92px;
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-sm);
+  display: grid;
+  place-items: center;
+}
+
+.illusion-square {
+  width: 38px;
+  height: 38px;
+  border-radius: var(--radius-xs);
+  border: 1px solid var(--surface-border-strong);
+}
+
+/* ── Triad strip (puzzle-08) ─────────────────────────────────────────────── */
+.triad-strip {
+  position: relative;
+  height: 16px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--surface-border-strong);
+  background: linear-gradient(
+    90deg,
+    hsl(0, 90%, 56%),
+    hsl(60, 90%, 56%),
+    hsl(120, 90%, 56%),
+    hsl(180, 90%, 56%),
+    hsl(240, 90%, 56%),
+    hsl(300, 90%, 56%),
+    hsl(360, 90%, 56%)
+  );
+}
+
+.triad-mark {
+  position: absolute;
+  top: -3px;
+  width: 10px;
+  height: 22px;
+  border-radius: var(--radius-xs);
+  border: 1px solid var(--text-primary);
+  transform: translateX(-50%);
+}
+
+/* ── Coverage bar (puzzle-18) ────────────────────────────────────────────── */
+.coverage-wrap {
+  display: grid;
+  gap: var(--space-3xs);
+}
+
+.coverage-bar-track {
+  height: 8px;
+  background-color: var(--surface-inset);
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+}
+
+.coverage-bar-fill {
+  height: 100%;
+  background-color: var(--accent-secondary);
+  border-radius: var(--radius-pill);
+  transition: width var(--motion-fast) var(--ease-standard);
+}
+
+.coverage-bar-fill.--ready {
+  background-color: var(--state-success);
+}
+
+.coverage-bar-fill.--danger {
+  background-color: var(--state-failure);
+}
+
+/* ── Paint / optical pad (puzzle-18, shared with app.css .art-station-pad) ── */
+.paint-pad {
+  width: 100%;
+  max-width: 22rem;
+  border: 1px solid var(--surface-border-strong);
+  border-radius: var(--radius-sm);
+  background-color: var(--surface-inset);
+  touch-action: none;
+  cursor: crosshair;
+}
+
+.optical-preview-wrap {
+  display: grid;
+  gap: var(--space-3xs);
+}
+
+.optical-preview-canvas {
+  width: 100%;
+  max-width: 14rem;
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-sm);
+  background-color: var(--surface-inset);
+  image-rendering: pixelated;
+}
+
+/* ── Landscape scenes (puzzle-13 / 14 / 15) ──────────────────────────────── */
+.depth-scene,
+.scatter-sky {
+  min-height: 112px;
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-md);
+  position: relative;
+  overflow: hidden;
+}
+
+.scatter-board {
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+/* ── Time-of-day slots (puzzle-15 / 20) ──────────────────────────────────── */
+.tod-stage {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.tod-palette-btn {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3xs);
+  min-height: var(--touch-min);
+  padding: var(--space-xs) var(--space-sm);
+  border: 2px solid var(--surface-border-strong);
+  border-radius: var(--radius-sm);
+  background-color: var(--surface-2);
+  color: var(--text-primary);
+  cursor: pointer;
+  font-size: var(--text-scale-small);
+  font-weight: 600;
+  transition: border-color var(--motion-fast) var(--ease-standard);
+}
+
+.tod-palette-btn:hover:not(:disabled) {
+  border-color: var(--accent-secondary);
+}
+
+.tod-palette-btn.--selected {
+  border-color: var(--accent-secondary);
+  box-shadow: var(--glow-secondary);
+}
+
+.tod-palette-btn.--assigned,
+.tod-palette-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.tod-palette-name {
+  font-size: var(--text-scale-small);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.tod-swatch-row {
+  display: flex;
+  gap: 2px;
+}
+
+.tod-swatch {
+  width: 16px;
+  height: 16px;
+  border-radius: var(--radius-xs);
+  border: 1px solid var(--surface-border-strong);
+  flex-shrink: 0;
+}
+
+.tod-slot-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr));
+  gap: var(--space-xs);
+}
+
+.tod-slot {
+  border: 2px dashed var(--surface-border-strong);
+  border-radius: var(--radius-sm);
+  padding: var(--space-xs) var(--space-sm);
+  background-color: var(--surface-2);
+  cursor: pointer;
+  min-height: 56px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3xs);
+}
+
+.tod-slot.--drop-ready {
+  border-color: var(--accent-secondary);
+  background-color: var(--surface-3);
+}
+
+.tod-slot.--assigned {
+  border-style: solid;
+  border-color: var(--state-success);
+  background-color: var(--state-success-bg);
+}
+
+.tod-slot-label {
+  font-size: var(--text-scale-small);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-secondary);
+}
+
+.tod-slot-content {
+  font-size: var(--text-scale-small);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+/* ── Phase indicator (puzzle-15 two-stage flow) ──────────────────────────── */
+.phase-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2xs);
+  padding: var(--space-2xs) var(--space-sm);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-scale-small);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.phase-indicator[data-stage="1"] {
+  background-color: var(--accent-secondary);
+  color: var(--text-on-accent);
+}
+
+.phase-indicator[data-stage="2"] {
+  background-color: var(--accent-primary);
+  color: var(--text-on-accent);
+}
+
+.phase-guide {
+  font-size: var(--text-scale-small);
+  padding: var(--space-2xs) var(--space-xs);
+  border-radius: var(--radius-sm);
+  background-color: var(--surface-2);
+  border-left: 3px solid var(--accent-secondary);
+  color: var(--text-secondary);
+  line-height: var(--line-body);
+}
+
+/* ── Chroma-tree branches (puzzle-06 inline) ─────────────────────────────── */
+.chroma-tree {
+  display: grid;
+  gap: var(--space-xs);
+}
+
+.chroma-nodes {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: var(--space-2xs);
+}
+
+.chroma-node {
+  min-height: 28px;
+  border: 1px solid var(--surface-border-strong);
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  opacity: 0.6;
+}
+
+.chroma-node.visited {
+  opacity: 1;
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.5);
+}
+
+.chroma-node.peak {
+  box-shadow:
+    0 0 0 2px var(--surface-border-strong),
+    0 0 0 5px color-mix(in srgb, var(--state-success) 40%, transparent);
+}
+
+/* ── Chroma Tree Explorer (puzzle-06 modal tool — already dark) ───────────── */
+.chroma-tree-explorer {
+  grid-column: 1 / -1;
+  background-color: var(--surface-inset);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-md);
+  display: grid;
+  gap: var(--space-sm);
+  color: var(--text-primary);
+}
+
+.chroma-tree-hue-ring-wrap {
+  display: flex;
+  justify-content: center;
+}
+
+.chroma-tree-hue-ring {
+  cursor: crosshair;
+  user-select: none;
+  display: inline-block;
+  max-width: 100%;
+}
+
+.chroma-tree-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2xs);
+}
+
+.chroma-tree-chip {
+  min-height: 2rem;
+  padding: var(--space-2xs) var(--space-sm);
+  border-radius: var(--radius-pill);
+  border: 1.5px solid var(--chip-hue, var(--surface-border-strong));
+  background: transparent;
+  color: var(--text-primary);
+  font-size: var(--text-scale-small);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.chroma-tree-chip--active {
+  background-color: var(--chip-hue, var(--surface-border-strong));
+  color: #fff;
+}
+
+.chroma-tree-insight-card,
+.chroma-tree-tooltip,
+.chroma-tree-callout {
+  background-color: var(--surface-1);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-sm);
+  padding: var(--space-xs) var(--space-sm);
+  font-size: var(--text-scale-small);
+  line-height: var(--line-body);
+}
+
+.chroma-tree-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.chroma-tree-grid-row {
+  display: flex;
+  gap: 2px;
+}
+
+.chroma-tree-cell {
+  flex: 1;
+  height: 22px;
+  border-radius: var(--radius-xs);
+}
+
+.chroma-tree-cell--unreachable {
+  opacity: 0.15;
+}
+
+.chroma-tree-cell--peak {
+  border: 2px solid var(--text-primary);
+}
+
+.chroma-tree-callout-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+}
+
+.chroma-tree-callout {
+  flex: 1 1 12rem;
+  display: grid;
+  gap: var(--space-3xs);
+}
+
+.chroma-tree-callout__icon {
+  font-size: 1.1rem;
+}
+
+.chroma-tree-callout p {
+  margin: 0;
+  color: var(--text-secondary);
+}
+
+/* ── Balance composition (puzzle-19) ─────────────────────────────────────── */
+.balance-composition {
+  display: grid;
+  gap: var(--space-xs);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-sm);
+  background-color: var(--surface-1);
+}
+
+/* ── Reduced motion: the puzzle bodies carry only micro-transitions, but be
+   explicit so nothing animates when the OS asks for stillness. ───────────── */
+@media (prefers-reduced-motion: reduce) {
+  .puzzle-stage__play *,
+  .puzzle-stage__play *::before,
+  .puzzle-stage__play *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
