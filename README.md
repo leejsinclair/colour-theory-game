@@ -16,13 +16,13 @@ Explore a magical artist's studio where the fundamental forces of colour have be
 
 ## Screenshots
 
-| Studio — Start | Studio — Completed |
+| Studio overview | Grand Canvas — complete |
 |---|---|
-| ![Studio overview at start](./public/screenshots/01-studio-overview.png) | ![Studio with all stations solved](./public/screenshots/03-studio-progress.png) |
+| ![Chromatic Mastery Studio, showing station cards and pet collection](./public/screenshots/01-studio-overview.png) | ![Grand Canvas finale after every puzzle is solved and pet is freed](./public/screenshots/02-progress.png) |
 
-| Light Laboratory puzzles | Grand Canvas unlocked |
+| Light Laboratory — additive colour mixing | Color Wheel Table — complementary pairs |
 |---|---|
-| ![Light Lab station](./public/screenshots/04-light-lab.png) | ![Grand Canvas after completing all 21 pets](./public/screenshots/02-progress.png) |
+| ![Create White Light puzzle: red, green and blue beams mixing to white](./public/screenshots/04-light-lab.png) | ![Complementary Colors puzzle solved: red pairs with green](./public/screenshots/03-studio-progress.png) |
 
 ---
 
